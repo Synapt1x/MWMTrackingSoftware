@@ -9,6 +9,7 @@ reader/writer for processing video frames during tracking.
 
 """
 import cv2
+import numpy as np
 
 
 class VideoProcessor:
@@ -40,7 +41,7 @@ class VideoProcessor:
 
         return videoWriter
 
-    def frame_generator(self, filename):
+    def frame_generator(self, filename=None):
         """
         A frame generator that yields a frame every next() call.
         Will return 'None' if there are no frames left in video.
@@ -49,7 +50,11 @@ class VideoProcessor:
         """
 
         # if video name is provided; then load new video into processor
-        video = cv2.VideoCapture(filename)
+        if filename is not None:
+            video = cv2.VideoCapture(0)
+            self.video = video
+        else:
+            video = self.video
 
         # while video is still opened
         while video.isOpened():

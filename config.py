@@ -21,7 +21,7 @@ class Configuration:
 
         # ================== Neural Network properties ================ #
         # directory information
-        self.training_dir = 'train_files'
+        self.training_dir = 'testVids'
 
         # cNN properties
         self.num_layers = 2

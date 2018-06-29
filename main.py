@@ -8,12 +8,6 @@ main.py: this contains the main code for running the tracking software.
 
 """
 
-from util import load_files, show_frame
-from config import Configuration
-from cnn import Network
-from video_processor import VideoProcessor
-from particle_filter import ParticleFilter
-
 ##############################################################################
 __author__ = "Chris Cadonic"
 __credits__ = ["Chris Cadonc"]
@@ -23,6 +17,14 @@ __maintainer__ = "Chris Cadonic"
 __email__ = "chriscadonic@gmail.com"
 __status__ = "Development"
 ##############################################################################
+
+
+from config import Configuration
+from cnn import Network
+from video_processor import VideoProcessor
+from particle_filter import ParticleFilter
+import util
+import numpy as np
 
 
 def main():
@@ -35,48 +37,55 @@ def main():
     # Load configuration for
     config = Configuration()
 
-    # create a convolutional neural net to train and detect mouse location
-    network = Network()
-
     # create a particle filter for tracking
     pfilter = ParticleFilter(config.num_particles)
-
-    # load files and parse
-    train_videos = load_files(config.training_dir)
-
-    # load template files and parse
-    templates = load_files(config.template_dir)
 
     # load video processor for extracting frames during tracking
     vid_reader = VideoProcessor()
     image_generator = vid_reader.frame_generator(config.test_file)
 
+    # load files and parse
+    train_videos = util.load_files(config.training_dir)
+
+    # load template files and parse
+    templates = util.load_files(config.template_dir)
+
+    # if template dir is empty
+    if len(templates) == 0:
+        templates = util.acquire_template(train_videos[0])
+
     # get first frame of video and the properties of the video
     frame = image_generator.__next__()
-    h, w, d = frame.shape
 
-    # create video writer for writing out video
-    video_out = vid_reader.create_writer(config.test_out, (w, h),
-                                         config.framerate)
+    try:
+        # extract properties of video
+        h, w, d = frame.shape
 
-    #template = cv2.imread('template.jpg')
+        # create video writer for writing out video
+        video_out = vid_reader.create_writer(config.test_out, (w, h),
+                                             config.framerate)
 
-    frame_num = 1
+        # template = cv2.imread('template.jpg')
 
-    while frame is not None:
+        frame_num = 1
 
-        print("Processing frame ", frame_num)
+        while frame is not None:
+            print("Processing frame ", frame_num)
 
-        #show_frame(frame, frame_num)
-        #TODO: Run particle tracker here to detect location
+            util.show_frame(frame, frame_num)
+            # TODO: Run particle tracker here to detect location
 
-        video_out.write(frame)
+            video_out.write(frame)
 
-        frame = image_generator.__next__()
+            frame = image_generator.__next__()
 
-        frame_num += 1
+            frame_num += 1
 
-    video_out.release()
+        video_out.release()
+
+    except AttributeError:
+        #TODO: change to output GUI message
+        print("Error loading video")
 
     return
 
