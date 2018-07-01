@@ -34,7 +34,6 @@ class VideoProcessor:
 
         # assign fourcc codec of video writer
         fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-        filename = filename.replace('.mp4', '.avi')  # export as .avi
 
         # create video writer
         videoWriter = cv2.VideoWriter(filename, fourcc, fps, frame_size)
@@ -51,7 +50,7 @@ class VideoProcessor:
 
         # if video name is provided; then load new video into processor
         if filename is not None:
-            video = cv2.VideoCapture(0)
+            video = cv2.VideoCapture(filename)
             self.video = video
         else:
             video = self.video
