@@ -10,7 +10,12 @@ util.py: this contains all utility functions for use in the tracking software.
 import os
 import cv2
 import numpy as np
+import argparse
 from video_processor import VideoProcessor
+
+
+# global vals
+crop_pnt = []
 
 
 def load_files(dirname='train_files'):
@@ -32,6 +37,14 @@ def load_files(dirname='train_files'):
     return output_files
 
 
+def get_mouse_loc(event, x, y, flags, param):
+
+    global crop_pnt
+
+    if event == cv2.EVENT_LBUTTONDOWN:
+        crop_pnt = [x, y]
+
+
 def acquire_template(vidname):
     """
     Ask user to acquire template(s) from a selected frame from set of videos.
@@ -39,21 +52,82 @@ def acquire_template(vidname):
     :param videos: list - list of video files to be parsed
     :return: templates: list - list of ndarray images for template(s)
     """
+    global crop_pnt
+
+    #TODO: Add to func args: dirname
+    template_dir = '/home/synapt1x/MWMTracker/templates/'
+    template_file = template_dir + 'template1.png'
+
+    # initialize boolean for whether template has been identified
+    found_template = False
+
+    # get height, width of template
 
     # load the first video
     new_processor = VideoProcessor()
     image_generator = new_processor.frame_generator(vidname)
 
-    #TODO: get input from user to select template image
+    # run to 30th frame and start checking for template at frame 31
+    [image_generator.__next__() for _ in range(50)]
+    frame = image_generator.__next__()
 
-    '''while ret:
-        ret, frame = init_video.read()
+    # initialize first frame showing
+    frame_copy = frame.copy()
+    cv2.namedWindow('template')
+    cv2.setMouseCallback('template', get_mouse_loc)
 
-        cv2.imshow('frame', frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break'''
+    print("Please left click on the location of the mouse")
 
-    return []
+    if frame is not None:
+        # extract properties of video
+        h, w, d = frame.shape
+        temp_h = h // 10
+        temp_w = w // 10
+
+        frame_num = 31
+
+        while frame is not None and not found_template:
+
+            cv2.imshow('template', frame)
+            key = cv2.waitKey(1) & 0xFF
+
+            if key == 32:  # space bar pressed
+                [image_generator.__next__() for _ in range(50)]
+                frame = image_generator.__next__()
+                continue
+            elif key == 27:
+                print("Exiting template discovery...")
+                break
+            else:
+                if len(crop_pnt) == 2:
+                    template = frame[crop_pnt[1] - temp_h: crop_pnt[1] +
+                                                           temp_h,
+                               crop_pnt[0] - temp_w: crop_pnt[0] + temp_w, :]
+                    print("Is this a good template of the mouse? y/n")
+                    cv2.imshow('suggested template', template)
+                    ans = cv2.waitKey(0) & 0xFF
+
+                    if ans == ord('y') or ans == ord('Y'):
+                        print('Saving template and continuing with analysis')
+                        cv2.imwrite(template_file, template)
+                        found_template = True
+                        break
+                    elif ans == ord('n') or ans == ord('n'):
+                        print('Moving to next frame to re-select mouse')
+                        cv2.destroyWindow('suggested template')
+                        crop_pnt = []
+                        template = np.array([])
+
+                        [image_generator.__next__() for _ in range(50)]
+                        frame = image_generator.__next__()
+                        continue
+                    elif ans == 27:
+                        print('Exiting template creation process...')
+                        break
+
+        cv2.destroyAllWindows()
+
+    return [template]
 
 
 def show_frame(frame, frame_num=0, save_img=False, output_name=''):
@@ -70,8 +144,8 @@ def show_frame(frame, frame_num=0, save_img=False, output_name=''):
     title = 'Frame number: ' + str(frame_num)
 
     cv2.imshow(title, frame)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    cv2.waitKey()
+    #cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':

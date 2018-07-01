@@ -23,6 +23,7 @@ from config import Configuration
 from cnn import Network
 from video_processor import VideoProcessor
 from particle_filter import ParticleFilter
+import cv2
 import util
 import numpy as np
 
@@ -57,7 +58,7 @@ def main():
     # get first frame of video and the properties of the video
     frame = image_generator.__next__()
 
-    try:
+    if frame is not None:
         # extract properties of video
         h, w, d = frame.shape
 
@@ -72,7 +73,6 @@ def main():
         while frame is not None:
             print("Processing frame ", frame_num)
 
-            util.show_frame(frame, frame_num)
             # TODO: Run particle tracker here to detect location
 
             video_out.write(frame)
@@ -83,9 +83,10 @@ def main():
 
         video_out.release()
 
-    except AttributeError:
+    else:
         #TODO: change to output GUI message
-        print("Error loading video")
+        print("Error loading video! Please ensure at least one test video is "
+              "located in the testVids directory.")
 
     return
 
