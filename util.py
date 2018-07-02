@@ -15,7 +15,7 @@ from video_processor import VideoProcessor
 
 
 # global vals
-crop_pnt = []
+crop_pnt = []  # point for left clipping location of mouse for template
 
 
 def load_files(dirname='train_files'):
@@ -41,6 +41,7 @@ def get_mouse_loc(event, x, y, flags, param):
 
     global crop_pnt
 
+    # if image was left-clicked; udpate global val for [x, y] mouse centroid
     if event == cv2.EVENT_LBUTTONDOWN:
         crop_pnt = [x, y]
 
@@ -59,7 +60,7 @@ def acquire_template(vidname):
     template_file = template_dir + 'template1.png'
 
     # initialize boolean for whether template has been identified
-    found_template = False
+    template = None
 
     # get height, width of template
 
@@ -84,22 +85,23 @@ def acquire_template(vidname):
         temp_h = h // 10
         temp_w = w // 10
 
-        frame_num = 31
+        frame_jump = 50  # number of frames to skip through video
 
+        # while there are still remaining frames left in the video
         while frame is not None and not found_template:
 
             cv2.imshow('template', frame)
             key = cv2.waitKey(1) & 0xFF
 
             if key == 32:  # space bar pressed
-                [image_generator.__next__() for _ in range(50)]
+                [image_generator.__next__() for _ in range(frame_jump)]
                 frame = image_generator.__next__()
                 continue
-            elif key == 27:
+            elif key == 27:  # ESC pressed
                 print("Exiting template discovery...")
                 break
-            else:
-                if len(crop_pnt) == 2:
+            else:  # else if any other key is pressed
+                if len(crop_pnt) == 2:  # check if a click point was registered
                     template = frame[crop_pnt[1] - temp_h: crop_pnt[1] +
                                                            temp_h,
                                crop_pnt[0] - temp_w: crop_pnt[0] + temp_w, :]
@@ -107,21 +109,23 @@ def acquire_template(vidname):
                     cv2.imshow('suggested template', template)
                     ans = cv2.waitKey(0) & 0xFF
 
+                    # check answer regarding quality of template
                     if ans == ord('y') or ans == ord('Y'):
+                        # save if good
                         print('Saving template and continuing with analysis')
                         cv2.imwrite(template_file, template)
-                        found_template = True
                         break
                     elif ans == ord('n') or ans == ord('n'):
+                        # continue skipping through frames looking for template
                         print('Moving to next frame to re-select mouse')
                         cv2.destroyWindow('suggested template')
                         crop_pnt = []
                         template = np.array([])
 
-                        [image_generator.__next__() for _ in range(50)]
+                        [image_generator.__next__() for _ in range(frame_jump)]
                         frame = image_generator.__next__()
                         continue
-                    elif ans == 27:
+                    elif ans == 27:  # ESC -> quit template extraction
                         print('Exiting template creation process...')
                         break
 
