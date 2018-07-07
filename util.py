@@ -153,5 +153,20 @@ def show_frame(frame, frame_num=0, save_img=False, output_name=''):
     #cv2.destroyAllWindows()
 
 
+def convolve(frame, template):
+    """
+    Convolve template with the current frame to determine the maximum
+    likelihood for a match given the provided template.
+
+    :param frame: (ndarray) - image of the entire video frame
+    :param template: (ndarray) - template image of the object to be tracked
+    :return:
+    """
+
+    #TODO: Finish convolution and determine argmax for template match
+
+    pass
+
+
 if __name__ == '__main__':
     print("Please run the file 'main.py'")

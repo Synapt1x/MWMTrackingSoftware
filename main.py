@@ -48,12 +48,13 @@ def main():
     # load files and parse
     train_videos = util.load_files(config.training_dir)
 
-# load template files and parse
+    # load template files and parse
     templates = util.load_files(config.template_dir)
 
     # if template dir is empty
     if len(templates) == 0:
         templates = util.acquire_template(train_videos[0])
+    template = templates[0]
 
     # get first frame of video and the properties of the video
     frame = image_generator.__next__()
@@ -73,7 +74,13 @@ def main():
         while frame is not None:
             print("Processing frame ", frame_num)
 
-            # TODO: Run particle tracker here to detect location
+            # use sliding window to assess likelihood of locations in frame
+            position = util.convolve(frame, template)
+
+            # update particle filter and get the estimated location
+            pfilter.calc_error(position)
+            pfilter.resample()
+            pfilter.query()
 
             video_out.write(frame)
 
