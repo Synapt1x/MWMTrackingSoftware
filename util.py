@@ -76,6 +76,7 @@ def acquire_template(vidname):
     frame_copy = frame.copy()
     cv2.namedWindow('template')
     cv2.setMouseCallback('template', get_mouse_loc)
+    found_template = None
 
     print("Please left click on the location of the mouse")
 

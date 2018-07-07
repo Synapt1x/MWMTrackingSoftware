@@ -48,7 +48,7 @@ def main():
     # load files and parse
     train_videos = util.load_files(config.training_dir)
 
-    # load template files and parse
+# load template files and parse
     templates = util.load_files(config.template_dir)
 
     # if template dir is empty
