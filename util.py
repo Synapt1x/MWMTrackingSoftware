@@ -135,6 +135,32 @@ def acquire_template(vidname):
     return [template]
 
 
+def pad_frame(frame, template, padding=cv2.BORDER_REPLICATE):
+    """
+    Pad the frame using the template to determine the size of the padding.
+    Default padding is replicate, though additional padding methods can be
+    passed.
+
+    :param frame: (ndarray) - image of the entire video frame
+    :param template: (ndarray) - template image of the object to be tracked
+    :param padding: (const) - cv2 constant indicating padding method desired
+                            default: cv2.BORDER_REPLICATE
+    :return:
+    """
+
+    # create padded image using template size to replicate borders to stretch
+    t_h, t_w = template.shape
+    padded_img = cv2.copyMakeBorder(frame, t_h // 2, t_h // 2,
+                                    t_w // 2, t_w // 2,
+                                    padding)
+
+    padded_img = 0.12 * padded_img[:, :, 0] +\
+                 0.58 * padded_img[:, :, 1] +\
+                 0.3 * padded_img[:, :, 2]
+
+    return padded_img
+
+
 def show_frame(frame, frame_num=0, save_img=False, output_name=''):
     """
     Show video frame to the screen, and also allow for additional options to
@@ -163,9 +189,12 @@ def convolve(frame, template):
     :return:
     """
 
-    #TODO: Finish convolution and determine argmax for template match
+    t_h, t_w = template.shape
+    padded_img = cv2.copyMakeBorder(frame, t_h // 2, t_h // 2,
+                                    t_w // 2, t_w // 2,
+                                    cv2.BORDER_REPLICATE)
 
-    pass
+    return padded_img
 
 
 if __name__ == '__main__':

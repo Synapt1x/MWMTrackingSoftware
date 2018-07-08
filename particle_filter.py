@@ -21,8 +21,9 @@ class ParticleFilter:
 
         self.num_particles = num_particles
         self.particles = None
+        self.full_frame = np.array([], dtype=np.uint8)
 
-    def initialize_particles(self, w, h):
+    def initialize_particles(self, h, w, dist_noise=None):
         """
         initialize particles to randomize n-vector for each particle
 
@@ -30,13 +31,21 @@ class ParticleFilter:
         :param h: height of the video
         """
 
-        x_vals = np.random.uniform(0., w, size=self.num_particles)
-        y_vals = np.random.uniform(0., h, size=self.num_particles)
+        #TODO: Need more work on playing with noise
+        if dist_noise is None:
+            self.dist_noise = min(h, w) / 10
+        else:
+            self.dist_noise = dist_noise
+        self.error_noise = 0.1
 
-        x_dot_vals = np.random.normal(0., 0.1, size=self.num_particles)
-        y_dot_vals = np.random.normal(0., 0.1, size=self.num_particles)
+        x_vals = np.random.uniform(0., w, size=(self.num_particles, 1))
+        y_vals = np.random.uniform(0., h, size=(self.num_particles, 1))
 
-        self.particles = np.vstack((x_vals, y_vals, x_dot_vals, y_dot_vals))
+        x_dot_vals = np.random.normal(0., 0.1, size=(self.num_particles, 1))
+        y_dot_vals = np.random.normal(0., 0.1, size=(self.num_particles, 1))
+
+        self.particles = np.hstack((x_vals, y_vals, x_dot_vals, y_dot_vals))
+        self.weights = np.zeros(shape=self.num_particles)
 
         return
 
@@ -45,14 +54,48 @@ class ParticleFilter:
         Calculate error and update weights for particles
         """
 
+        temp_h, temp_w = self.template.shape
+
+        for p_i in range(len(self.particles)):
+
+            x, y, dx, dy = self.particles[p_i]
+
+            # apply motion model with random movement noise
+            x += dx + np.random.normal(0, self.dist_noise)
+            y += dy + np.random.normal(0, self.dist_noise)
+
+            #TODO: add interpolation to scale continuous values to ints
+
+            x, y = int(x), int(y)
+
+            # extract from full frame the comparison frame
+            try:
+                comp_frame = self.full_frame[y: y + temp_h,
+                                             x: x + temp_w]
+                diff = self.template - comp_frame
+                mse = np.sqrt((np.sum(np.square(diff))) / (temp_h * temp_w))
+
+                #weight = np.exp(-mse / (2 * self.error_noise ** 2))
+                self.weights[p_i] = 1 / mse
+
+            except ValueError:
+
+                weight = 0.0
+
+        self.weights /= np.sum(self.weights)
+
     def resample(self):
         """
         resample particles
         """
 
+        #TODO: Implement sampling wheel to speed up resampling
+        new_particles = np.random.choice(range(self.num_particles),
+                                         self.num_particles,
+                                         p=self.weights)
+        self.particles = self.particles[np.array(new_particles), :]
 
-
-        pass
+        #TODO: Need to add particle randomization using noise parameters
 
     def query(self):
         """
@@ -60,7 +103,9 @@ class ParticleFilter:
         :return: est_vec: (ndarray) - array for average particle vector
         """
 
-        return
+        avg_x, avg_y, dx, dy = np.mean(self.particles, axis=0)
+
+        return (avg_x, avg_y)
 
 
 if __name__ == '__main__':
