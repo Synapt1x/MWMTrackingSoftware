@@ -57,6 +57,16 @@ class ParticleFilter:
 
         temp_h, temp_w = self.template.shape
 
+        means = np.zeros(self.particles.shape[1])
+        cov = np.array([[self.dist_noise, 0., 0., 0.],
+                        [0., self.dist_noise, 0., 0.],
+                        [0., 0., self.vel_noise, 0.],
+                        [0., 0., 0., self.vel_noise]])
+        error = np.random.multivariate_normal(means, cov, size=self.num_particles)
+        self.particles += error
+
+        #TODO: Add error check for determining if template likely found
+
         for p_i in range(len(self.particles)):
 
             x, y, dx, dy = self.particles[p_i]
@@ -95,14 +105,6 @@ class ParticleFilter:
                                          self.num_particles,
                                          p=self.weights)
         self.particles = self.particles[np.array(new_particles), :]
-
-        means = np.zeros(self.particles.shape[1])
-        cov = np.array([[self.dist_noise, 0., 0., 0.],
-                        [0., self.dist_noise, 0., 0.],
-                        [0., 0., self.vel_noise, 0.],
-                        [0., 0., 0., self.vel_noise]])
-        error = np.random.multivariate_normal(means, cov, size=self.num_particles)
-        self.particles += error
 
         #TODO: Need to add particle randomization using noise parameters
 

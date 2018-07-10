@@ -172,11 +172,13 @@ def show_frame(frame, frame_num=0, save_img=False, output_name=''):
     :return: 
     """
 
+    #tODO: Need to fix show image
+
     title = 'Frame number: ' + str(frame_num)
 
     cv2.imshow(title, frame)
     cv2.waitKey()
-    #cv2.destroyAllWindows()
+    cv2.destroyWindow(title)
 
 
 def convolve(frame, template):
@@ -195,6 +197,21 @@ def convolve(frame, template):
                                     cv2.BORDER_REPLICATE)
 
     return padded_img
+
+
+def display_particles(frame, particles):
+    """
+    Display particles onto frame using cv2 circles.
+
+    :param frame: (ndarray) - cv2 image in uint8.
+    :param particles: (ndarray) - array of particles: rows are particles
+    :return:
+    """
+
+    for (x, y, dx, dy) in particles:
+        frame = cv2.circle(frame, (int(y), int(x)), 1, (0, 255, 0), 1)
+
+    return frame
 
 
 if __name__ == '__main__':

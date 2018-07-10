@@ -92,7 +92,8 @@ def main():
 
             frame = cv2.circle(frame, center=(int(avg_y), int(avg_x)),
                                radius=5, color=(255, 0, 0), thickness=3)
-
+            frame = util.display_particles(frame, pfilter.particles)
+            #util.show_frame(frame)
             video_out.write(frame)
 
             frame = image_generator.__next__()
