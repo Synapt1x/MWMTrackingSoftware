@@ -55,7 +55,8 @@ def main():
     if len(templates) == 0:
         templates = util.acquire_template(train_videos[0])
         pfilter.template = templates[0]
-    pfilter.template = cv2.imread(templates[0]).astype(np.uint8)
+    else:
+        pfilter.template = cv2.imread(templates[0]).astype(np.uint8)
 
     pfilter.template = 0.12 * pfilter.template[:, :, 0] +\
                        0.58 * pfilter.template[:, :, 1] +\
@@ -86,14 +87,18 @@ def main():
             pfilter.full_frame = util.pad_frame(frame, pfilter.template)
 
             # update particle filter and get the estimated location
-            pfilter.calc_error()
+            start = frame_num > 509
+            pfilter.calc_error(start)
             pfilter.resample()
-            avg_x, avg_y = pfilter.query()
+            avg_i, avg_j = pfilter.query()
+            print("avg j:", avg_j, "avg i:", avg_i)
 
-            frame = cv2.circle(frame, center=(int(avg_y), int(avg_x)),
+            frame = cv2.circle(frame, center=(int(avg_j), int(avg_i)),
                                radius=5, color=(255, 0, 0), thickness=3)
             frame = util.display_particles(frame, pfilter.particles)
             #util.show_frame(frame)
+            cv2.imshow('frame', frame.astype(np.uint8))
+            cv2.waitKey(10)
             video_out.write(frame)
 
             frame = image_generator.__next__()

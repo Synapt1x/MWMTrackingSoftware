@@ -15,7 +15,8 @@ from video_processor import VideoProcessor
 
 
 # global vals
-crop_pnt = []  # point for left clipping location of mouse for template
+topleft = []  # point for left clipping location of mouse for template
+botright = []
 
 
 def load_files(dirname='train_files'):
@@ -39,11 +40,13 @@ def load_files(dirname='train_files'):
 
 def get_mouse_loc(event, x, y, flags, param):
 
-    global crop_pnt
+    global topleft, botright
 
     # if image was left-clicked; udpate global val for [x, y] mouse centroid
     if event == cv2.EVENT_LBUTTONDOWN:
-        crop_pnt = [x, y]
+        topleft = [x, y]
+    elif event == cv2.EVENT_LBUTTONUP:
+        botright = [x, y]
 
 
 def acquire_template(vidname):
@@ -53,7 +56,7 @@ def acquire_template(vidname):
     :param videos: list - list of video files to be parsed
     :return: templates: list - list of ndarray images for template(s)
     """
-    global crop_pnt
+    global topleft, botright
 
     #TODO: Add to func args: dirname
     template_dir = '/home/synapt1x/MWMTracker/templates/'
@@ -83,8 +86,10 @@ def acquire_template(vidname):
     if frame is not None:
         # extract properties of video
         h, w, d = frame.shape
-        temp_h = h // 10
-        temp_w = w // 10
+        #temp_h = h // 10
+        #temp_w = w // 10
+        temp_h = 12
+        temp_w = 16
 
         frame_jump = 50  # number of frames to skip through video
 
@@ -102,10 +107,10 @@ def acquire_template(vidname):
                 print("Exiting template discovery...")
                 break
             else:  # else if any other key is pressed
-                if len(crop_pnt) == 2:  # check if a click point was registered
-                    template = frame[crop_pnt[1] - temp_h: crop_pnt[1] +
-                                                           temp_h,
-                               crop_pnt[0] - temp_w: crop_pnt[0] + temp_w, :]
+                # check if both crop points were defined
+                if len(topleft) == 2 and len(botright) == 2:
+                    template = frame[topleft[1]: botright[1],
+                               topleft[0]: botright[0]]
                     print("Is this a good template of the mouse? y/n")
                     cv2.imshow('suggested template', template)
                     ans = cv2.waitKey(0) & 0xFF
@@ -120,7 +125,8 @@ def acquire_template(vidname):
                         # continue skipping through frames looking for template
                         print('Moving to next frame to re-select mouse')
                         cv2.destroyWindow('suggested template')
-                        crop_pnt = []
+                        topleft = []
+                        botright = []
                         template = np.array([])
 
                         [image_generator.__next__() for _ in range(frame_jump)]
@@ -150,13 +156,12 @@ def pad_frame(frame, template, padding=cv2.BORDER_REPLICATE):
 
     # create padded image using template size to replicate borders to stretch
     t_h, t_w = template.shape
+    frame = 0.12 * frame[:, :, 0] + \
+            0.58 * frame[:, :, 1] + \
+            0.3 * frame[:, :, 2]
     padded_img = cv2.copyMakeBorder(frame, t_h // 2, t_h // 2,
                                     t_w // 2, t_w // 2,
                                     padding)
-
-    padded_img = 0.12 * padded_img[:, :, 0] +\
-                 0.58 * padded_img[:, :, 1] +\
-                 0.3 * padded_img[:, :, 2]
 
     return padded_img
 

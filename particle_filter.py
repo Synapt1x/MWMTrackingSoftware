@@ -33,24 +33,26 @@ class ParticleFilter:
 
         #TODO: Need more work on playing with noise
         if dist_noise is None:
-            self.dist_noise = min(h, w) / 5
+            self.dist_noise = min(h, w) / 20
         else:
             self.dist_noise = dist_noise
         self.error_noise = 0.1
         self.vel_noise = 0.1
 
-        x_vals = np.random.uniform(0., w, size=(self.num_particles, 1))
-        y_vals = np.random.uniform(0., h, size=(self.num_particles, 1))
+        #x_vals = np.random.uniform(0., w, size=(self.num_particles, 1))
+        #y_vals = np.random.uniform(0., h, size=(self.num_particles, 1))
+        y_vals = np.random.normal(90., 10, size=(self.num_particles, 1))
+        x_vals = np.random.normal(225., 10, size=(self.num_particles, 1))
 
         x_dot_vals = np.random.normal(0., 0.1, size=(self.num_particles, 1))
         y_dot_vals = np.random.normal(0., 0.1, size=(self.num_particles, 1))
 
-        self.particles = np.hstack((x_vals, y_vals, x_dot_vals, y_dot_vals))
+        self.particles = np.hstack((y_vals, x_vals, x_dot_vals, y_dot_vals))
         self.weights = np.zeros(shape=self.num_particles)
 
         return
 
-    def calc_error(self):
+    def calc_error(self, start=False):
         """
         Calculate error and update weights for particles
         """
@@ -62,31 +64,35 @@ class ParticleFilter:
                         [0., self.dist_noise, 0., 0.],
                         [0., 0., self.vel_noise, 0.],
                         [0., 0., 0., self.vel_noise]])
-        error = np.random.multivariate_normal(means, cov, size=self.num_particles)
+        error = np.random.multivariate_normal(means, cov,
+                                              size=self.num_particles)
         self.particles += error
+
+        if not start:
+            self.initialize_particles(240, 480)
 
         #TODO: Add error check for determining if template likely found
 
         for p_i in range(len(self.particles)):
 
-            x, y, dx, dy = self.particles[p_i]
+            i, j, dx, dy = self.particles[p_i]
 
             # apply motion model with random movement noise
-            x += dx + np.random.normal(0, self.dist_noise)
-            y += dy + np.random.normal(0, self.dist_noise)
+            i += dx + np.random.normal(0, self.dist_noise)
+            j += dy + np.random.normal(0, self.dist_noise)
 
             #TODO: add interpolation to scale continuous values to ints
 
-            x, y = int(x), int(y)
+            i, j = int(i), int(j)
 
             # extract from full frame the comparison frame
             try:
-                comp_frame = self.full_frame[y: y + temp_h,
-                                             x: x + temp_w]
+                comp_frame = self.full_frame[i: i + temp_h,
+                                             j: j + temp_w]
                 diff = self.template - comp_frame
                 mse = np.sqrt((np.sum(np.square(diff))) / (temp_h * temp_w))
 
-                #weight = np.exp(-mse / (2 * self.error_noise ** 2))
+                weight = np.exp(-mse / (2 * self.error_noise ** 2))
                 self.weights[p_i] = 1 / mse
 
             except ValueError:
@@ -99,6 +105,8 @@ class ParticleFilter:
         """
         resample particles
         """
+
+        print("Max weight:", np.max(self.weights))
 
         #TODO: Implement sampling wheel eo speed up resampling
         new_particles = np.random.choice(range(self.num_particles),
