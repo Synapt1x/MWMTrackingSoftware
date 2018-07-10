@@ -23,7 +23,7 @@ class ParticleFilter:
         self.particles = None
         self.full_frame = np.array([], dtype=np.uint8)
 
-    def initialize_particles(self, h, w, dist_noise=None):
+    def initialize_particles(self, h, w, dist_noise=None, vel_noise=None):
         """
         initialize particles to randomize n-vector for each particle
 
@@ -33,10 +33,11 @@ class ParticleFilter:
 
         #TODO: Need more work on playing with noise
         if dist_noise is None:
-            self.dist_noise = min(h, w) / 10
+            self.dist_noise = min(h, w) / 5
         else:
             self.dist_noise = dist_noise
         self.error_noise = 0.1
+        self.vel_noise = 0.1
 
         x_vals = np.random.uniform(0., w, size=(self.num_particles, 1))
         y_vals = np.random.uniform(0., h, size=(self.num_particles, 1))
@@ -89,11 +90,19 @@ class ParticleFilter:
         resample particles
         """
 
-        #TODO: Implement sampling wheel to speed up resampling
+        #TODO: Implement sampling wheel eo speed up resampling
         new_particles = np.random.choice(range(self.num_particles),
                                          self.num_particles,
                                          p=self.weights)
         self.particles = self.particles[np.array(new_particles), :]
+
+        means = np.zeros(self.particles.shape[1])
+        cov = np.array([[self.dist_noise, 0., 0., 0.],
+                        [0., self.dist_noise, 0., 0.],
+                        [0., 0., self.vel_noise, 0.],
+                        [0., 0., 0., self.vel_noise]])
+        error = np.random.multivariate_normal(means, cov, size=self.num_particles)
+        self.particles += error
 
         #TODO: Need to add particle randomization using noise parameters
 
