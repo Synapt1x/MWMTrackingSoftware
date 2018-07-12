@@ -54,13 +54,13 @@ def main():
     # if template dir is empty
     if len(templates) == 0:
         templates = util.acquire_template(train_videos[0])
-        pfilter.template = templates[0]
+        template = templates[0]
     else:
-        pfilter.template = cv2.imread(templates[0]).astype(np.uint8)
+        template = cv2.imread(templates[0]).astype(np.uint8)
 
-    pfilter.template = 0.12 * pfilter.template[:, :, 0] +\
-                       0.58 * pfilter.template[:, :, 1] +\
-                       0.3 * pfilter.template[:, :, 2]
+    # process template
+
+    pfilter.template_hog = util.process_template(template, feature='hog')
 
     # get first frame of video and the properties of the video
     frame = image_generator.__next__()
