@@ -30,7 +30,7 @@ class Configuration:
         # ================== Particle Filter properties ================ #
         # directory information
         self.template_dir = 'templates'
-        self.num_particles = 200
+        self.num_particles = 1000
 
         # particle filter properties
 

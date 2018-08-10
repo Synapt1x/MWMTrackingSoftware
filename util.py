@@ -12,6 +12,7 @@ import cv2
 import numpy as np
 import argparse
 from video_processor import VideoProcessor
+from math import *
 
 
 # global vals
@@ -109,8 +110,10 @@ def acquire_template(vidname):
             else:  # else if any other key is pressed
                 # check if both crop points were defined
                 if len(topleft) == 2 and len(botright) == 2:
-                    template = frame[topleft[1]: botright[1],
-                               topleft[0]: botright[0]]
+                    add_h = (botright[1] - topleft[1]) % 4
+                    add_w = (botright[0] - topleft[0]) % 4
+                    template = frame[topleft[1]: botright[1] + add_h,
+                               topleft[0]: botright[0] + add_w]
                     print("Is this a good template of the mouse? y/n")
                     cv2.imshow('suggested template', template)
                     ans = cv2.waitKey(0) & 0xFF
@@ -166,24 +169,29 @@ def pad_frame(frame, template, padding=cv2.BORDER_REPLICATE):
     return padded_img
 
 
-def show_frame(frame, frame_num=0, save_img=False, output_name=''):
+def process_template(template, feature='hog'):
     """
-    Show video frame to the screen, and also allow for additional options to
-    save the image to a file.
-    
-    :param frame: ndarray - the image frame to be shown
-    :param save_img: bool - whether or not to save frame to an output image
-    :param output_name: string - file name for output image to be saved 
-    :return: 
+    process template image to extract feature
+
+    :param feature: (string) - string indicating feature extraction method
+    :return:
     """
 
-    #tODO: Need to fix show image
+    if feature == 'hog':
+        #TODO: Complete HOG descriptor for image
+        win_size = template.shape
+        block_size = (4, 4)
+        block_stride = (2, 2)
+        cell_size = (4, 4)
+        nbins = 6
 
-    title = 'Frame number: ' + str(frame_num)
+        hog = cv2.HOGDescriptor(win_size, block_size, block_stride, cell_size,
+                                nbins)
+        hog.compute(template)
 
-    cv2.imshow(title, frame)
-    cv2.waitKey()
-    cv2.destroyWindow(title)
+    elif feature == 'segment':
+        #TODO: Implement method of segmenting the object and extracting params
+        extraction = None
 
 
 def convolve(frame, template):
