@@ -27,7 +27,7 @@ class Network:
         :return: return the model
         """
 
-        #TODO: Build Keras model
+        #TODO: Build YOLO model using tf
 
         return
 
