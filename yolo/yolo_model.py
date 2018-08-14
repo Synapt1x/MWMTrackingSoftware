@@ -36,9 +36,7 @@ class Yolo_Model:
         :return: return the model
         """
 
-        #TODO: Build YOLO model
-
-        return
+        #TODO: Build YOLO model using tf
 
     def train(self):
         """
