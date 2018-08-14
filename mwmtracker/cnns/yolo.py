@@ -28,6 +28,7 @@ class Yolo:
         initialize parameters for YOLO model
 
         """
+        pass
 
     def create_model(self):
         """
@@ -37,6 +38,7 @@ class Yolo:
         """
 
         #TODO: Build YOLO model using tf
+        pass
 
     def train(self):
         """
