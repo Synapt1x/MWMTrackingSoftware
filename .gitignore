@@ -51,6 +51,6 @@ fabric.properties
 .idea/httpRequests
 
 # Video files
-testVids/*
-templates/*
-output/*
+*/testVids/*
+*/templates/*
+*/output/*
