@@ -38,7 +38,7 @@ class Configuration:
         self.framerate = 30
 
         # ======================= Misc properties ====================== #
-        self.cur_dir = os.path.dirname(os.path.realpath(__file__))
+        self.cur_dir = os.path.dirname(os.getcwd())
         self.test_file = os.path.join(self.cur_dir, 'testVids/sample.mp4')
         self.test_out = os.path.join(self.cur_dir, 'output/test_out.mp4')
 

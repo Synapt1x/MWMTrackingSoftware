@@ -19,12 +19,12 @@ __status__ = "Development"
 ##############################################################################
 
 
-from config import Configuration
-from cnn import Network
-from video_processor import VideoProcessor
-from particle_filter import ParticleFilter
+import utils.util as util
+from yolo.yolo_model import Yolo_Model as yolo
+from utils.video_processor import VideoProcessor
+from utils.config import Configuration
+from particleFilt.particle_filter import ParticleFilter
 import cv2
-import util
 import numpy as np
 
 

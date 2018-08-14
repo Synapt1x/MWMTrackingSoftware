@@ -5,12 +5,15 @@
 the Morris Water Maze experiment.
 
 cnn.py: this file contains the code for implementing a convolutional neural
-network to detect a mouse location during swimming during the tracking.
+network, specifically implementing the YOLO algorithm, to detect a mouse
+location during swimming during the tracking.
 
 """
 
+import tensorflow as tf
 
-class Network:
+
+class Yolo_Model:
     """
     Convolutional Neural Network class
     """
@@ -20,6 +23,12 @@ class Network:
 
         self.model = self.create_model()
 
+    def initialize_parameters(self):
+        """
+        initialize parameters for YOLO model
+
+        """
+
     def create_model(self):
         """
         create model
@@ -27,7 +36,7 @@ class Network:
         :return: return the model
         """
 
-        #TODO: Build Keras model
+        #TODO: Build YOLO model
 
         return
 
@@ -36,7 +45,7 @@ class Network:
         train the neural network
         """
 
-        #TODO: Train Keras model
+        #TODO: Train YOLO model
 
         pass
 

@@ -11,7 +11,6 @@ import os
 import cv2
 import numpy as np
 import argparse
-from video_processor import VideoProcessor
 from math import *
 
 
