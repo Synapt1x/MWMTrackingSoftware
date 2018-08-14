@@ -15,17 +15,17 @@ class ParticleFilter:
     Particle filter class
     """
 
-    def __init__(self, num_particles=1000):
+    def __init__(self, config):
         """constructor"""
 
-        self.num_particles = num_particles
+        self.num_particles = config['num_particles']
         self.particles = None
         self.full_frame = np.array([], dtype=np.uint8)
 
         self.template = np.array([], dtype=np.uint8)
         self.template_hog = None
 
-    def initialize_particles(self, h, w, dist_noise=None, vel_noise=None):
+    def initialize(self, h, w, dist_noise=None, vel_noise=None):
         """
         initialize particles to randomize n-vector for each particle
 
@@ -74,7 +74,7 @@ class ParticleFilter:
         self.particles += error
 
         if not start:
-            self.initialize_particles(self.max_h, self.max_w)
+            self.initialize(self.max_h, self.max_w)
 
         #TODO: Add error check for determining if template likely found
 

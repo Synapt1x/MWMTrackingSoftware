@@ -23,6 +23,7 @@ import cv2
 import util
 import numpy as np
 import yaml
+from tracker import Tracker
 
 
 def main():
@@ -40,85 +41,16 @@ def main():
     with open(yaml_file, "r") as f:
         config = yaml.load(f)
 
+    datadir = os.path.join(curdir, config['datadir'])
+    outdir = os.path.join(curdir, config['outputdir'])
+
     # TODO: set up code for running processing using the selected tracker
+    # Determine which tracker system should load
+    tracker = Tracker(config)
 
-    # # Determine which tracking method will be used based on config
-
-    # # create a particle filter for tracking
-    # pfilter = ParticleFilter(config.num_particles)
-
-    # # load video processor for extracting frames during tracking
-    # vid_reader = VideoProcessor()
-    # image_generator = vid_reader.frame_generator(config.test_file)
-
-    # # load files and parse
-    # train_videos = util.load_files(config.training_dir)
-
-    # # load template files and parse
-    # templates = util.load_files(config.template_dir)
-
-    # # if template dir is empty
-    # if len(templates) == 0:
-    #     templates = util.acquire_template(train_videos[0])
-    #     template = templates[0]
-    # else:
-    #     template = cv2.imread(templates[0]).astype(np.uint8)
-
-    # # process template
-
-    # pfilter.template_hog = util.process_template(template, feature='hog')
-
-    # # get first frame of video and the properties of the video
-    # frame = image_generator.__next__()
-
-    # if frame is not None:
-    #     # extract properties of video
-    #     h, w, d = frame.shape
-
-    #     # initialize particles in filter based on frame size
-    #     pfilter.initialize_particles(h, w)
-
-    #     # create video writer for writing out video
-    #     video_out = vid_reader.create_writer(config.test_out, (w, h),
-    #                                          config.framerate)
-
-    #     # template = cv2.imread('template.jpg')
-
-    #     frame_num = 1
-
-    #     while frame is not None:
-    #         print("Processing frame ", frame_num)
-
-    #         # pad the border of frame to be stored as current processing img
-    #         pfilter.full_frame = util.pad_frame(frame, pfilter.template)
-
-    #         # update particle filter and get the estimated location
-    #         start = frame_num > 509
-    #         pfilter.calc_error(start)
-    #         pfilter.resample()
-    #         avg_i, avg_j = pfilter.query()
-    #         print("avg j:", avg_j, "avg i:", avg_i)
-
-    #         frame = cv2.circle(frame, center=(int(avg_j), int(avg_i)),
-    #                            radius=5, color=(255, 0, 0), thickness=3)
-    #         frame = util.display_particles(frame, pfilter.particles)
-    #         #util.show_frame(frame)
-    #         cv2.imshow('frame', frame.astype(np.uint8))
-    #         cv2.waitKey(10)
-    #         video_out.write(frame)
-
-    #         frame = image_generator.__next__()
-
-    #         frame_num += 1
-
-    #     video_out.release()
-
-    # else:
-    #     #TODO: change to output GUI message
-    #     print("Error loading video! Please ensure at least one test video is "
-    #           "located in the testVids directory.")
-
-    # return
+    # initialize tracker and videos
+    #all_vids = util.load_files(datadir)
+    #tracker.initialize_tracker(all_vids)
 
 
 if __name__ == '__main__':

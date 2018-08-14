@@ -20,7 +20,7 @@ framerate: 30
 # Hyperparams for general cnn training
 #=====================================#
 
-cnn:
+yolo:
   batch_size: 128
   num_epochs: 200
   validation_every: 1

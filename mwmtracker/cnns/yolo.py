@@ -17,12 +17,13 @@ class Yolo:
     Convolutional Neural Network class
     """
 
-    def __init__(self):
+    def __init__(self, config):
         """constructor"""
 
+        self.config = config
         self.model = self.create_model()
 
-    def initialize_parameters(self):
+    def initialize(self):
         """
         initialize parameters for YOLO model
 
