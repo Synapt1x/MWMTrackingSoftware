@@ -8,6 +8,7 @@ tracking videos using a specific tracking model.
 
 """
 import util
+import cv2
 
 
 class Tracker:
@@ -23,6 +24,12 @@ class Tracker:
         self.validation_vids = []
         self.test_vids = []
         self.data = {}
+
+        # running parameters for the tracker
+        self.vid_num = -1
+        self.num_vids = 0
+        self.current_vid = None
+        self.template_defined = False
 
         # initialize model for tracking
         self.init_model(model_type = config['tracker'])
@@ -58,16 +65,53 @@ class Tracker:
         # initialize setup and video loading
         self.initialize_tracker()
 
-
     def initialize_tracker(self):
         """
         Initialize tracker and load relevant data.
-
         """
 
+        # load videos and template if available
         self.data['train_vids'] = util.load_files(self.config['datadir'])
         self.data['template_img'] = util.load_files(self.config['templatedir'])
 
+        # assess nature of videos loaded
+        self.num_vids = len(self.data['train_vids'])
+        if len(self.data['template_img']) > 0:
+            self.template_defined = True
+
+        # load initial video
+        if self.vid_num < self.num_vids:
+            self.load_next_vid()
+
+    def load_next_vid(self):
+        """
+        Load next video.
+        """
+
+        self.vid_num += 1
+        vid_name = self.data['train_vids'][self.vid_num]
+        self.current_vid = cv2.VideoCapture(vid_name)
+
+    def extract_template(self):
+        """
+        Prompt user to select ROI for initial template of the mouse.
+        """
+
+        #TODO: Build code to select ROI
+
+    def process_videos(self):
+        """
+        Process each video in the train video directory.
+        """
+
+        #TODO: Finish processing over each video
+
+    def update_template(self):
+        """
+        Update template to track mouse using adaptive template.
+        """
+
+        #TODO: Adapt template
 
 
 if __name__ == '__main__':

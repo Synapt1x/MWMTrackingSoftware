@@ -16,6 +16,7 @@ templatedir: data/templates
 #=====================================#
 
 framerate: 30
+adaptive_alpha: 0.25
 
 # Hyperparams for general cnn training
 #=====================================#
