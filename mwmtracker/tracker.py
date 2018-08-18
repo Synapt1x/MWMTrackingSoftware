@@ -40,9 +40,14 @@ class Tracker:
         if model_type == 'pfilter':
             # import and create particle filter
             from filters.particle_filter import ParticleFilter as Model
+
         elif model_type == 'yolo':
             # import and create yolo tracker
             from cnns.yolo import Yolo as Model
+
+        elif model_type == 'opencv':
+            # import and create opencv tracker
+            from opencvtrackers.cvtrackers import CVTracker as Model
 
         self.model = Model(model_config)
         self.model.initialize()

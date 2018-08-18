@@ -2,7 +2,7 @@
 #=====================================#
 
 # Set the tracking system to be used for processing
-tracker: yolo
+tracker: opencv
 
 
 # Data directories and parameters
@@ -41,3 +41,9 @@ yolo:
 
 pfilter:
   num_particles: 1000
+
+# Parameters for OpenCV tracker
+#=====================================#
+
+opencv:
+    algorithm: kcf  # defaults to kcf
