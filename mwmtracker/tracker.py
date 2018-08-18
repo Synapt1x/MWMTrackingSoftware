@@ -7,6 +7,7 @@ tracker.py: this houses the primary functionality for storing, processing and
 tracking videos using a specific tracking model.
 
 """
+import util
 
 
 class Tracker:
@@ -21,6 +22,7 @@ class Tracker:
         self.train_vids = []
         self.validation_vids = []
         self.test_vids = []
+        self.data = {}
 
         # initialize model for tracking
         self.init_model(model_type = config['tracker'])
@@ -49,15 +51,23 @@ class Tracker:
             # import and create opencv tracker
             from opencvtrackers.cvtrackers import CVTracker as Model
 
+        # initialize model tracker
         self.model = Model(model_config)
         self.model.initialize()
 
+        # initialize setup and video loading
+        self.initialize_tracker()
+
+
     def initialize_tracker(self):
         """
-        Initialize tracker.
+        Initialize tracker and load relevant data.
 
         """
-        pass
+
+        self.data['train_vids'] = util.load_files(self.config['datadir'])
+        self.data['template_img'] = util.load_files(self.config['templatedir'])
+
 
 
 if __name__ == '__main__':

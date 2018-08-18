@@ -27,13 +27,9 @@ def load_files(dirname='train_files'):
     :return: output_files: list - list of video files found in dirname directory
     """
 
-    # get absolute path to directory
-    cur_path = os.path.dirname(os.path.realpath(__file__))
-    dir = os.path.join(cur_path, dirname)
-
     # extract all files from directory
-    output_files = os.listdir(dir)
-    output_files = [os.path.join(dir, file) for file in output_files]
+    output_files = os.listdir(dirname)
+    output_files = [os.path.join(dirname, file) for file in output_files]
 
     return output_files
 

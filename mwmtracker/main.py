@@ -20,7 +20,6 @@ __status__ = "Development"
 
 import os
 import cv2
-import util
 import numpy as np
 import yaml
 from tracker import Tracker
@@ -41,8 +40,10 @@ def main():
     with open(yaml_file, "r") as f:
         config = yaml.load(f)
 
-    datadir = os.path.join(curdir, config['datadir'])
-    outdir = os.path.join(curdir, config['outputdir'])
+    # update data directories to current working dir
+    config['datadir'] = os.path.join(curdir, config['datadir'])
+    config['templatedir'] = os.path.join(curdir, config['templatedir'])
+    config['outputdir'] = os.path.join(curdir, config['outputdir'])
 
     # TODO: set up code for running processing using the selected tracker
     # Determine which tracker system should load
