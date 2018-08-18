@@ -8,6 +8,10 @@ experiments. The intent is to build this framework as a very simple object-track
 analyzing MWM experiments, but with the possibility of expanding this system to also incorporate tracking for
 other systems.
 
+The default system implements Kernelized Correlation Filtering (KCF) to track the mouse. The intent is to expand
+and improve upon tracking for this particular application by also testing other filter trackers (Kalman and 
+Particle) and CNN implementations such as YOLOv3.
+
 ## Prerequisites
 
 
