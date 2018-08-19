@@ -48,6 +48,7 @@ def main():
     # TODO: set up code for running processing using the selected tracker
     # Determine which tracker system should load
     tracker = Tracker(config)
+    tracker.initialize_tracker()
 
     # initialize tracker and videos
     #all_vids = util.load_files(datadir)

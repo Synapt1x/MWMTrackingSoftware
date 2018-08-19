@@ -45,13 +45,14 @@ def get_mouse_loc(event, x, y, flags, param):
         botright = [x, y]
 
 
-def acquire_template(vidname):
+def acquire_template(dirname, vidname):
     """
     Ask user to acquire template(s) from a selected frame from set of videos.
 
     :param videos: list - list of video files to be parsed
     :return: templates: list - list of ndarray images for template(s)
     """
+
     global topleft, botright
 
     #TODO: Add to func args: dirname

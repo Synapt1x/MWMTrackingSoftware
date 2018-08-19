@@ -62,9 +62,6 @@ class Tracker:
         self.model = Model(model_config)
         self.model.initialize()
 
-        # initialize setup and video loading
-        self.initialize_tracker()
-
     def initialize_tracker(self):
         """
         Initialize tracker and load relevant data.
@@ -80,7 +77,7 @@ class Tracker:
             self.template_defined = True
 
         # load initial video
-        if self.vid_num < self.num_vids:
+        if self.vid_num < (self.num_vids - 1):
             self.load_next_vid()
 
     def load_next_vid(self):
@@ -104,7 +101,27 @@ class Tracker:
         Process each video in the train video directory.
         """
 
-        #TODO: Finish processing over each video
+        # load template it template is not defined
+        if not self.template_defined:
+            self.process_videos()
+
+        # loop over each video in training set
+        for vid_i in range(self.num_vids):
+
+            init_vid = False
+
+            # process current video
+            valid, frame = self.current_vid.readFrame()
+
+            while valid:
+                if not init_vid:
+                    self.process_initial_frame()
+                else:
+                    self.process_frame()
+
+                valid, frame = self.current_vid.readFrame()
+
+            self.load_next_vid()
 
     def update_template(self):
         """
@@ -112,6 +129,20 @@ class Tracker:
         """
 
         #TODO: Adapt template
+
+    def process_initial_frame(self):
+        """
+        Process initial frame to find ideal location for template.
+        """
+
+        #TODO: Process first frame
+
+    def process_frame(self):
+        """
+        Process frame using selected tracker model.
+        """
+
+        #TODO: Process frame using self.model
 
 
 if __name__ == '__main__':
