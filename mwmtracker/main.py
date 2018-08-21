@@ -51,8 +51,7 @@ def main():
     tracker.initialize_tracker()
 
     # initialize tracker and videos
-    #all_vids = util.load_files(datadir)
-    #tracker.initialize_tracker(all_vids)
+    tracker.process_videos()
 
 
 if __name__ == '__main__':

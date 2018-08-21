@@ -9,6 +9,10 @@ tracking videos using a specific tracking model.
 """
 import util
 import cv2
+import numpy as np
+
+
+TEMPLATE_JUMP = 25
 
 
 class Tracker:
@@ -29,7 +33,7 @@ class Tracker:
         self.vid_num = -1
         self.num_vids = 0
         self.current_vid = None
-        self.template_defined = False
+        self.template = None
 
         # initialize model for tracking
         self.init_model(model_type = config['tracker'])
@@ -94,16 +98,38 @@ class Tracker:
         Prompt user to select ROI for initial template of the mouse.
         """
 
-        #TODO: Build code to select ROI
+        valid, frame = self.current_vid.read()
+        INIT_RECT = (0, 0, 0, 0)
+        rect = INIT_RECT
+
+        while valid and rect == INIT_RECT:
+            # ask user for bounding box
+            rect = cv2.selectROI('Template', frame)
+
+            if rect != INIT_RECT:
+                break
+            else:
+                # load next jump frame
+                [self.current_vid.read() for _ in range(TEMPLATE_JUMP)]
+                valid, frame = self.current_vid.read()
+
+        if rect != INIT_RECT:
+            self.template = frame[rect[1] : (rect[1] + rect[3]),
+                            rect[0] : (rect[0] + rect[2]), :]
+
+        cv2.destroyAllWindows()
 
     def process_videos(self):
         """
         Process each video in the train video directory.
         """
 
-        # load template it template is not defined
-        if not self.template_defined:
-            self.process_videos()
+        # check if template has been defined
+        if not self.template and self.num_vids > 0:
+            self.extract_template()
+
+        cv2.imshow('template chosen', self.template)
+        cv2.waitKey(0)
 
         # loop over each video in training set
         for vid_i in range(self.num_vids):
@@ -111,11 +137,11 @@ class Tracker:
             init_vid = False
 
             # process current video
-            valid, frame = self.current_vid.readFrame()
+            valid, frame = self.current_vid.read()
 
             while valid:
                 if not init_vid:
-                    self.process_initial_frame()
+                    self.process_initial_frame(frame)
                 else:
                     self.process_frame()
 
@@ -130,19 +156,20 @@ class Tracker:
 
         #TODO: Adapt template
 
-    def process_initial_frame(self):
+    def process_initial_frame(self, frame):
         """
         Process initial frame to find ideal location for template.
         """
 
-        #TODO: Process first frame
+        #TODO: process first frame
+
 
     def process_frame(self):
         """
         Process frame using selected tracker model.
         """
 
-        #TODO: Process frame using self.model
+        #TODO: Process frame
 
 
 if __name__ == '__main__':
