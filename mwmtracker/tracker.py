@@ -139,11 +139,13 @@ class Tracker:
             # process current video
             valid, frame = self.current_vid.read()
 
+            # while frames have successfully been extracted
             while valid:
-                if not init_vid:
-                    self.process_initial_frame(frame)
-                else:
-                    self.process_frame()
+                self.process_frame(frame)
+                #if not init_vid:
+                #    self.process_initial_frame(frame)
+                #else:
+                #    self.process_frame()
 
                 valid, frame = self.current_vid.readFrame()
 
@@ -161,10 +163,10 @@ class Tracker:
         Process initial frame to find ideal location for template.
         """
 
-        #TODO: process first frame
+        #TODO: process first frame MAY NOT BE NEEDED ANYMORE
 
 
-    def process_frame(self):
+    def process_frame(self, frame):
         """
         Process frame using selected tracker model.
         """

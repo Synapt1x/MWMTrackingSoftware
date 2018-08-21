@@ -10,8 +10,8 @@ tracking setup.
 import numpy as np
 import cv2
 
-(major_ver, minor_ver, _) = cv2.__version__.split('.')
-alg_funcs = {'kcf': cv2.TrackerKCF_create,
+(MAJOR_VER, MINOR_VER, _) = cv2.__version__.split('.')
+ALG_FUNCS = {'kcf': cv2.TrackerKCF_create,
              'boosting': cv2.TrackerBoosting_create,
              'mil': cv2.TrackerMIL_create,
              'tld': cv2.TrackerTLD_create,
@@ -27,10 +27,19 @@ class CVTracker:
         self.alg = config['algorithm']
 
     def initialize(self):
-        if int(major_ver) < 3:
+        if int(MAJOR_VER) < 3:
             self.model = cv2.Tracker_create(self.alg)
         else:
-            self.model = alg_funcs[self.alg]()
+            self.model = ALG_FUNCS[self.alg]()
+
+    def read_frame(self, frame):
+        valid, rect = self.model.update(frame)
+
+        if valid:
+            #TODO: output location on frame
+            return
+        else:
+            return
 
 
 if __name__ == '__main__':
