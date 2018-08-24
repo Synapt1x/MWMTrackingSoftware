@@ -151,12 +151,28 @@ class Tracker:
 
             self.load_next_vid()
 
+    def extract_detect_img(self):
+        """
+        Provided a bounding box, return an image of the detection
+        """
+
+        #TODO: Finish extraction of image
+
     def update_template(self):
         """
         Update template to track mouse using adaptive template.
         """
 
-        #TODO: Adapt template
+        # if template not defined,, extract one
+        if not self.template_defined:
+            self.extract_template()
+            return
+
+        # morph template otherwise
+        detection = self.extract_detect_img()
+        self.template = self.config['alpha'] * detection\
+                        + (1 - self.config['alpha']) * self.template
+
 
     def process_initial_frame(self, frame):
         """
