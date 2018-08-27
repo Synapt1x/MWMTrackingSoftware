@@ -33,7 +33,7 @@ class Tracker:
         self.vid_num = -1
         self.num_vids = 0
         self.locations = []
-        self.current_pos = (,)
+        self.current_pos = []
         self.current_vid = None
         self.template = None
         self.w, self.h = 0, 0
@@ -119,7 +119,7 @@ class Tracker:
         if rect != INIT_RECT:
             self.template = frame[rect[1] : (rect[1] + rect[3]),
                             rect[0] : (rect[0] + rect[2]), :]
-            self.w, self.h = self.template[:2]
+            self.w, self.h = self.template.shape[:2]
 
         cv2.destroyAllWindows()
 
@@ -194,6 +194,9 @@ class Tracker:
         if max_val > self.config['template_thresh']:
             w, h = self.w // 2, self.h // 2
             self.current_pos = (max_loc[0] + w, max_loc[1] + h)
+            if self.config['verbose']:
+                cv2.circle(img=frame, center=self.current_pos, radius=2,
+                           color=[0, 255, 0], thickness=2)
             return True
         else:
             return False
