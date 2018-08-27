@@ -32,8 +32,11 @@ class Tracker:
         # running parameters for the tracker
         self.vid_num = -1
         self.num_vids = 0
+        self.locations = []
+        self.current_pos = (,)
         self.current_vid = None
         self.template = None
+        self.w, self.h = 0, 0
 
         # initialize model for tracking
         self.init_model(model_type = config['tracker'])
@@ -116,6 +119,7 @@ class Tracker:
         if rect != INIT_RECT:
             self.template = frame[rect[1] : (rect[1] + rect[3]),
                             rect[0] : (rect[0] + rect[2]), :]
+            self.w, self.h = self.template[:2]
 
         cv2.destroyAllWindows()
 
@@ -128,8 +132,8 @@ class Tracker:
         if not self.template and self.num_vids > 0:
             self.extract_template()
 
-        cv2.imshow('template chosen', self.template)
-        cv2.waitKey(0)
+        #cv2.imshow('template chosen', self.template)
+        #cv2.waitKey(0)
 
         # loop over each video in training set
         for vid_i in range(self.num_vids):
@@ -141,11 +145,10 @@ class Tracker:
 
             # while frames have successfully been extracted
             while valid:
-                self.process_frame(frame)
-                #if not init_vid:
-                #    self.process_initial_frame(frame)
-                #else:
-                #    self.process_frame()
+                if init_vid:
+                    self.process_frame(frame)
+                else:
+                    init_vid = self.process_initial_frame(frame)
 
                 valid, frame = self.current_vid.readFrame()
 
@@ -173,22 +176,44 @@ class Tracker:
         self.template = self.config['alpha'] * detection\
                         + (1 - self.config['alpha']) * self.template
 
-
     def process_initial_frame(self, frame):
         """
         Process initial frame to find ideal location for template.
         """
 
-        #TODO: process first frame MAY NOT BE NEEDED ANYMORE
+        # If template is not defined then extract a new one
+        if self.template is None:
+            self.extract_template()
 
+        # find max correlation with template to find likely location
+        template_vals = cv2.matchTemplate(frame, self.template,
+                                          eval(self.config['template_ccorr']))
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(template_vals)
+
+        # use thresholding to determine if template is located
+        if max_val > self.config['template_thresh']:
+            w, h = self.w // 2, self.h // 2
+            self.current_pos = (max_loc[0] + w, max_loc[1] + h)
+            return True
+        else:
+            return False
+
+        # draw bounding box if a match if found
 
     def process_frame(self, frame):
         """
         Process frame using selected tracker model.
         """
 
-        #TODO: Process frame
-
+        valid, box = self.model.update(frame)
+        if valid:
+            # Tracking success
+            UL_corner = (int(box[0]), int(box[1]))
+            BR_corner = (int(box[0] + box[2]), int(box[1] + box[3]))
+            cv2.rectangle(frame, UL_corner, BR_corner, (255,0,0), 2, 1)
+        else:
+            cv2.putText(frame, "Tracking failure detected", (100,80),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
 
 if __name__ == '__main__':
     print('Please run the program by running main.py')
