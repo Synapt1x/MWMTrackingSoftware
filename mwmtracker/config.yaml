@@ -12,6 +12,9 @@ datadir: data/testVids/day1Aida
 outputdir: data/output
 templatedir: data/templates
 
+savetoexcel: True
+outputExcel: trackingData.xlsx
+
 # Video processing parameters
 #=====================================#
 

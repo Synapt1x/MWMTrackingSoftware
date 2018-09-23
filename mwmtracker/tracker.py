@@ -10,6 +10,7 @@ tracking videos using a specific tracking model.
 import util
 import cv2
 import numpy as np
+import data_processor
 
 
 TEMPLATE_JUMP = 25
@@ -27,7 +28,7 @@ class Tracker:
         self.train_vids = []
         self.validation_vids = []
         self.test_vids = []
-        self.data = {}
+        self.data = data_processor()
 
         # running parameters for the tracker
         self.vid_num = -1
@@ -117,6 +118,7 @@ class Tracker:
                 valid, frame = self.current_vid.read()
 
         if rect != INIT_RECT:
+            self.template_rect = rect
             self.template = frame[rect[1] : (rect[1] + rect[3]),
                             rect[0] : (rect[0] + rect[2]), :]
             self.w, self.h = self.template.shape[:2]
@@ -150,7 +152,7 @@ class Tracker:
                 else:
                     init_vid = self.process_initial_frame(frame)
 
-                valid, frame = self.current_vid.readFrame()
+                valid, frame = self.current_vid.read()
 
             self.load_next_vid()
 
@@ -189,6 +191,7 @@ class Tracker:
         template_vals = cv2.matchTemplate(frame, self.template,
                                           eval(self.config['template_ccorr']))
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(template_vals)
+        self.model.model.init(frame, self.template_rect)
 
         # use thresholding to determine if template is located
         if max_val > self.config['template_thresh']:
@@ -208,7 +211,7 @@ class Tracker:
         Process frame using selected tracker model.
         """
 
-        valid, box = self.model.update(frame)
+        valid, box = self.model.model.update(frame)
         if valid:
             # Tracking success
             UL_corner = (int(box[0]), int(box[1]))
