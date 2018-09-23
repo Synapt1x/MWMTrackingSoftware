@@ -8,7 +8,7 @@ tracker: opencv
 # Data directories and parameters
 #=====================================#
 
-datadir: data/testVids
+datadir: data/testVids/day1Aida
 outputdir: data/output
 templatedir: data/templates
 
