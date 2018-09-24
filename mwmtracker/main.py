@@ -44,8 +44,9 @@ def main():
     config['datadir'] = os.path.join(curdir, config['datadir'])
     config['templatedir'] = os.path.join(curdir, config['templatedir'])
     config['outputdir'] = os.path.join(curdir, config['outputdir'])
+    config['outputExcel'] = os.path.join(config['outputdir'], config[
+        'outputExcel'])
 
-    # TODO: set up code for running processing using the selected tracker
     # Determine which tracker system should load
     tracker = Tracker(config)
     tracker.initialize_tracker()

@@ -9,8 +9,9 @@ tracking videos using a specific tracking model.
 """
 import util
 import cv2
+import os
 import numpy as np
-import data_processor
+from data_processor import Data_processor
 
 
 TEMPLATE_JUMP = 25
@@ -28,7 +29,10 @@ class Tracker:
         self.train_vids = []
         self.validation_vids = []
         self.test_vids = []
-        self.data = data_processor()
+        self.data = {'data': Data_processor(config['outputExcel']),
+                     'x': [],
+                     'y': [],
+                     't': []}
 
         # running parameters for the tracker
         self.vid_num = -1
@@ -36,11 +40,15 @@ class Tracker:
         self.locations = []
         self.current_pos = []
         self.current_vid = None
+        self.current_vid_name = ''
         self.template = None
         self.w, self.h = 0, 0
+        self.max_frames = 0
+        self.max_length = 0
+        self.t = 0
 
         # initialize model for tracking
-        self.init_model(model_type = config['tracker'])
+        self.init_model(model_type=config['tracker'])
 
     def init_model(self, model_type='yolo', model_config=None):
         """
@@ -95,6 +103,7 @@ class Tracker:
 
         self.vid_num += 1
         vid_name = self.data['train_vids'][self.vid_num]
+        self.current_vid_name = vid_name.split(os.sep)[-1].split('.')[0]
         self.current_vid = cv2.VideoCapture(vid_name)
 
     def extract_template(self):
@@ -152,9 +161,19 @@ class Tracker:
                 else:
                     init_vid = self.process_initial_frame(frame)
 
+                self.t = self.current_vid.get(cv2.CAP_PROP_POS_MSEC) / 1000
+
                 valid, frame = self.current_vid.read()
 
+            # save data to pandas dataframe and write to excel
+            self.data['data'].save_frame(self.current_vid_name,
+                                         self.data['x'],
+                                         self.data['y'],
+                                         self.data['t'])
             self.load_next_vid()
+
+        self.data['data'].save_to_excel(self.config['datadir'].split(
+            os.sep)[-1])
 
     def extract_detect_img(self):
         """
@@ -191,12 +210,20 @@ class Tracker:
         template_vals = cv2.matchTemplate(frame, self.template,
                                           eval(self.config['template_ccorr']))
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(template_vals)
+
+        # initialize model and save centroid location to data
         self.model.model.init(frame, self.template_rect)
 
         # use thresholding to determine if template is located
         if max_val > self.config['template_thresh']:
             w, h = self.w // 2, self.h // 2
             self.current_pos = (max_loc[0] + w, max_loc[1] + h)
+
+            # initialize tracking data for current video
+            self.data['x'].append(self.current_pos[0])
+            self.data['y'].append(self.current_pos[1])
+            self.data['t'].append(self.t)
+
             if self.config['verbose']:
                 cv2.circle(img=frame, center=self.current_pos, radius=2,
                            color=[0, 255, 0], thickness=2)
@@ -217,6 +244,10 @@ class Tracker:
             UL_corner = (int(box[0]), int(box[1]))
             BR_corner = (int(box[0] + box[2]), int(box[1] + box[3]))
             cv2.rectangle(frame, UL_corner, BR_corner, (255,0,0), 2, 1)
+
+            self.data['x'].append(self.current_pos[0])
+            self.data['y'].append(self.current_pos[1])
+            self.data['t'].append(self.t)
         else:
             cv2.putText(frame, "Tracking failure detected", (100,80),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)

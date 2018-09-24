@@ -9,10 +9,11 @@ for saving the output path data to an excel file.
 
 """
 import pandas as pd
+import numpy as np
 
 
 
-class dataProcessor:
+class Data_processor:
     """
     Data Processor class
     """
@@ -21,7 +22,16 @@ class dataProcessor:
         """constructor"""
 
         self.excelWriter = pd.ExcelWriter(excelFilename, engine='xlsxwriter')
-        self.outputData = pd.DataFrame({})
+        self.output_data = pd.DataFrame(columns=['vid num', 'x', 'y', 't'])
+
+    def save_frame(self, col, x_locs, y_locs, t):
+
+        vid_name = np.repeat(col, len(x_locs))
+
+        self.output_data['vid num'] = vid_name
+        self.output_data['x'] = x_locs
+        self.output_data['y'] = y_locs
+        self.output_data['t'] = t
 
     def save_to_excel(self, sheetName):
         """
@@ -29,7 +39,7 @@ class dataProcessor:
         :return:
         """
 
-        self.outputData.to_excel(self.excelWriter, sheetName)
+        self.output_data.to_excel(self.excelWriter, sheetName)
 
 
 if __name__ == '__main__':
