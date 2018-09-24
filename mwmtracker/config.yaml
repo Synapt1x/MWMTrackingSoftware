@@ -53,4 +53,4 @@ pfilter:
 #=====================================#
 
 opencv:
-    algorithm: kcf  # defaults to kcf
+    algorithm: medianflow  # defaults to kcf

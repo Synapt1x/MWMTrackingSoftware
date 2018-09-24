@@ -12,6 +12,7 @@ import cv2
 import os
 import numpy as np
 from data_processor import Data_processor
+from video_processor import Video_processor
 
 
 TEMPLATE_JUMP = 25
@@ -24,6 +25,9 @@ class Tracker:
 
         # store configuration yaml
         self.config = config
+
+        # initialize video writer
+        self.video_writer = Video_processor()
 
         # initialize data storage
         self.train_vids = []
@@ -49,6 +53,9 @@ class Tracker:
 
         # initialize model for tracking
         self.init_model(model_type=config['tracker'])
+
+        # initialize first frame
+        self.first_frame = None
 
     def init_model(self, model_type='yolo', model_config=None):
         """
@@ -105,6 +112,7 @@ class Tracker:
         vid_name = self.data['train_vids'][self.vid_num]
         self.current_vid_name = vid_name.split(os.sep)[-1].split('.')[0]
         self.current_vid = cv2.VideoCapture(vid_name)
+        print('Processing video: ', self.current_vid_name.split(os.sep)[-1])
 
     def extract_template(self):
         """
@@ -156,6 +164,7 @@ class Tracker:
 
             # while frames have successfully been extracted
             while valid:
+
                 if init_vid:
                     self.process_frame(frame)
                 else:
@@ -163,6 +172,9 @@ class Tracker:
 
                 self.t = self.current_vid.get(cv2.CAP_PROP_POS_MSEC) / 1000
 
+                [self.current_vid.read() for _ in range(5) if valid]
+                if not valid:
+                    break
                 valid, frame = self.current_vid.read()
 
             # save data to pandas dataframe and write to excel
@@ -170,6 +182,14 @@ class Tracker:
                                          self.data['x'],
                                          self.data['y'],
                                          self.data['t'])
+
+            # save image to folder
+            img_name = self.config['outputdir'] + os.sep \
+                       + self.current_vid_name.strip().split('.')[0] + '.jpg'
+            self.video_writer.save_image(self.data['x'], self.data['y'],
+                                         self.first_frame,
+                                         img_name)
+
             self.load_next_vid()
 
         self.data['data'].save_to_excel(self.config['datadir'].split(
@@ -197,6 +217,48 @@ class Tracker:
         self.template = self.config['alpha'] * detection\
                         + (1 - self.config['alpha']) * self.template
 
+    def detect_loc(self, frame):
+        """
+        Use the chosen method to detect the location of the mouse
+        :param frame: (ndarray) - image as numpy array
+        :return:
+        """
+
+        max_detection = 0
+
+        for rotation in [0, 45, 90, 135, 180, 225]:
+
+            # rotate the template to check for other orientations
+            rotation_mtx = cv2.getRotationMatrix2D((self.w // 2, self.h //2),
+                                                   rotation, 1)
+            new_width = int((self.h * np.abs(rotation_mtx[0, 1]))
+                            + (self.w * np.abs(rotation_mtx[0, 0])))
+            new_height = int((self.h * np.abs(rotation_mtx[0, 0]))
+                             + (self.w * np.abs(rotation_mtx[0, 1])))
+
+            rotation_mtx[0, 2] += (new_width / 2) - self.w // 2
+            rotation_mtx[1, 2] += (new_height / 2) - self.h // 2
+
+            new_template = cv2.warpAffine(self.template, rotation_mtx,
+                                          (new_height, new_width))
+
+            # test current rotation using template matching
+            template_vals = cv2.matchTemplate(frame, new_template,
+                                              eval(self.config['template_ccorr']))
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(template_vals)
+
+            # if max val is found
+            if max_val > self.config['template_thresh'] and max_val > \
+                    max_detection:
+                max_detection = max_val
+                w, h = new_width // 2, new_height // 2
+                x_val, y_val = max_loc[0] + w, max_loc[1] + h
+
+        if max_detection == 0:
+            return False, None, None
+
+        return True, x_val, y_val
+
     def process_initial_frame(self, frame):
         """
         Process initial frame to find ideal location for template.
@@ -206,26 +268,21 @@ class Tracker:
         if self.template is None:
             self.extract_template()
 
-        # find max correlation with template to find likely location
-        template_vals = cv2.matchTemplate(frame, self.template,
-                                          eval(self.config['template_ccorr']))
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(template_vals)
+        # detect location of the mouse
+        valid, x, y = self.detect_loc(frame)
 
-        # initialize model and save centroid location to data
-        self.model.model.init(frame, self.template_rect)
+        # save the first frame
+        self.first_frame = frame
 
-        # use thresholding to determine if template is located
-        if max_val > self.config['template_thresh']:
-            w, h = self.w // 2, self.h // 2
-            self.current_pos = (max_loc[0] + w, max_loc[1] + h)
+        if valid:
 
             # initialize tracking data for current video
-            self.data['x'].append(self.current_pos[0])
-            self.data['y'].append(self.current_pos[1])
+            self.data['x'].append(x)
+            self.data['y'].append(y)
             self.data['t'].append(self.t)
 
             if self.config['verbose']:
-                cv2.circle(img=frame, center=self.current_pos, radius=2,
+                cv2.circle(img=frame, center=(x, y), radius=2,
                            color=[0, 255, 0], thickness=2)
             return True
         else:
@@ -238,19 +295,22 @@ class Tracker:
         Process frame using selected tracker model.
         """
 
-        valid, box = self.model.model.update(frame)
-        if valid:
-            # Tracking success
-            UL_corner = (int(box[0]), int(box[1]))
-            BR_corner = (int(box[0] + box[2]), int(box[1] + box[3]))
-            cv2.rectangle(frame, UL_corner, BR_corner, (255,0,0), 2, 1)
+        #valid, box = self.model.model.update(frame)
 
-            self.data['x'].append(self.current_pos[0])
-            self.data['y'].append(self.current_pos[1])
+        valid, x, y = self.detect_loc(frame)
+
+        if valid:
+            # tracking success
+            self.data['x'].append(x)
+            self.data['y'].append(y)
             self.data['t'].append(self.t)
+
+            # UL_corner = (int(box[0]), int(box[1]))
+            # BR_corner = (int(box[0] + box[2]), int(box[1] + box[3]))
+            # cv2.rectangle(frame, UL_corner, BR_corner, (255,0,0), 2, 1)
         else:
-            cv2.putText(frame, "Tracking failure detected", (100,80),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
+            cv2.putText(frame, "Tracking failure detected", (100, 80),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)
 
 if __name__ == '__main__':
     print('Please run the program by running main.py')

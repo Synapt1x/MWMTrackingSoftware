@@ -10,7 +10,7 @@ import os
 import cv2
 import numpy as np
 import argparse
-from video_processor import VideoProcessor
+from video_processor import Video_processor
 from math import *
 
 
