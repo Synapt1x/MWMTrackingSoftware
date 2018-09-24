@@ -247,9 +247,12 @@ class Tracker:
                                               eval(self.config['template_ccorr']))
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(template_vals)
 
+            diff = np.sqrt((max_loc[0] - self.current_pos[0]) ** 2
+                    + (max_loc[1] - self.current_pos[1]) ** 2)
+
             # if max val is found
             if max_val > self.config['template_thresh'] and max_val > \
-                    max_detection:
+                    max_detection and diff < 10:
                 max_detection = max_val
                 w, h = new_width // 2, new_height // 2
                 x_val, y_val = max_loc[0] + w, max_loc[1] + h
@@ -304,6 +307,8 @@ class Tracker:
             self.data['x'].append(x)
             self.data['y'].append(y)
             self.data['t'].append(self.t)
+
+            self.current_pos = (x, y)
 
             # UL_corner = (int(box[0]), int(box[1]))
             # BR_corner = (int(box[0] + box[2]), int(box[1] + box[3]))
