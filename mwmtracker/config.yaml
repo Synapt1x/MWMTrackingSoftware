@@ -2,7 +2,7 @@
 #=====================================#
 
 # Set the tracking system to be used for processing
-tracker: opencv
+tracker: template_match
 
 
 # Data directories and parameters
@@ -21,8 +21,7 @@ outputExcel: trackingData.xlsx
 framerate: 30
 adaptive_alpha: 0.25
 verbose: True
-template_ccorr: 'cv2.TM_CCORR_NORMED'
-template_thresh: 0.8
+
 
 # Hyperparams for general cnn training
 #=====================================#
@@ -53,4 +52,12 @@ pfilter:
 #=====================================#
 
 opencv:
-    algorithm: medianflow  # defaults to kcf
+    algorithm: kcf  # defaults to kcf
+
+# Parameters for simple image analysis approaches
+#=====================================#
+
+template_match:
+  threshold: 0.8
+  template_ccorr: 'cv2.TM_CCORR_NORMED'
+  template_thresh: 0.8

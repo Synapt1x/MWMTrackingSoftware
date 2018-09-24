@@ -67,23 +67,31 @@ class Tracker:
 
         # use defaults if no config file is passed in
         if model_config == None:
-            model_config = self.config[model_type]
+            self.config = {**self.config, **self.config[model_type]}
 
         if model_type == 'pfilter':
             # import and create particle filter
             from filters.particle_filter import ParticleFilter as Model
 
+            # initialize model tracker
+            self.model = Model(model_config)
+            self.model.initialize()
+
         elif model_type == 'yolo':
             # import and create yolo tracker
             from cnns.yolo import Yolo as Model
+
+            # initialize model tracker
+            self.model = Model(model_config)
+            self.model.initialize()
 
         elif model_type == 'opencv':
             # import and create opencv tracker
             from opencvtrackers.cvtrackers import CVTracker as Model
 
-        # initialize model tracker
-        self.model = Model(model_config)
-        self.model.initialize()
+            # initialize model tracker
+            self.model = Model(model_config)
+            self.model.initialize()
 
     def initialize_tracker(self):
         """
@@ -247,12 +255,15 @@ class Tracker:
                                               eval(self.config['template_ccorr']))
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(template_vals)
 
-            diff = np.sqrt((max_loc[0] - self.current_pos[0]) ** 2
-                    + (max_loc[1] - self.current_pos[1]) ** 2)
+            if self.current_pos:
+                diff = np.sqrt((max_loc[0] - self.current_pos[0]) ** 2
+                        + (max_loc[1] - self.current_pos[1]) ** 2)
+            else:
+                diff = 0
 
             # if max val is found
             if max_val > self.config['template_thresh'] and max_val > \
-                    max_detection and diff < 10:
+                    max_detection and diff < 25:
                 max_detection = max_val
                 w, h = new_width // 2, new_height // 2
                 x_val, y_val = max_loc[0] + w, max_loc[1] + h
