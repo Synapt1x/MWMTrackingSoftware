@@ -27,10 +27,14 @@ class Data_processor:
 
         vid_name = np.repeat(col, len(x_locs))
 
-        self.output_data['vid num'] = vid_name
-        self.output_data['x'] = x_locs
-        self.output_data['y'] = y_locs
-        self.output_data['t'] = t
+        temp_df = pd.DataFrame(columns=['vid num', 'x', 'y', 't'])
+
+        temp_df['vid num'] = vid_name
+        temp_df['x'] = x_locs
+        temp_df['y'] = y_locs
+        temp_df['t'] = t
+
+        self.output_data = pd.concat([self.output_data, temp_df])
 
     def save_to_excel(self, sheetName):
         """
@@ -39,6 +43,8 @@ class Data_processor:
         """
 
         self.output_data.to_excel(self.excelWriter, sheetName)
+
+        self.excelWriter.save()
 
 
 if __name__ == '__main__':

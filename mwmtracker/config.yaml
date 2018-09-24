@@ -8,7 +8,7 @@ tracker: template_match
 # Data directories and parameters
 #=====================================#
 
-datadir: data/testVids/day1Aida
+datadir: data/testVids/test
 outputdir: data/output
 templatedir: data/templates
 

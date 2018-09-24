@@ -198,7 +198,10 @@ class Tracker:
                                          self.first_frame,
                                          img_name)
 
-            self.load_next_vid()
+            self.data['x'], self.data['y'], self.data['t'] = [], [], []
+
+            if vid_i < self.num_vids - 1:
+                self.load_next_vid()
 
         self.data['data'].save_to_excel(self.config['datadir'].split(
             os.sep)[-1])
@@ -263,7 +266,7 @@ class Tracker:
 
             # if max val is found
             if max_val > self.config['template_thresh'] and max_val > \
-                    max_detection and diff < 25:
+                    max_detection and diff < 40:
                 max_detection = max_val
                 w, h = new_width // 2, new_height // 2
                 x_val, y_val = max_loc[0] + w, max_loc[1] + h
@@ -327,6 +330,7 @@ class Tracker:
         else:
             cv2.putText(frame, "Tracking failure detected", (100, 80),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)
+
 
 if __name__ == '__main__':
     print('Please run the program by running main.py')
