@@ -2,7 +2,7 @@
 #=====================================#
 
 # Set the tracking system to be used for processing
-tracker: template_match
+tracker: canny
 
 
 # Data directories and parameters
@@ -11,6 +11,8 @@ tracker: template_match
 datadir: data/testVids/test
 outputdir: data/output
 templatedir: data/templates
+
+boundPool: True
 
 savetoexcel: True
 outputExcel: trackingData.xlsx
@@ -58,6 +60,14 @@ opencv:
 #=====================================#
 
 template_match:
-  threshold: 0.8
+  threshold: 0.5
   template_ccorr: 'cv2.TM_CCORR_NORMED'
   template_thresh: 0.8
+
+canny:
+  threshold1: 180
+  threshold2: 360
+  minArea: 300
+  maxArea: 800
+  minArcLength: 60
+  maxArcLength: 180

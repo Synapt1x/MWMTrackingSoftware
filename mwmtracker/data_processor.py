@@ -21,17 +21,31 @@ class Data_processor:
         """constructor"""
 
         self.excelWriter = pd.ExcelWriter(excelFilename, engine='xlsxwriter')
-        self.output_data = pd.DataFrame(columns=['vid num', 'x', 'y', 't'])
+        self.output_data = pd.DataFrame(columns=['vid num', 'x', 'y',
+                                                 'dist', 't'])
 
     def save_frame(self, col, x_locs, y_locs, t):
+        """
+        Update Pandas dataframe with current frame information.
+
+        :param col:
+        :param x_locs:
+        :param y_locs:
+        :param t:
+        :return:
+        """
 
         vid_name = np.repeat(col, len(x_locs))
 
-        temp_df = pd.DataFrame(columns=['vid num', 'x', 'y', 't'])
+        temp_df = pd.DataFrame(columns=['vid num', 'x', 'y', 'dist', 't'])
 
         temp_df['vid num'] = vid_name
         temp_df['x'] = x_locs
         temp_df['y'] = y_locs
+        x_diff = np.power(temp_df['x'] - temp_df['x'].shift(1), 2)
+        y_diff = np.power(temp_df['y'] - temp_df['y'].shift(1), 2)
+        dists = np.sqrt(x_diff + y_diff)
+        temp_df['dist'] = np.nancumsum(dists)
         temp_df['t'] = t
 
         self.output_data = pd.concat([self.output_data, temp_df])

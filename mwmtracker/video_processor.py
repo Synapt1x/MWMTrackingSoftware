@@ -85,10 +85,10 @@ class Video_processor:
             # if this is the first point, draw an initial circle for drop point
             if prev_x == 0 and prev_y == 0:
                 cv2.circle(frame, center=(prev_x, prev_y), radius=1,
-                           color=(0, 255, 0), thickness=1)
+                           color=(255, 0, 0), thickness=1)
             else:
                 cv2.line(frame, (prev_x, prev_y), (x, y),
-                         color=(0, 255, 0), thickness=1)
+                         color=(255, 0, 0), thickness=1)
 
             prev_x, prev_y = x, y
 

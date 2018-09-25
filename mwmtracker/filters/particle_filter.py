@@ -114,7 +114,7 @@ class ParticleFilter:
 
         print("Max weight:", np.max(self.weights))
 
-        #TODO: Implement sampling wheel eo speed up resampling
+        #TODO: Implement sampling wheel to speed up resampling
         new_particles = np.random.choice(range(self.num_particles),
                                          self.num_particles,
                                          p=self.weights)
