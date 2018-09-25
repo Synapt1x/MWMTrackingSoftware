@@ -8,7 +8,7 @@ tracker: canny
 # Data directories and parameters
 #=====================================#
 
-datadir: data/testVids/test
+datadir: data/testVids/day1Aida
 outputdir: data/output
 templatedir: data/templates
 

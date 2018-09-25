@@ -360,7 +360,6 @@ class Tracker:
                            self.config['maxArcLength']
 
                 if areaCheck and arcCheck:
-                    print("area:", arc_length)
                     found = True
                     x = int(moments['m10'] / moments['m00'])
                     y = int(moments['m01'] / moments['m00'])
