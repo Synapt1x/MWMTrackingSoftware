@@ -8,6 +8,8 @@ implementation for use in the tracking software.
 
 """
 import numpy as np
+import cv2
+from detectors.simple_detector import SimpleDetector
 
 
 class ParticleFilter:
@@ -19,13 +21,15 @@ class ParticleFilter:
         """constructor"""
 
         self.num_particles = config['num_particles']
+        self.config = config
         self.particles = None
         self.full_frame = np.array([], dtype=np.uint8)
+        self.template_vals = np.array([])
 
-        self.template = np.array([], dtype=np.uint8)
         self.template_hog = None
+        self.detector = None
 
-    def initialize(self, h, w, dist_noise=None, vel_noise=None):
+    def initialize(self, h, w, dist_noise=None, vel_noise=None, detector=None):
         """
         initialize particles to randomize n-vector for each particle
 
@@ -42,12 +46,18 @@ class ParticleFilter:
         else:
             self.dist_noise = dist_noise
         self.error_noise = 0.5
-        self.vel_noise = 0.1
+        self.vel_noise = 0.5
 
-        x_vals = np.random.uniform(0., w, size=(self.num_particles, 1))
-        y_vals = np.random.uniform(0., h, size=(self.num_particles, 1))
-        #y_vals = np.random.normal(90., 10, size=(self.num_particles, 1))
-        #x_vals = np.random.normal(225., 10, size=(self.num_particles, 1))
+        # x_vals = np.random.uniform(0., w, size=(self.num_particles, 1))
+        # y_vals = np.random.uniform(0., h, size=(self.num_particles, 1))
+        y_vals = np.random.normal(h // 2., h // 6, size=(self.num_particles,
+                                                         1))
+        x_vals = np.random.normal(w // 2, w // 6, size=(self.num_particles,
+                                                         1))
+        x_vals[x_vals < 0] = 0
+        x_vals[x_vals > w] = w
+        y_vals[y_vals < 0] = 0
+        y_vals[y_vals > h] = h
 
         x_dot_vals = np.random.normal(0., 0.1, size=(self.num_particles, 1))
         y_dot_vals = np.random.normal(0., 0.1, size=(self.num_particles, 1))
@@ -55,14 +65,27 @@ class ParticleFilter:
         self.particles = np.hstack((y_vals, x_vals, x_dot_vals, y_dot_vals))
         self.weights = np.zeros(shape=self.num_particles)
 
+        # initialize the detector used to measure error during each frame
+        self.detector = SimpleDetector(self.config[self.config['detector']],
+                                       self.config['detector'])
+
         return
 
-    def calc_error(self, start=False):
+    def calc_error(self, i, j):
         """
         Calculate error and update weights for particles
         """
 
-        temp_h, temp_w = self.template.shape
+        err = self.template_vals[i, j]
+
+        if err == 1.0:
+            return 0.0
+
+        return np.exp(-err / (2 * self.error_noise ** 2))
+
+    def process_frame(self, template=None):
+
+        temp_h, temp_w = template.shape[:2]
 
         means = np.zeros(self.particles.shape[1])
         cov = np.array([[self.dist_noise, 0., 0., 0.],
@@ -73,10 +96,15 @@ class ParticleFilter:
                                               size=self.num_particles)
         self.particles += error
 
-        if not start:
-            self.initialize(self.max_h, self.max_w)
+        valid, self.template_vals = self.detector.detect(self.full_frame,
+                                                    template, True)
+        self.template_vals = self.template_vals[:-1, :-1]
+        self.template_vals[self.template_vals > 0.1] = 1.0
 
-        #TODO: Add error check for determining if template likely found
+        # cv2.imshow('TEMPLATE VALS', self.template_vals)
+        # cv2.waitKey(0)
+
+        # TODO: Add error check for determining if template likely found
 
         for p_i in range(len(self.particles)):
 
@@ -86,22 +114,23 @@ class ParticleFilter:
             i += dx + np.random.normal(0, self.dist_noise)
             j += dy + np.random.normal(0, self.dist_noise)
 
-            #TODO: add interpolation to scale continuous values to ints
+            # TODO: add interpolation to scale continuous values to ints
 
             i, j = int(i), int(j)
 
             # extract from full frame the comparison frame
-            try:
-                comp_frame = self.full_frame[i: i + temp_h,
-                                             j: j + temp_w]
-                #TODO: Change method of comparison to HOG and/or segmenter
-                diff = self.template - comp_frame
-                mse = np.sqrt((np.sum(np.square(diff))) / (temp_h * temp_w))
+            if 0 < i < self.max_h and 0 < j < self.max_w:
+                # comp_frame = self.full_frame[i: i + temp_h,
+                #              j: j + temp_w]
+                # TODO: Change method of comparison to HOG and/or segmenter
+                # diff = template - comp_frame
+                # mse = np.sqrt((np.sum(np.square(diff))) / (temp_h * temp_w))
 
-                weight = np.exp(-mse / (2 * self.error_noise ** 2))
-                self.weights[p_i] = weight  #1 / mse
+                # weight = np.exp(-err / (2 * self.error_noise ** 2))
+                weight = self.calc_error(i, j)
+                self.weights[p_i] = weight  # 1 / mse
 
-            except ValueError:
+            else:
 
                 self.weights[p_i] = 0.0
 
@@ -130,7 +159,7 @@ class ParticleFilter:
 
         avg_x, avg_y, dx, dy = np.mean(self.particles, axis=0)
 
-        return (avg_x, avg_y)
+        return avg_x, avg_y
 
 
 if __name__ == '__main__':
