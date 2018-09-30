@@ -48,7 +48,7 @@ yolo:
 #=====================================#
 
 pfilter:
-  num_particles: 5000
+  num_particles: 10000
   detector: template
 
 # Parameters for OpenCV tracker

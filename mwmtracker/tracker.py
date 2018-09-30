@@ -272,7 +272,7 @@ class Tracker:
 
         h, w = self.template.shape[:2]
 
-        return frame[i - h // 2: i + h // 2, j - w // 2: j + w // 2]
+        return frame[i: i + h, j: j + w]
 
     def update_template(self, frame, i, j):
         """
@@ -286,10 +286,14 @@ class Tracker:
 
         # morph template otherwise
         detection = self.extract_detect_img(frame, i, j)
-        cv2.imshow('detection', detection)
-        cv2.waitKey(0)
-        self.template = self.config['alpha'] * detection\
-                        + (1 - self.config['alpha']) * self.template
+        # cv2.imshow('detection', detection)
+        # cv2.waitKey(0)
+        self.template = (self.config['alpha'] * detection\
+                        + (1 - self.config['alpha']) *
+                         self.template).astype(np.uint8)
+
+        cv2.imshow('template', self.template)
+        cv2.waitKey(1)
 
     def detect_loc(self, frame):
         """
