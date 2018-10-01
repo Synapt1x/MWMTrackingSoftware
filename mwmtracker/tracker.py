@@ -46,6 +46,8 @@ class Tracker:
         self.current_vid = None
         self.current_vid_name = ''
         self.template = None
+        self.orig_template = None
+        self.template_defined = False
         self.w, self.h = 0, 0
         self.max_frames = 0
         self.max_length = 0
@@ -87,6 +89,14 @@ class Tracker:
             self.model = Model(self.config)
             self.model.initialize()
 
+        elif model_type == 'cnn':
+            # import and create custom cnn tracker
+            from cnns.custom_cnn import CustomModel as Model
+
+            # initialize model tracker
+            self.model = Model(self.config)
+            self.model.initialize()
+
         elif model_type == 'opencv':
             # import and create opencv tracker
             from opencvtrackers.cvtrackers import CVTracker as Model
@@ -94,6 +104,13 @@ class Tracker:
             # initialize model tracker
             self.model = Model(self.config)
             self.model.initialize()
+
+        elif model_type in ['canny', 'template']:
+            # import and create simple object detector
+            from detectors.simple_detector import SimpleDetector as Model
+
+            # initialize model
+            self.model = Model(self.config)
 
     def initialize_tracker(self):
         """
@@ -109,6 +126,7 @@ class Tracker:
         if len(self.data['template_img']) > 0:
             self.template_defined = True
             self.template = cv2.imread(self.data['template_img'][0])
+            self.orig_template = self.template.copy()
 
         # load first frame of first video
         vid_name = self.data['train_vids'][self.vid_num]
@@ -201,12 +219,19 @@ class Tracker:
         Process each video in the train video directory.
         """
 
+        # if the config indicates we need to extract train videos
+        # if self.config['extract_data']:
+        #     util.extract_train_data(self.config['traindir'],
+        #                             self.config['img_size'],
+        #                             self.current_vid)
+        #
+        # if self.config['load_pickle']:
+        #     self.data['train_data'], self.data['train_labels'] = \
+        #         util.load_train_data()
+
         # check if template has been defined
         if not self.template_defined and self.num_vids > 0:
             self.extract_template()
-
-        #cv2.imshow('template chosen', self.template)
-        #cv2.waitKey(0)
 
         # loop over each video in training set
         for vid_i in range(self.num_vids):
@@ -218,6 +243,11 @@ class Tracker:
 
             # while frames have successfully been extracted
             while valid:
+
+                frame = util.resize_frame(frame, self.config['resize'])
+
+                if self.config['tracker'] == 'pfilter':
+                    self.model.full_frame = frame
 
                 if init_vid:
                     self.process_frame(frame)
@@ -246,19 +276,22 @@ class Tracker:
             self.current_vid.release()  # release the current video
 
             if vid_i < self.num_vids - 1:
+                self.template = self.orig_template.copy()
                 self.load_next_vid()
 
         self.data['data'].save_to_excel(self.config['datadir'].split(
             os.sep)[-1])
 
-    def extract_detect_img(self):
+    def extract_detect_img(self, frame, i, j):
         """
         Provided a bounding box, return an image of the detection
         """
 
-        #TODO: Finish extraction of image
+        h, w = self.template.shape[:2]
 
-    def update_template(self):
+        return frame[i: i + h, j: j + w]
+
+    def update_template(self, frame, i, j):
         """
         Update template to track mouse using adaptive template.
         """
@@ -269,9 +302,15 @@ class Tracker:
             return
 
         # morph template otherwise
-        detection = self.extract_detect_img()
-        self.template = self.config['alpha'] * detection\
-                        + (1 - self.config['alpha']) * self.template
+        detection = self.extract_detect_img(frame, i, j)
+        # cv2.imshow('detection', detection)
+        # cv2.waitKey(0)
+        self.template = (self.config['alpha'] * detection\
+                        + (1 - self.config['alpha']) *
+                         self.template).astype(np.uint8)
+
+        cv2.imshow('template', self.template)
+        cv2.waitKey(1)
 
     def detect_loc(self, frame):
         """
@@ -280,103 +319,19 @@ class Tracker:
         :return:
         """
 
-        if self.config['tracker'] == 'template_match':
+        if self.config['tracker'] == 'template' or self.config['tracker'] ==\
+                'canny':
 
-            max_detection = 0
+            return self.model.detect(frame, self.config)
 
-            if self.config['boundPool']:
-                frame = frame[int(self.pool_rect[1]):
-                              int(self.pool_rect[1] + self.pool_rect[3]),
-                        int(self.pool_rect[0]):
-                        int(self.pool_rect[0] + self.pool_rect[2])]
+        elif self.config['tracker'] == 'pfilter':
 
-            for rotation in [0, 45, 90, 135, 180, 225]:
+            self.model.process_frame(self.template)
+            self.model.resample()
+            x, y = self.model.query()
 
-                # rotate the template to check for other orientations
-                rotation_mtx = cv2.getRotationMatrix2D((self.w // 2, self.h //2),
-                                                       rotation, 1)
-                new_width = int((self.h * np.abs(rotation_mtx[0, 1]))
-                                + (self.w * np.abs(rotation_mtx[0, 0])))
-                new_height = int((self.h * np.abs(rotation_mtx[0, 0]))
-                                 + (self.w * np.abs(rotation_mtx[0, 1])))
-
-                rotation_mtx[0, 2] += (new_width / 2) - self.w // 2
-                rotation_mtx[1, 2] += (new_height / 2) - self.h // 2
-
-                new_template = cv2.warpAffine(self.template, rotation_mtx,
-                                              (new_height, new_width))
-
-                # test current rotation using template matching
-                template_vals = cv2.matchTemplate(frame, new_template,
-                                                  eval(self.config['template_ccorr']))
-                min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(template_vals)
-
-                # if max val is found
-                if max_val > self.config['template_thresh'] and max_val > \
-                        max_detection:
-                    max_detection = max_val
-                    w, h = new_width // 2, new_height // 2
-                    x_val, y_val = max_loc[0] + w, max_loc[1] + h
-
-            if max_detection == 0:
-                return False, None, None
-
-            if self.config['boundPool']:
-                x_val += self.pool_rect[0]
-                y_val += self.pool_rect[1]
-
-            return True, x_val, y_val
-
-        elif self.config['tracker'] == 'canny':
-
-            if self.config['boundPool']:
-                frame = frame[int(self.pool_rect[1]):
-                              int(self.pool_rect[1] + self.pool_rect[3]),
-                        int(self.pool_rect[0]):
-                        int(self.pool_rect[0] + self.pool_rect[2])]
-
-            # use Canny detector to find edges and find contours to find all
-            # detected shapes
-            edge_frame = cv2.Canny(frame, threshold1=self.config['threshold1'],
-                                   threshold2=self.config['threshold2'])
-
-            contour_frame, contours, hierarchy = cv2.findContours(edge_frame,
-                                        cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-            found = False
-
-            for contour in contours:
-                # extract moments and features of detected contour
-                moments = cv2.moments(contour)
-                area = cv2.contourArea(contour)
-                arc_length = cv2.arcLength(contour, True)
-
-                if moments['m00'] == 0:
-                    continue
-
-                areaCheck = self.config['minArea'] < area < self.config[
-                    'maxArea']
-                arcCheck = self.config['minArcLength'] < arc_length < \
-                           self.config['maxArcLength']
-
-                if areaCheck and arcCheck:
-                    found = True
-                    x = int(moments['m10'] / moments['m00'])
-                    y = int(moments['m01'] / moments['m00'])
-                    break
-                else:
-                    continue
-
-            if found:
-                if self.config['boundPool']:
-                    x += self.pool_rect[0]
-                    y += self.pool_rect[1]
-
-                return True, x, y
-
-            else:
-
-                return False, None, None
+            return True, int(x), int(y)
+        return False, None, None
 
     def process_initial_frame(self, frame):
         """
@@ -399,6 +354,8 @@ class Tracker:
             self.data['x'].append(x)
             self.data['y'].append(y)
             self.data['t'].append(self.t)
+
+            self.update_template(frame, x, y)
 
             if self.config['verbose']:
                 cv2.circle(img=frame, center=(x, y), radius=2,
@@ -423,6 +380,8 @@ class Tracker:
             self.data['x'].append(x)
             self.data['y'].append(y)
             self.data['t'].append(self.t)
+
+            self.update_template(frame, x, y)
 
             self.current_pos = (x, y)
 

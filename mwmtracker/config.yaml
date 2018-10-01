@@ -2,26 +2,31 @@
 #=====================================#
 
 # Set the tracking system to be used for processing
-tracker: canny
+tracker: cnn
 
 
 # Data directories and parameters
 #=====================================#
 
-datadir: data/testVids/day1Aida
+datadir: data/testVids
 outputdir: data/output
 templatedir: data/templates
 
-boundPool: True
+boundPool: False
+
+extract_data: False
+num_train_vids: True
+frame_skip: 5
 
 savetoexcel: True
 outputExcel: trackingData.xlsx
+
 
 # Video processing parameters
 #=====================================#
 
 framerate: 30
-adaptive_alpha: 0.25
+alpha: 0.25
 verbose: True
 
 
@@ -29,6 +34,10 @@ verbose: True
 #=====================================#
 
 yolo:
+  img_size: 48
+
+  optimizer: adam
+
   batch_size: 128
   num_epochs: 200
   validation_every: 1
@@ -44,11 +53,28 @@ yolo:
       1: 0.5
       2: 0.9
 
+cnn:
+  train_model: True
+  traindir: data/trainData
+  img_size: 48
+
+  resize: 0.5
+  optimizer: adam
+
+  validation_proportion: 0.1
+  batch_size: 100
+  num_epochs: 200
+
+  learning_rate: 0.75
+
+
 # Parameters for Particle filter
 #=====================================#
 
 pfilter:
-  num_particles: 1000
+  num_particles: 10000
+  detector: template
+
 
 # Parameters for OpenCV tracker
 #=====================================#
@@ -56,18 +82,19 @@ pfilter:
 opencv:
     algorithm: kcf  # defaults to kcf
 
+
 # Parameters for simple image analysis approaches
 #=====================================#
 
-template_match:
+template:
   threshold: 0.5
-  template_ccorr: 'cv2.TM_CCORR_NORMED'
+  template_ccorr: 'cv2.TM_SQDIFF_NORMED'
   template_thresh: 0.8
 
 canny:
   threshold1: 180
   threshold2: 360
-  minArea: 300
-  maxArea: 800
-  minArcLength: 60
-  maxArcLength: 180
+  min_area: 300
+  max_area: 800
+  min_arc_length: 60
+  max_arc_length: 180

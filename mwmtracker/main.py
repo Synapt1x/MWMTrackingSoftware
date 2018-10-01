@@ -19,8 +19,6 @@ __status__ = "Development"
 
 
 import os
-import cv2
-import numpy as np
 import yaml
 from tracker import Tracker
 
