@@ -10,6 +10,8 @@ to detect a mouse location during swimming during the tracking.
 """
 
 import tensorflow as tf
+import numpy as np
+import os
 
 
 class CustomModel:
@@ -21,7 +23,11 @@ class CustomModel:
         """constructor"""
 
         self.config = config
-        self.model = self.create_model()
+        self.h = config['h']
+        self.w = config['w']
+
+        self.input_shape = (self.h, self.w, 3)
+        self.model = None
 
     def initialize(self):
         """
@@ -29,8 +35,7 @@ class CustomModel:
 
         """
 
-        #TODO: Initialize model
-        pass
+        self.model = self.create_model()
 
     def create_model(self):
         """
@@ -39,8 +44,81 @@ class CustomModel:
         :return: return the model
         """
 
-        #TODO: Build model
-        pass
+        model = tf.keras.Sequential()
+
+        # define input layer
+        model.add(tf.keras.layers.Conv2D(16, (3, 3), padding='same',
+                                         activation='relu',
+                                         input_shape=self.input_shape))
+
+        # define hidden convolutional layers
+        model.add(tf.keras.layers.Conv2D(32, (3, 3), padding='same',
+                                         activation='relu'))
+        model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
+        model.add(tf.keras.layers.Conv2D(32, (3, 3), padding='same',
+                                         activation='relu'))
+        model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
+
+        # define the fully connected output layer
+        model.add(tf.keras.layers.Flatten())
+        model.add(tf.keras.layers.Dense(128, activation='relu'))
+        model.add(tf.keras.layers.Dropout(0.25))
+        model.add(tf.keras.layers.Dense(1,
+                                        kernel_initializer='normal',
+                                        activation='sigmoid'))
+
+        return model
+
+    def view_model(self):
+        """
+        Print summary of the model
+        :return:
+        """
+
+        self.model.summary()
+
+    def compile_model(self):
+        """
+        Compile the model using the parameters and optimizer specified in
+        yaml config file.
+        :return:
+        """
+
+        self.model.compile(optimizer=self.config['optimizer'],
+                           loss='binary_crossentropy',
+                           metrics=['accuracy'])
+
+    def split_train_data(self, train_data, train_labels):
+        """
+        Split training data into train/validation data for use in k-folds
+        cross-validation.
+
+        :param train_data:
+        :param train_labels:
+        :return:
+        """
+
+        orig_total = train_data.shape[0]
+        num_valid = int(orig_total * self.config['validation_proportion'])
+        num_train = orig_total - num_valid
+
+        # randomly choose indices
+        rand_indices = np.random.choice(range(num_valid),
+                                        size=num_valid,
+                                        replace=False)
+
+        # create mask for separating train data into train / valid
+        mask = np.ones(orig_total, dtype=bool)
+        mask[rand_indices] = False
+
+        valid_data = train_data[rand_indices, :, :, :]
+        valid_labels = train_labels[rand_indices].reshape(num_valid, 1)
+
+        train_data = train_data[mask, :, :, :]
+        train_labels = train_labels[mask].reshape(num_train, 1)
+
+        return train_data, train_labels, valid_data, valid_labels
+
 
     def train(self, train_data, train_labels):
         """
@@ -55,9 +133,26 @@ class CustomModel:
         :return:
         """
 
-        #TODO: code training of model
-        pass
+        # compile the model if not done so
+        self.compile_model()
 
+        # extract validation data
+        train_data, train_labels, valid_data, valid_labels = \
+            self.split_train_data(train_data, train_labels)
+
+        epochs = self.config['num_epochs']
+        batch_size = self.config['batch_size']
+
+        # create checkpointer for saving weights to output file
+        checkpoint_func = tf.keras.callbacks.ModelCheckpoint(
+            filepath=self.config['traindir']+os.sep+self.config[
+                'output_weights'], verbose=1, save_best_only=True)
+
+        # fit the model
+        self.model.fit(train_data, train_labels, validation_data=(valid_data,
+                                                                  valid_labels),
+                       epochs=epochs, batch_size=batch_size,
+                       callbacks=[checkpoint_func], verbose=1)
 
     def query(self):
         """

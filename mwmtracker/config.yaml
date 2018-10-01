@@ -61,11 +61,13 @@ cnn:
   resize: 0.5
   optimizer: adam
 
-  validation_proportion: 0.1
+  validation_proportion: 0.2
   batch_size: 100
   num_epochs: 200
 
   learning_rate: 0.75
+
+  output_weights: custom_weights.hdf5
 
 
 # Parameters for Particle filter

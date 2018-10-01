@@ -43,22 +43,8 @@ def train_model():
 
     config = {**config, **config[config['tracker']]}
     config['datadir'] = os.path.join(curdir, config['datadir'])
-
-    if config['tracker'] == 'yolo':
-        # import and create yolo tracker
-        from cnns.yolo import Yolo as Model
-
-        # initialize model tracker
-        model = Model(config)
-        model.initialize()
-
-    else:
-        # default to importing and creating custom cnn tracker
-        from cnns.custom_cnn import CustomModel as Model
-
-        # initialize model tracker
-        model = Model(config)
-        model.initialize()
+    config['h'] = config['img_size']
+    config['w'] = config['img_size']
 
     # extract training images if config specifies
     if config['extract_data']:
@@ -76,6 +62,23 @@ def train_model():
             util.extract_train_data(img_size, video, config['traindir'])
 
     train_data, train_labels = util.load_train_data()
+
+    if config['tracker'] == 'yolo':
+        # import and create yolo tracker
+        from cnns.yolo import Yolo as Model
+
+        # initialize model tracker
+        model = Model(config)
+        model.initialize()
+
+    else:
+        # default to importing and creating custom cnn tracker
+        from cnns.custom_cnn import CustomModel as Model
+
+        # initialize model tracker
+        model = Model(config)
+        model.initialize()
+
     model.train(train_data, train_labels)
 
 
