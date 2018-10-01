@@ -14,7 +14,7 @@ templatedir: data/templates
 
 boundPool: False
 
-extract_data: False
+extract_data: True
 num_train_vids: True
 frame_skip: 5
 

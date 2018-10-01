@@ -54,6 +54,8 @@ def train_model():
 
         for num in range(config['num_train_vids']):
 
+            print("num:", num, "total num:", config['num_train_vids'])
+
             img_size = config['img_size']
             i = np.random.randint(num_vids - 1)
 

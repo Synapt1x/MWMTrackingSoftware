@@ -111,14 +111,13 @@ class CustomModel:
         mask = np.ones(orig_total, dtype=bool)
         mask[rand_indices] = False
 
-        valid_data = train_data[rand_indices, :, :, :]
+        valid_data = train_data[rand_indices, :, :, :] / 255.
         valid_labels = train_labels[rand_indices].reshape(num_valid, 1)
 
-        train_data = train_data[mask, :, :, :]
+        train_data = train_data[mask, :, :, :] / 255.
         train_labels = train_labels[mask].reshape(num_train, 1)
 
         return train_data, train_labels, valid_data, valid_labels
-
 
     def train(self, train_data, train_labels):
         """
