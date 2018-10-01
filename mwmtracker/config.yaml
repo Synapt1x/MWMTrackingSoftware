@@ -2,7 +2,7 @@
 #=====================================#
 
 # Set the tracking system to be used for processing
-tracker: pfilter
+tracker: cnn
 
 
 # Data directories and parameters
@@ -13,6 +13,8 @@ outputdir: data/output
 templatedir: data/templates
 
 boundPool: False
+extract_data: True
+load_pickle: False
 
 savetoexcel: True
 outputExcel: trackingData.xlsx
@@ -43,6 +45,16 @@ yolo:
       0: 0.0
       1: 0.5
       2: 0.9
+
+cnn:
+  traindir: data/trainData
+  img_size: 36
+
+  validation_proportion: 0.1
+  batch_size: 100
+  num_epochs: 200
+
+  learning_rate: 0.75
 
 # Parameters for Particle filter
 #=====================================#

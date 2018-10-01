@@ -47,6 +47,9 @@ def main():
     config['outputExcel'] = os.path.join(config['outputdir'], config[
         'outputExcel'])
 
+    # extract data if needed
+
+
     # Determine which tracker system should load
     tracker = Tracker(config)
     tracker.initialize_tracker()

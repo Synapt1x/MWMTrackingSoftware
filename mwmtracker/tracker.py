@@ -89,6 +89,14 @@ class Tracker:
             self.model = Model(self.config)
             self.model.initialize()
 
+        elif model_type == 'cnn':
+            # import and create custom cnn tracker
+            from cnns.custom_cnn import CustomModel as Model
+
+            # initialize model tracker
+            self.model = Model(self.config)
+            self.model.initialize()
+
         elif model_type == 'opencv':
             # import and create opencv tracker
             from opencvtrackers.cvtrackers import CVTracker as Model
@@ -210,6 +218,12 @@ class Tracker:
         """
         Process each video in the train video directory.
         """
+
+        # if the config indicates we need to extract train videos
+        if self.config['extract_data']:
+            util.extract_train_data(self.config['traindir'],
+                                    self.config['img_size'],
+                                    self.current_vid)
 
         # check if template has been defined
         if not self.template_defined and self.num_vids > 0:
