@@ -28,6 +28,8 @@ class CustomModel:
         initialize parameters for YOLO model
 
         """
+
+        #TODO: Initialize model
         pass
 
     def create_model(self):
@@ -37,17 +39,25 @@ class CustomModel:
         :return: return the model
         """
 
-        #TODO: Build YOLO model using tf
+        #TODO: Build model
         pass
 
-    def train(self):
+    def train(self, train_data, train_labels):
         """
-        train the neural network
+        Train the model using the provided training data along with the
+        appropriate labels.
+
+        :param train_data: (ndarray) - training images as a tensor of shape
+                                     [n, w, h, c] for n images of size w x h
+                                     with c color channels
+        :param train_labels: (ndarray) - training image labels for each of n
+                                       images
+        :return:
         """
 
-        #TODO: Train YOLO model
-
+        #TODO: code training of model
         pass
+
 
     def query(self):
         """

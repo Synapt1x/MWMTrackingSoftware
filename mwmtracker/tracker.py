@@ -220,21 +220,18 @@ class Tracker:
         """
 
         # if the config indicates we need to extract train videos
-        if self.config['extract_data']:
-            util.extract_train_data(self.config['traindir'],
-                                    self.config['img_size'],
-                                    self.current_vid)
-
-        if self.config['load_pickle']:
-            self.data['train_data'], self.data['train_labels'] = \
-                util.load_train_data()
+        # if self.config['extract_data']:
+        #     util.extract_train_data(self.config['traindir'],
+        #                             self.config['img_size'],
+        #                             self.current_vid)
+        #
+        # if self.config['load_pickle']:
+        #     self.data['train_data'], self.data['train_labels'] = \
+        #         util.load_train_data()
 
         # check if template has been defined
         if not self.template_defined and self.num_vids > 0:
             self.extract_template()
-
-        #cv2.imshow('template chosen', self.template)
-        #cv2.waitKey(0)
 
         # loop over each video in training set
         for vid_i in range(self.num_vids):
@@ -246,6 +243,8 @@ class Tracker:
 
             # while frames have successfully been extracted
             while valid:
+
+                frame = util.resize_frame(frame, self.config['resize'])
 
                 if self.config['tracker'] == 'pfilter':
                     self.model.full_frame = frame

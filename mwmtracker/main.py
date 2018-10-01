@@ -19,8 +19,6 @@ __status__ = "Development"
 
 
 import os
-import cv2
-import numpy as np
 import yaml
 from tracker import Tracker
 
@@ -46,9 +44,6 @@ def main():
     config['outputdir'] = os.path.join(curdir, config['outputdir'])
     config['outputExcel'] = os.path.join(config['outputdir'], config[
         'outputExcel'])
-
-    # extract data if needed
-
 
     # Determine which tracker system should load
     tracker = Tracker(config)

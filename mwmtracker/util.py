@@ -212,6 +212,25 @@ def convolve(frame, template):
     return padded_img
 
 
+def resize_frame(img, factor):
+    """
+    Resize the input img by the specified factor.
+
+    :param img:
+    :param factor:
+    :return:
+    """
+
+    # extract shape and get new output shape
+    h, w = img.shape[:2]
+    new_h, new_w = int(h * factor), int(w * factor)
+
+    # resize and store resized image
+    new_img = cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_AREA)
+
+    return new_img
+
+
 def display_particles(frame, particles):
     """
     Display particles onto frame using cv2 circles.
@@ -272,7 +291,8 @@ def get_rois(event, x, y, flags, param):
                         labels.append(0)
 
 
-def load_train_data(pickle_name='data/trainData/train_data.pickle'):
+def load_train_data(pickle_name='data/trainData/train_data.pickle',
+                    as_array=True):
     """
     Load training data from the specified pickle file and return it as numpy
     arrays.
@@ -285,10 +305,24 @@ def load_train_data(pickle_name='data/trainData/train_data.pickle'):
         all_data = pickle.load(file)
     all_imgs, labels = all_data
 
-    return np.array(all_imgs), np.array(labels)
+    if as_array:
+        all_imgs = np.array(all_imgs)
+        labels = np.array(labels)
+
+    return all_imgs, labels
 
 
-def extract_train_data(output_dir, img_size=48, video=None):
+def save_train_data(filename):
+    """
+
+    :return:
+    """
+
+    with open(filename, 'wb') as file:
+        pickle.dump([all_imgs, labels], file)
+
+
+def extract_train_data(img_size=48, video=None, output_dir=None):
     """
     Interactively extract training data from a provided video
     :param output_dir:
@@ -296,12 +330,16 @@ def extract_train_data(output_dir, img_size=48, video=None):
     :return:
     """
 
+    global all_imgs, labels
+
     # exit if no video was passed in
     if video is None:
         return
 
-    valid, frame = video.read()
     filename = output_dir + os.sep + 'train_data.pickle'
+    all_imgs, labels = load_train_data(filename, as_array=False)
+
+    valid, frame = video.read()
 
     cv2.namedWindow("Click on mouse")
     cv2.setMouseCallback("Click on mouse", get_rois, [img_size, frame])
@@ -324,8 +362,8 @@ def extract_train_data(output_dir, img_size=48, video=None):
 
     cv2.destroyAllWindows()
 
-    with open(filename, 'wb') as file:
-        pickle.dump([all_imgs, labels], file)
+    # update pickle file
+    save_train_data(filename)
 
 
 if __name__ == '__main__':

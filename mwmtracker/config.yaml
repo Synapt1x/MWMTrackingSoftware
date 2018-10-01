@@ -13,11 +13,14 @@ outputdir: data/output
 templatedir: data/templates
 
 boundPool: False
-extract_data: True
-load_pickle: True
+
+extract_data: False
+num_train_vids: True
+frame_skip: 5
 
 savetoexcel: True
 outputExcel: trackingData.xlsx
+
 
 # Video processing parameters
 #=====================================#
@@ -31,6 +34,10 @@ verbose: True
 #=====================================#
 
 yolo:
+  img_size: 48
+
+  optimizer: adam
+
   batch_size: 128
   num_epochs: 200
   validation_every: 1
@@ -47,14 +54,19 @@ yolo:
       2: 0.9
 
 cnn:
+  train_model: True
   traindir: data/trainData
-  img_size: 72
+  img_size: 48
+
+  resize: 0.5
+  optimizer: adam
 
   validation_proportion: 0.1
   batch_size: 100
   num_epochs: 200
 
   learning_rate: 0.75
+
 
 # Parameters for Particle filter
 #=====================================#
@@ -63,11 +75,13 @@ pfilter:
   num_particles: 10000
   detector: template
 
+
 # Parameters for OpenCV tracker
 #=====================================#
 
 opencv:
     algorithm: kcf  # defaults to kcf
+
 
 # Parameters for simple image analysis approaches
 #=====================================#
