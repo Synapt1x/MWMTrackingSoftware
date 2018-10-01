@@ -254,7 +254,7 @@ def get_rois(event, x, y, flags, param):
                 labels.append(1)
 
         # if there are enough negative examples already
-        if len(labels) < 3000:
+        if len(labels) < 1000:
 
             # iterate over all other locations in image to generate negative
             #  images
@@ -280,10 +280,12 @@ def load_train_data(pickle_name='data/trainData/train_data.pickle'):
     :return:
     """
 
+    # load all imgs and their labels from the pickle file
     with open(pickle_name, 'rb') as file:
         all_data = pickle.load(file)
-
     all_imgs, labels = all_data
+
+    return np.array(all_imgs), np.array(labels)
 
 
 def extract_train_data(output_dir, img_size=48, video=None):

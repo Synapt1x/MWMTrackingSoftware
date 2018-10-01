@@ -14,7 +14,7 @@ templatedir: data/templates
 
 boundPool: False
 extract_data: True
-load_pickle: False
+load_pickle: True
 
 savetoexcel: True
 outputExcel: trackingData.xlsx
