@@ -48,7 +48,7 @@ yolo:
 
 cnn:
   traindir: data/trainData
-  img_size: 36
+  img_size: 72
 
   validation_proportion: 0.1
   batch_size: 100

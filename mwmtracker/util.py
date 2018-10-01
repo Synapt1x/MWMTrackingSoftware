@@ -227,9 +227,9 @@ def display_particles(frame, particles):
     return frame
 
 
-def get_roi(event, x, y, flags, param):
+def get_rois(event, x, y, flags, param):
     """
-    Extract image ROI from a click on the image
+    Extract image ROIs from a click on the image
 
     :param event:
     :param x:
@@ -248,8 +248,8 @@ def get_roi(event, x, y, flags, param):
         # store single pixel shifts of the select location
         for i in [-2, -1, 0, 1, 2]:
             for j in [-2, -1, 0, 1, 2]:
-                pos_img = frame[y - img_size - i: y + img_size - i,
-                            x - img_size - j: x + img_size - j]
+                pos_img = frame[y - img_size // 2 - i: y + img_size // 2 - i,
+                            x - img_size // 2 - j: x + img_size // 2 - j]
                 all_imgs.append(pos_img)
                 labels.append(1)
 
@@ -272,6 +272,20 @@ def get_roi(event, x, y, flags, param):
                         labels.append(0)
 
 
+def load_train_data(pickle_name='data/trainData/train_data.pickle'):
+    """
+    Load training data from the specified pickle file and return it as numpy
+    arrays.
+    :param pickle_name:
+    :return:
+    """
+
+    with open(pickle_name, 'rb') as file:
+        all_data = pickle.load(file)
+
+    all_imgs, labels = all_data
+
+
 def extract_train_data(output_dir, img_size=48, video=None):
     """
     Interactively extract training data from a provided video
@@ -284,25 +298,20 @@ def extract_train_data(output_dir, img_size=48, video=None):
     if video is None:
         return
 
-    # initialize vars
-    imgs = []
-    labels = np.array([])
-
     valid, frame = video.read()
+    filename = output_dir + os.sep + 'train_data.pickle'
 
     cv2.namedWindow("Click on mouse")
-    cv2.setMouseCallback("Click on mouse", get_roi, [img_size, frame])
+    cv2.setMouseCallback("Click on mouse", get_rois, [img_size, frame])
 
     # while frames have successfully been extracted
     while valid:
 
+        # show frame to extract ROIs from
         cv2.imshow("Click on mouse", frame)
         key = cv2.waitKey(0) & 0xFF
         if key == ord('q') or key == ord('Q'):
-            cv2.destroyAllWindows()
             break
-
-        cv2.destroyAllWindows()
 
         [video.read() for _ in range(frame_skip)]
 
@@ -311,7 +320,9 @@ def extract_train_data(output_dir, img_size=48, video=None):
         if not valid:
             break
 
-    with open('train_data.pickle', 'wb') as file:
+    cv2.destroyAllWindows()
+
+    with open(filename, 'wb') as file:
         pickle.dump([all_imgs, labels], file)
 
 
