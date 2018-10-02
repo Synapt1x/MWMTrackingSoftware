@@ -215,6 +215,9 @@ def resize_frame(img, factor):
     :return:
     """
 
+    if factor == 1.0:
+        return img
+
     # extract shape and get new output shape
     h, w = img.shape[:2]
     new_h, new_w = int(h * factor), int(w * factor)
@@ -261,9 +264,11 @@ def get_rois(event, x, y, flags, param):
         # store single pixel shifts of the select location
         for i in [-2, -1, 0, 1, 2]:
             for j in [-2, -1, 0, 1, 2]:
-                pos_img = frame[y - img_size // 2 - i: y + img_size // 2 - i,
-                            x - img_size // 2 - j: x + img_size // 2 - j]
+                pos_img = frame[y + i - img_size // 2: y + i + img_size // 2,
+                                x + j - img_size // 2: x + j + img_size // 2]
                 all_imgs.append(pos_img)
+                cv2.imwrite('data/testImages/pos/img-' + str(i) + str(j) +
+                            '.jpg', pos_img)
                 labels.append(1)
 
         # if there are enough negative examples already
@@ -279,7 +284,9 @@ def get_rois(event, x, y, flags, param):
                             abs(neg_j - y) > 2 * img_size:
                         img = frame[neg_i - img_size // 2: neg_i + img_size // 2,
                                     neg_j - img_size // 2: neg_j + img_size // 2]
-
+                        cv2.imwrite(
+                            'data/testImages/neg/img-' + str(i) + str(j) +
+                            '.jpg', img)
                         all_imgs.append(img)
                         labels.append(0)
 
@@ -357,10 +364,11 @@ def extract_train_data(img_size=48, video=None, output_dir=None):
     valid, frame = video.read()
 
     cv2.namedWindow("Click on mouse")
-    cv2.setMouseCallback("Click on mouse", get_rois, [img_size, frame])
 
     # while frames have successfully been extracted
     while valid:
+
+        cv2.setMouseCallback("Click on mouse", get_rois, [img_size, frame])
 
         # show frame to extract ROIs from
         cv2.imshow("Click on mouse", frame)

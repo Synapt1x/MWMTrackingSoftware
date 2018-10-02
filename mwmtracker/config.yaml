@@ -11,6 +11,7 @@ tracker: cnn
 datadir: data/testVids
 outputdir: data/output
 templatedir: data/templates
+save_extract_images: True
 
 boundPool: False
 # coordinates from previous pool bounding
@@ -60,12 +61,12 @@ yolo:
 cnn:
   train_model: True
   traindir: data/trainData
-  training_verbose: 1
+  training_verbose: 0
   augmentation: True
 
-  img_size: 48
+  img_size: 64
 
-  resize: 0.5
+  resize: 1.0
   optimizer: adam
 
   validation_proportion: 0.2
