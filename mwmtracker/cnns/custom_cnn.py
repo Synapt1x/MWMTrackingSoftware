@@ -58,6 +58,9 @@ class CustomModel:
         model.add(tf.keras.layers.Conv2D(32, (3, 3), padding='same',
                                          activation='relu'))
         model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
+        model.add(tf.keras.layers.Conv2D(32, (3, 3), padding='same',
+                                         activation='relu'))
+        model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
 
         # define the fully connected output layer
         model.add(tf.keras.layers.Flatten())
@@ -160,7 +163,6 @@ class CustomModel:
         """
 
         return
-
 
 
 if __name__ == '__main__':

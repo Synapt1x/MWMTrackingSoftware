@@ -14,9 +14,9 @@ templatedir: data/templates
 
 boundPool: False
 
-extract_data: True
+extract_data: False
 num_train_vids: True
-frame_skip: 5
+frame_skip: 4
 
 savetoexcel: True
 outputExcel: trackingData.xlsx
