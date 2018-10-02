@@ -11,6 +11,7 @@ to detect a mouse location during swimming during the tracking.
 
 import tensorflow as tf
 import numpy as np
+import pickle
 import os
 
 
@@ -151,10 +152,15 @@ class CustomModel:
                 'output_weights'], verbose=1, save_best_only=True)
 
         # fit the model
-        self.model.fit(train_data, train_labels, validation_data=(valid_data,
-                                                                  valid_labels),
-                       epochs=epochs, batch_size=batch_size,
-                       callbacks=[checkpoint_func], verbose=verbose)
+        with tf.device('/device:GPU:0'):
+            history = self.model.fit(train_data, train_labels,
+                           validation_data=(valid_data, valid_labels),
+                           epochs=epochs, batch_size=batch_size,
+                           callbacks=[checkpoint_func], verbose=verbose)
+
+        with open(self.config['traindir']+os.sep+'history', 'wb') as \
+                file:
+            pickle.dump(history.history, file)
 
     def query(self):
         """
