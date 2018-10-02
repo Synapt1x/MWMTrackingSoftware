@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a1c8d6b9-2191-4603-b277-eb3b87037761" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mwmtracker/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/mwmtracker/util.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -11,7 +12,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/MWMTracker$extract_training_data.coverage" NAME="extract_training_data Coverage Results" MODIFIED="1538518026612" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
+    <SUITE FILE_PATH="coverage/MWMTracker$extract_training_data.coverage" NAME="extract_training_data Coverage Results" MODIFIED="1538521330094" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
     <SUITE FILE_PATH="coverage/MWMTracker$RunMain.coverage" NAME="RunMain Coverage Results" MODIFIED="1538500146574" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
     <SUITE FILE_PATH="coverage/MWMTracker$trainCNN.coverage" NAME="trainCNN Coverage Results" MODIFIED="1538513670306" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
   </component>
@@ -45,13 +46,13 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="Python Console" value="52" />
-          <entry key="py" value="25518" />
+          <entry key="py" value="26053" />
           <entry key="yaml" value="1022" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="25570" />
+          <entry key="Python" value="26105" />
           <entry key="YAML" value="1022" />
         </counts>
       </usages-collector>
@@ -135,12 +136,12 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/mwmtracker/util.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="354">
-              <caret line="290" column="41" selection-start-line="290" selection-start-column="41" selection-end-line="290" selection-end-column="41" />
+            <state relative-caret-position="71">
+              <caret line="354" column="7" lean-forward="true" selection-start-line="354" selection-start-column="7" selection-end-line="354" selection-end-column="7" />
               <folding>
                 <element signature="e#222#231#0" expanded="true" />
-                <marker date="1538518004378" expanded="true" signature="9639:9979" ph="..." />
-                <marker date="1538518004378" expanded="true" signature="10082:10087" ph="..." />
+                <marker date="1538521121884" expanded="true" signature="9366:9706" ph="..." />
+                <marker date="1538521121884" expanded="true" signature="9809:9814" ph="..." />
               </folding>
             </state>
           </provider>
@@ -399,8 +400,8 @@
       <window_info anchor="bottom" id="Concurrent Activities Diagram" order="0" weight="0.32934782" />
       <window_info anchor="bottom" id="Message" order="1" />
       <window_info anchor="bottom" id="Find" order="2" weight="0.32938644" />
-      <window_info anchor="bottom" x="1920" y="149" width="1920" height="931" id="Run" order="3" weight="0.32934782" />
-      <window_info active="true" anchor="bottom" id="Debug" order="4" visible="true" weight="0.39891306" />
+      <window_info active="true" anchor="bottom" x="1920" y="149" width="1920" height="931" id="Run" order="3" visible="true" weight="0.32934782" />
+      <window_info anchor="bottom" id="Debug" order="4" weight="0.39891306" />
       <window_info anchor="bottom" id="Cvs" order="5" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="7" />
@@ -516,13 +517,18 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/mwmtracker/util.py</url>
-          <line>278</line>
+          <line>276</line>
           <option name="timeStamp" value="67" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/mwmtracker/util.py</url>
           <line>266</line>
           <option name="timeStamp" value="69" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/mwmtracker/util.py</url>
+          <line>365</line>
+          <option name="timeStamp" value="70" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -542,6 +548,12 @@
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="evaluateCodeFragment">
+      <expression>
+        <expression-string>cv2.imshow('pos:', all_imgs[-14])
+cv2.waitKey(0)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>cv2.imshow('image', pos_img)
 cv2.waitKey(0)</expression-string>
@@ -625,22 +637,7 @@ for i, img in enumerate(all_imgs):
     </expressions>
     <expressions id="evaluateExpression">
       <expression>
-        <expression-string>pos_img.shape == [img_size, img_size, 3]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>pos_img.shape == (img_size, img_size, 3)</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>pos_img.shape</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>pos_img</expression-string>
+        <expression-string>np.sum(labels)</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -655,22 +652,32 @@ for i, img in enumerate(all_imgs):
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
+        <expression-string>labels[16000]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>labels[15000]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>labels[14000]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>labels[13000]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
         <expression-string>labels</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>y</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>x</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>(img * 255).astype(np.uint8)</expression-string>
+        <expression-string>labels == 0</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -806,12 +813,12 @@ for i, img in enumerate(all_imgs):
     </entry>
     <entry file="file://$PROJECT_DIR$/mwmtracker/util.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="354">
-          <caret line="290" column="41" selection-start-line="290" selection-start-column="41" selection-end-line="290" selection-end-column="41" />
+        <state relative-caret-position="71">
+          <caret line="354" column="7" lean-forward="true" selection-start-line="354" selection-start-column="7" selection-end-line="354" selection-end-column="7" />
           <folding>
             <element signature="e#222#231#0" expanded="true" />
-            <marker date="1538518004378" expanded="true" signature="9639:9979" ph="..." />
-            <marker date="1538518004378" expanded="true" signature="10082:10087" ph="..." />
+            <marker date="1538521121884" expanded="true" signature="9366:9706" ph="..." />
+            <marker date="1538521121884" expanded="true" signature="9809:9814" ph="..." />
           </folding>
         </state>
       </provider>

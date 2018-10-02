@@ -271,9 +271,7 @@ def get_rois(event, x, y, flags, param):
                 if pos_img.shape != (img_size, img_size, 3):
                     continue
                 all_imgs.append(pos_img)
-                cv2.imwrite('data/testImages/pos/img-' + str(i) + str(j) +
-                            '.jpg', pos_img)
-                labels.append(0)
+                labels.append(1)
 
         # if there are enough negative examples already
         if len(labels) < 1000:
@@ -290,9 +288,6 @@ def get_rois(event, x, y, flags, param):
                                     neg_j - img_size // 2: neg_j + img_size // 2]
                         if img.shape != (img_size, img_size, 3):
                             continue
-                        cv2.imwrite(
-                            'data/testImages/neg/img-' + str(i) + str(j) +
-                            '.jpg', img)
                         all_imgs.append(img)
                         labels.append(0)
 
