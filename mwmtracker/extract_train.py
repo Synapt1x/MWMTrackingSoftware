@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-""" Code used for training a specified CNN model, using valid training data
-through extraction.
+""" Code used for extracting training data for training a custom CNN model.
 
-train_model.py: this contains the code for loading/extracting training data
-and training the CNN.
+extract_train.py: this contains code for running the util.extract_train_data
+function specifically for populating training data.
 
 """
 
@@ -46,25 +45,19 @@ def train_model():
     config['h'] = config['img_size']
     config['w'] = config['img_size']
 
-    train_data, train_labels = util.load_train_data()
+    data_vids = util.load_files(config['datadir'])
+    num_vids = len(data_vids)
 
-    if config['tracker'] == 'yolo':
-        # import and create yolo tracker
-        from cnns.yolo import Yolo as Model
+    for num in range(config['num_train_vids']):
 
-        # initialize model tracker
-        model = Model(config)
-        model.initialize()
+        print("num:", num, "total num:", config['num_train_vids'])
 
-    else:
-        # default to importing and creating custom cnn tracker
-        from cnns.custom_cnn import CustomModel as Model
+        img_size = config['img_size']
+        i = np.random.randint(num_vids - 1)
 
-        # initialize model tracker
-        model = Model(config)
-        model.initialize()
+        video = cv2.VideoCapture(data_vids[i])
 
-    model.train(train_data, train_labels, int(config['training_verbose']))
+        util.extract_train_data(img_size, video, config['traindir'])
 
 
 if __name__ == '__main__':

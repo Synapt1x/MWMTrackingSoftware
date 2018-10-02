@@ -331,6 +331,13 @@ class Tracker:
             x, y = self.model.query()
 
             return True, int(x), int(y)
+
+        elif self.config['tracker'] == 'cnn':
+
+            x, y = self.model.query(frame)
+
+            return True, int(x), int(y)
+
         return False, None, None
 
     def process_initial_frame(self, frame):

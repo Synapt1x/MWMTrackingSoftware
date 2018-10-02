@@ -267,10 +267,9 @@ def get_rois(event, x, y, flags, param):
                 labels.append(1)
 
         # if there are enough negative examples already
-        if len(labels) < 9000:
+        if len(labels) < 1000:
 
-            # iterate over all other locations in image to generate negative
-            #  images
+            # iterate over all other locations in image to generate neg images
             for i in range(1, h // img_size):
                 for j in range(1, w // img_size):
 
@@ -285,6 +284,24 @@ def get_rois(event, x, y, flags, param):
                         labels.append(0)
 
 
+def reset_train_data(pickle_name='data/trainData/train_data.pickle'):
+    """
+    Load training data from the specified pickle and overwrite it with empty
+    lists to reset the data.
+
+    :param pickle_name:
+    :return:
+    """
+    global all_imgs, labels
+
+    all_imgs, labels = load_train_data(pickle_name, False)
+
+    # reset and save
+    all_imgs = []
+    labels = []
+    save_train_data(pickle_name)
+
+
 def load_train_data(pickle_name='data/trainData/train_data.pickle',
                     as_array=True):
     """
@@ -293,6 +310,8 @@ def load_train_data(pickle_name='data/trainData/train_data.pickle',
     :param pickle_name:
     :return:
     """
+
+    print("Loading training data from:", pickle_name)
 
     # load all imgs and their labels from the pickle file
     with open(pickle_name, 'rb') as file:
@@ -311,6 +330,8 @@ def save_train_data(filename):
 
     :return:
     """
+
+    print("Saving training data to:", filename)
 
     with open(filename, 'wb') as file:
         pickle.dump([all_imgs, labels], file)

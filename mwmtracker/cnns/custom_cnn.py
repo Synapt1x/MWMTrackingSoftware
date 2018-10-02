@@ -11,6 +11,7 @@ to detect a mouse location during swimming during the tracking.
 
 import tensorflow as tf
 import numpy as np
+import cv2
 import pickle
 import os
 
@@ -24,8 +25,8 @@ class CustomModel:
         """constructor"""
 
         self.config = config
-        self.h = config['h']
-        self.w = config['w']
+        self.h = config['img_size']
+        self.w = config['img_size']
 
         self.input_shape = (self.h, self.w, 3)
         self.model = None
@@ -143,8 +144,17 @@ class CustomModel:
         train_data, train_labels, valid_data, valid_labels = \
             self.split_train_data(train_data, train_labels)
 
+        print("Size:", train_data.shape[0])
+
         epochs = self.config['num_epochs']
         batch_size = self.config['batch_size']
+
+        # if augmentation is to be used
+        if self.config['augmentation']:
+            datagen = tf.keras.preprocessing.image.ImageDataGenerator(
+                rotation_range=30,
+                horizontal_flip=True)
+            datagen.fit(train_data)
 
         # create checkpointer for saving weights to output file
         checkpoint_func = tf.keras.callbacks.ModelCheckpoint(
@@ -153,22 +163,68 @@ class CustomModel:
 
         # fit the model
         with tf.device('/device:GPU:0'):
-            history = self.model.fit(train_data, train_labels,
-                           validation_data=(valid_data, valid_labels),
-                           epochs=epochs, batch_size=batch_size,
-                           callbacks=[checkpoint_func], verbose=verbose)
+            if self.config['augmentation']:
+                history = self.model.fit_generator(datagen.flow(train_data,
+                                                   train_labels,
+                                                   batch_size=batch_size),
+                                                   steps_per_epoch=train_data.shape[0] // batch_size,
+                                                   epochs=epochs,
+                                                   verbose=verbose,
+                                                   callbacks=[checkpoint_func],
+                                                   validation_data=(
+                                                       valid_data,
+                                                       valid_labels))
+            else:
+                history = self.model.fit(train_data, train_labels,
+                                         validation_data=(
+                                         valid_data, valid_labels),
+                                         epochs=epochs, batch_size=batch_size,
+                                         callbacks=[checkpoint_func],
+                                         verbose=verbose)
 
         with open(self.config['traindir']+os.sep+'history', 'wb') as \
                 file:
             pickle.dump(history.history, file)
 
-    def query(self):
+    def query(self, frame):
         """
         query the neural network to find output
         :return:
         """
 
-        return
+        stride = self.config['window_stride']
+        min_h, max_h, min_w, max_w = self.config['miny'], self.config['maxy'], \
+                                     self.config['minx'], self.config['maxx']
+
+        imgs = []
+        coords = []
+
+        for i in range(min_h, max_h - self.h, stride):
+
+            for j in range(min_w, max_w - self.w, stride):
+
+                test_img = frame[i: i + self.h, j: j + self.w]
+
+                imgs.append(test_img)
+                coords.append((i, j))
+
+        imgs = np.array(imgs)
+
+        predictions = self.model.predict(imgs)
+        if all(predictions == 1.0) or all(predictions == 0.0):
+            return False, None, None
+
+        best_index = np.argmax(predictions)
+        best_i, best_j = coords[best_index]
+        best_img = imgs[best_index]
+
+        print("predictions:", predictions)
+        print("MAX:", np.max(predictions), "argmax:", np.argmax(predictions))
+        print("show image...")
+        cv2.imshow("best img:", best_img)
+        cv2.waitKey(0)
+
+        return True, best_i + self.h // 2, best_j + self.w // 2
 
 
 if __name__ == '__main__':

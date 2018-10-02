@@ -13,8 +13,12 @@ outputdir: data/output
 templatedir: data/templates
 
 boundPool: False
+# coordinates from previous pool bounding
+minx: 200
+maxx: 520
+miny: 86
+maxy: 350
 
-extract_data: False
 num_train_vids: True
 frame_skip: 4
 
@@ -56,7 +60,8 @@ yolo:
 cnn:
   train_model: True
   traindir: data/trainData
-  training_verbose: 0
+  training_verbose: 1
+  augmentation: True
 
   img_size: 48
 
@@ -65,11 +70,13 @@ cnn:
 
   validation_proportion: 0.2
   batch_size: 200
-  num_epochs: 50000
+  num_epochs: 1000
 
   learning_rate: 0.75
 
   output_weights: custom_weights.hdf5
+
+  window_stride: 4
 
 
 # Parameters for Particle filter
