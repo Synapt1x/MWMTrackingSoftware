@@ -81,7 +81,7 @@ def train_model():
         model = Model(config)
         model.initialize()
 
-    model.train(train_data, train_labels)
+    model.train(train_data, train_labels, int(config['training_verbose']))
 
 
 if __name__ == '__main__':

@@ -85,12 +85,6 @@ def acquire_template(dirname, vidname):
     print("Please left click on the location of the mouse")
 
     if frame is not None:
-        # extract properties of video
-        h, w, d = frame.shape
-        #temp_h = h // 10
-        #temp_w = w // 10
-        temp_h = 12
-        temp_w = 16
 
         frame_jump = 50  # number of frames to skip through video
 

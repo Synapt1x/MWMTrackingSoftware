@@ -56,6 +56,8 @@ yolo:
 cnn:
   train_model: True
   traindir: data/trainData
+  training_verbose: 0
+
   img_size: 48
 
   resize: 0.5

@@ -122,7 +122,7 @@ class CustomModel:
 
         return train_data, train_labels, valid_data, valid_labels
 
-    def train(self, train_data, train_labels):
+    def train(self, train_data, train_labels, verbose):
         """
         Train the model using the provided training data along with the
         appropriate labels.
@@ -154,7 +154,7 @@ class CustomModel:
         self.model.fit(train_data, train_labels, validation_data=(valid_data,
                                                                   valid_labels),
                        epochs=epochs, batch_size=batch_size,
-                       callbacks=[checkpoint_func], verbose=1)
+                       callbacks=[checkpoint_func], verbose=verbose)
 
     def query(self):
         """
