@@ -273,7 +273,7 @@ def get_rois(event, x, y, flags, param):
                 labels.append(1)
 
         # if there are enough negative examples already
-        if len(labels) < 2000:
+        if len(labels) < 9000:
 
             # iterate over all other locations in image to generate negative
             #  images

@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a1c8d6b9-2191-4603-b277-eb3b87037761" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mwmtracker/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/mwmtracker/config.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mwmtracker/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/mwmtracker/util.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -13,7 +13,7 @@
   </component>
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/MWMTracker$RunMain.coverage" NAME="RunMain Coverage Results" MODIFIED="1538366416177" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
-    <SUITE FILE_PATH="coverage/MWMTracker$trainCNN.coverage" NAME="trainCNN Coverage Results" MODIFIED="1538438126346" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
+    <SUITE FILE_PATH="coverage/MWMTracker$trainCNN.coverage" NAME="trainCNN Coverage Results" MODIFIED="1538440958060" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
   </component>
   <component name="FUSProjectUsageTrigger">
     <session id="-1069376193">
@@ -43,14 +43,14 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="Python Console" value="52" />
-          <entry key="py" value="19397" />
-          <entry key="yaml" value="778" />
+          <entry key="py" value="19445" />
+          <entry key="yaml" value="782" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="19449" />
-          <entry key="YAML" value="778" />
+          <entry key="Python" value="19497" />
+          <entry key="YAML" value="782" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.js.language.service.starts" />
@@ -61,8 +61,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mwmtracker/train_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="108">
-              <caret line="66" lean-forward="true" selection-start-line="66" selection-end-line="66" />
+            <state relative-caret-position="397">
+              <caret line="83" selection-start-line="83" selection-end-line="83" />
               <folding>
                 <element signature="e#585#594#0" expanded="true" />
               </folding>
@@ -124,8 +124,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mwmtracker/util.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="907">
-              <caret line="342" selection-start-line="342" selection-end-line="342" />
+            <state relative-caret-position="125">
+              <caret line="275" column="26" selection-start-line="275" selection-start-column="26" selection-end-line="275" selection-end-column="26" />
               <folding>
                 <element signature="e#222#231#0" expanded="true" />
               </folding>
@@ -137,7 +137,7 @@
         <entry file="file://$PROJECT_DIR$/mwmtracker/config.yaml">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="173">
-              <caret line="16" column="19" selection-start-line="16" selection-start-column="19" selection-end-line="16" selection-end-column="19" />
+              <caret line="16" column="19" selection-start-line="16" selection-start-column="14" selection-end-line="16" selection-end-column="19" />
             </state>
           </provider>
         </entry>
@@ -214,9 +214,9 @@
         <option value="$PROJECT_DIR$/mwmtracker/tracker.py" />
         <option value="$PROJECT_DIR$/mwmtracker/cnns/train_model.py" />
         <option value="$PROJECT_DIR$/mwmtracker/main.py" />
-        <option value="$PROJECT_DIR$/mwmtracker/util.py" />
         <option value="$PROJECT_DIR$/mwmtracker/train_model.py" />
         <option value="$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py" />
+        <option value="$PROJECT_DIR$/mwmtracker/util.py" />
         <option value="$PROJECT_DIR$/mwmtracker/config.yaml" />
       </list>
     </option>
@@ -375,7 +375,7 @@
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Remote Host" order="3" />
-      <window_info anchor="right" id="SciView" order="4" sideWeight="0.4994618" weight="0.32995737" />
+      <window_info anchor="right" id="SciView" order="4" sideWeight="0.4994618" visible="true" weight="0.32995737" />
       <window_info anchor="right" x="0" y="0" width="430" height="855" id="Documentation" order="5" sideWeight="0.50053823" side_tool="true" weight="0.32995737" />
       <window_info anchor="right" id="Database" order="6" />
     </layout>
@@ -541,6 +541,21 @@ cv2.waitKey(0)</expression-string>
     </expressions>
     <expressions id="evaluateExpression">
       <expression>
+        <expression-string>sum(train_labels)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>train_labels</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>train_data</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
         <expression-string>labels</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
@@ -567,26 +582,6 @@ cv2.waitKey(0)</expression-string>
       </expression>
       <expression>
         <expression-string>num_train = orig_total - num_valid</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>config['w']</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>config['h']</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>config['extract_data']</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>train_labels</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -712,8 +707,8 @@ cv2.waitKey(0)</expression-string>
     </entry>
     <entry file="file://$PROJECT_DIR$/mwmtracker/util.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="907">
-          <caret line="342" selection-start-line="342" selection-end-line="342" />
+        <state relative-caret-position="125">
+          <caret line="275" column="26" selection-start-line="275" selection-start-column="26" selection-end-line="275" selection-end-column="26" />
           <folding>
             <element signature="e#222#231#0" expanded="true" />
           </folding>
@@ -722,8 +717,8 @@ cv2.waitKey(0)</expression-string>
     </entry>
     <entry file="file://$PROJECT_DIR$/mwmtracker/train_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="66" lean-forward="true" selection-start-line="66" selection-end-line="66" />
+        <state relative-caret-position="397">
+          <caret line="83" selection-start-line="83" selection-end-line="83" />
           <folding>
             <element signature="e#585#594#0" expanded="true" />
           </folding>
@@ -733,7 +728,7 @@ cv2.waitKey(0)</expression-string>
     <entry file="file://$PROJECT_DIR$/mwmtracker/config.yaml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="173">
-          <caret line="16" column="19" selection-start-line="16" selection-start-column="19" selection-end-line="16" selection-end-column="19" />
+          <caret line="16" column="19" selection-start-line="16" selection-start-column="14" selection-end-line="16" selection-end-column="19" />
         </state>
       </provider>
     </entry>
