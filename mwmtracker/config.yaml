@@ -65,7 +65,7 @@ cnn:
 
   validation_proportion: 0.2
   batch_size: 200
-  num_epochs: 20000
+  num_epochs: 50000
 
   learning_rate: 0.75
 
