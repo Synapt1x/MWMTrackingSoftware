@@ -20,6 +20,7 @@ __status__ = "Development"
 
 
 import os
+import sys
 import cv2
 import numpy as np
 import util
@@ -63,6 +64,9 @@ def train_model():
         # initialize model tracker
         model = Model(config)
         model.initialize()
+
+    if len(sys.argv) > 1:
+        config['training_verbose'] = 1 if sys.argv[1] == '-v' else 0
 
     model.train(train_data, train_labels, int(config['training_verbose']))
 
