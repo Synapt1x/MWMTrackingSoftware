@@ -49,28 +49,38 @@ class CustomModel:
         model = tf.keras.Sequential()
 
         # define input layer
-        model.add(tf.keras.layers.Conv2D(16, (3, 3), padding='same',
+        model.add(tf.keras.layers.Conv2D(64, (3, 3), padding='same',
                                          activation='relu',
                                          input_shape=self.input_shape))
 
         # define hidden convolutional layers
-        model.add(tf.keras.layers.Conv2D(32, (3, 3), padding='same',
+        model.add(tf.keras.layers.Conv2D(64, (2, 2), padding='same',
                                          activation='relu'))
         model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
-        model.add(tf.keras.layers.Conv2D(32, (3, 3), padding='same',
+        model.add(tf.keras.layers.Conv2D(128, (2, 2), padding='same',
                                          activation='relu'))
         model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
-        model.add(tf.keras.layers.Conv2D(32, (3, 3), padding='same',
+        model.add(tf.keras.layers.Conv2D(256, (2, 2), padding='same',
                                          activation='relu'))
         model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
 
+        model.add(tf.keras.layers.ZeroPadding2D((1, 1)))
+        model.add(tf.keras.layers.Conv2D(512, (3, 3), activation='relu'))
+        model.add(tf.keras.layers.ZeroPadding2D((1, 1)))
+        model.add(tf.keras.layers.Conv2D(512, (3, 3), activation='relu'))
+        model.add(tf.keras.layers.MaxPooling2D((2, 2), strides=(2, 2)))
+
         # define the fully connected output layer
         model.add(tf.keras.layers.Flatten())
-        model.add(tf.keras.layers.Dense(128, activation='relu'))
-        model.add(tf.keras.layers.Dropout(0.25))
+        model.add(tf.keras.layers.Dense(2048, activation='relu'))
+        model.add(tf.keras.layers.Dropout(0.4))
+        model.add(tf.keras.layers.Dense(2048, activation='relu'))
+        model.add(tf.keras.layers.Dropout(0.4))
         model.add(tf.keras.layers.Dense(1,
                                         kernel_initializer='normal',
                                         activation='sigmoid'))
+
+        model.summary()
 
         return model
 
@@ -143,8 +153,6 @@ class CustomModel:
         # extract validation data
         train_data, train_labels, valid_data, valid_labels = \
             self.split_train_data(train_data, train_labels)
-
-        print("Size:", train_data.shape[0])
 
         epochs = self.config['num_epochs']
         batch_size = self.config['batch_size']
