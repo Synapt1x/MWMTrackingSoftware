@@ -255,6 +255,8 @@ def get_rois(event, x, y, flags, param):
     :return:
     """
 
+    global all_imgs, labels
+
     if event == cv2.EVENT_LBUTTONDOWN:
 
         img_size, frame = param
@@ -266,6 +268,8 @@ def get_rois(event, x, y, flags, param):
             for j in [-2, -1, 0, 1, 2]:
                 pos_img = frame[y + i - img_size // 2: y + i + img_size // 2,
                                 x + j - img_size // 2: x + j + img_size // 2]
+                if pos_img.shape != (img_size, img_size, 3):
+                    continue
                 all_imgs.append(pos_img)
                 cv2.imwrite('data/testImages/pos/img-' + str(i) + str(j) +
                             '.jpg', pos_img)
@@ -280,10 +284,12 @@ def get_rois(event, x, y, flags, param):
 
                     neg_i, neg_j = i * img_size, j * img_size
 
-                    if abs(neg_i - x) > 2 * img_size and \
-                            abs(neg_j - y) > 2 * img_size:
+                    if abs(neg_i - y) > 2 * img_size and \
+                            abs(neg_j - x) > 2 * img_size:
                         img = frame[neg_i - img_size // 2: neg_i + img_size // 2,
                                     neg_j - img_size // 2: neg_j + img_size // 2]
+                        if img.shape != (img_size, img_size, 3):
+                            continue
                         cv2.imwrite(
                             'data/testImages/neg/img-' + str(i) + str(j) +
                             '.jpg', img)
@@ -337,6 +343,7 @@ def save_train_data(filename):
 
     :return:
     """
+    global all_imgs, labels
 
     print("Saving training data to:", filename)
 
@@ -344,7 +351,7 @@ def save_train_data(filename):
         pickle.dump([all_imgs, labels], file)
 
 
-def extract_train_data(img_size=48, video=None, output_dir=None):
+def extract_train_data(img_size=64, video=None, output_dir=None):
     """
     Interactively extract training data from a provided video
     :param output_dir:
