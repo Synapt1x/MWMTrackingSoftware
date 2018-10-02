@@ -77,7 +77,7 @@ cnn:
 
   output_weights: custom_weights.hdf5
 
-  window_stride: 4
+  window_stride: 8
 
 
 # Parameters for Particle filter

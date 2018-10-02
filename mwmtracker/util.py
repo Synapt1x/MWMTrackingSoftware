@@ -269,7 +269,7 @@ def get_rois(event, x, y, flags, param):
                 all_imgs.append(pos_img)
                 cv2.imwrite('data/testImages/pos/img-' + str(i) + str(j) +
                             '.jpg', pos_img)
-                labels.append(1)
+                labels.append(0)
 
         # if there are enough negative examples already
         if len(labels) < 1000:
