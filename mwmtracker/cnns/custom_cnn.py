@@ -37,7 +37,12 @@ class CustomModel:
 
         """
 
-        self.model = self.create_model()
+        if self.config['load_weights']:
+            self.model = tf.keras.models.load_model(self.config['traindir'] +
+                                                    os.sep +
+                                                self.config['fitted_weights'])
+        else:
+            self.model = self.create_model()
 
     def create_model(self):
         """
@@ -196,7 +201,8 @@ class CustomModel:
 
     def query(self, frame):
         """
-        query the neural network to find output
+        query the neural network to find output using a simple sliding window
+        approach and distance limiting based on previous location
         :return:
         """
 
@@ -222,15 +228,8 @@ class CustomModel:
         if all(predictions == 1.0) or all(predictions == 0.0):
             return False, None, None
 
-        best_index = np.argmax(predictions)
-        best_i, best_j = coords[best_index]
-        best_img = imgs[best_index]
-
-        print("predictions:", predictions)
-        print("MAX:", np.max(predictions), "argmax:", np.argmax(predictions))
-        print("show image...")
-        cv2.imshow("best img:", best_img)
-        cv2.waitKey(0)
+        first_best = np.argmax(predictions)
+        best_i, best_j = coords[first_best]
 
         return True, best_i + self.h // 2, best_j + self.w // 2
 

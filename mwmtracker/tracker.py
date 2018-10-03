@@ -233,6 +233,8 @@ class Tracker:
         if not self.template_defined and self.num_vids > 0:
             self.extract_template()
 
+        frame_num = 0
+
         # loop over each video in training set
         for vid_i in range(self.num_vids):
 
@@ -245,6 +247,10 @@ class Tracker:
             while valid:
 
                 frame = util.resize_frame(frame, self.config['resize'])
+
+                frame_num += 1
+
+                print('frame num:', frame_num)
 
                 if self.config['tracker'] == 'pfilter':
                     self.model.full_frame = frame
@@ -309,9 +315,6 @@ class Tracker:
                         + (1 - self.config['alpha']) *
                          self.template).astype(np.uint8)
 
-        cv2.imshow('template', self.template)
-        cv2.waitKey(1)
-
     def detect_loc(self, frame):
         """
         Use the chosen method to detect the location of the mouse
@@ -334,7 +337,10 @@ class Tracker:
 
         elif self.config['tracker'] == 'cnn':
 
-            x, y = self.model.query(frame)
+            valid, x, y = self.model.query(frame)
+
+            if not valid:
+                return False, None, None
 
             return True, int(x), int(y)
 
@@ -361,8 +367,9 @@ class Tracker:
             self.data['x'].append(x)
             self.data['y'].append(y)
             self.data['t'].append(self.t)
+            self.current_pos = [x, y]
 
-            self.update_template(frame, x, y)
+            # self.update_template(frame, x, y)
 
             if self.config['verbose']:
                 cv2.circle(img=frame, center=(x, y), radius=2,
@@ -388,9 +395,9 @@ class Tracker:
             self.data['y'].append(y)
             self.data['t'].append(self.t)
 
-            self.update_template(frame, x, y)
+            self.current_pos = [x, y]
 
-            self.current_pos = (x, y)
+            self.update_template(frame, x, y)
 
             # UL_corner = (int(box[0]), int(box[1]))
             # BR_corner = (int(box[0] + box[2]), int(box[1] + box[3]))

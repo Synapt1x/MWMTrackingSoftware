@@ -8,17 +8,17 @@ tracker: cnn
 # Data directories and parameters
 #=====================================#
 
-datadir: data/testVids
+datadir: data/test
 outputdir: data/output
 templatedir: data/templates
 save_extract_images: True
 
 boundPool: False
 # coordinates from previous pool bounding
-minx: 200
-maxx: 520
-miny: 86
-maxy: 350
+minx: 400
+maxx: 1040
+miny: 172
+maxy: 700
 
 num_train_vids: True
 frame_skip: 4
@@ -71,13 +71,15 @@ cnn:
 
   validation_proportion: 0.2
   batch_size: 200
-  num_epochs: 1000
+  num_epochs: 500
 
   learning_rate: 0.75
 
   output_weights: custom_weights.hdf5
+  fitted_weights: custom_weights.hdf5
+  load_weights: True
 
-  window_stride: 8
+  window_stride: 32
 
 
 # Parameters for Particle filter
