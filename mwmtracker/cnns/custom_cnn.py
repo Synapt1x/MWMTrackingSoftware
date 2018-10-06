@@ -81,9 +81,9 @@ class CustomModel:
         # define the fully connected output layer
         model.add(Flatten())
         model.add(Dense(2048, activation='relu'))
-        model.add(Dropout(0.33))
+        model.add(Dropout(self.config['dropout']))
         model.add(Dense(2048, activation='relu'))
-        model.add(Dropout(0.33))
+        model.add(Dropout(self.config['dropout']))
         model.add(Dense(1, kernel_initializer='normal',
                                         activation='sigmoid'))
 

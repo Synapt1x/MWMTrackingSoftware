@@ -62,6 +62,9 @@ cnn:
   train_model: True
   traindir: data/trainData
   training_verbose: 0
+
+  dropout: 0.33
+
   augmentation: True
 
   img_size: 64
