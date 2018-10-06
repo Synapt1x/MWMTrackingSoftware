@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a1c8d6b9-2191-4603-b277-eb3b87037761" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mwmtracker/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/mwmtracker/config.yaml" afterDir="false" />
     </list>
@@ -15,8 +14,8 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/MWMTracker$extract_training_data.coverage" NAME="extract_training_data Coverage Results" MODIFIED="1538521330094" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
     <SUITE FILE_PATH="coverage/MWMTracker$RunMain.coverage" NAME="RunMain Coverage Results" MODIFIED="1538527534742" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
-    <SUITE FILE_PATH="coverage/MWMTracker$trainCNN_VERBOSE.coverage" NAME="trainCNN-VERBOSE Coverage Results" MODIFIED="1538800420182" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
-    <SUITE FILE_PATH="coverage/MWMTracker$trainCNN.coverage" NAME="trainCNN Coverage Results" MODIFIED="1538522456904" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
+    <SUITE FILE_PATH="coverage/MWMTracker$trainCNN_VERBOSE.coverage" NAME="trainCNN-VERBOSE Coverage Results" MODIFIED="1538803292350" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
+    <SUITE FILE_PATH="coverage/MWMTracker$trainCNN.coverage" NAME="trainCNN Coverage Results" MODIFIED="1538802339706" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
   </component>
   <component name="FUSProjectUsageTrigger">
     <session id="-1069376193">
@@ -34,13 +33,13 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="py" value="31" />
+          <entry key="py" value="32" />
           <entry key="yaml" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Python" value="31" />
+          <entry key="Python" value="32" />
           <entry key="YAML" value="2" />
         </counts>
       </usages-collector>
@@ -48,14 +47,14 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="Python Console" value="52" />
-          <entry key="py" value="30384" />
-          <entry key="yaml" value="1186" />
+          <entry key="py" value="31623" />
+          <entry key="yaml" value="1236" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="30436" />
-          <entry key="YAML" value="1186" />
+          <entry key="Python" value="31675" />
+          <entry key="YAML" value="1236" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.js.language.service.starts" />
@@ -66,8 +65,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mwmtracker/train_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="401">
-              <caret line="74" selection-start-line="74" selection-end-line="74" />
+            <state relative-caret-position="244">
+              <caret line="61" selection-start-line="61" selection-end-line="61" />
               <folding>
                 <element signature="e#585#594#0" expanded="true" />
               </folding>
@@ -99,11 +98,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2567">
-              <caret line="55" column="37" lean-forward="true" selection-start-line="55" selection-start-column="37" selection-end-line="55" selection-end-column="37" />
+            <state relative-caret-position="255">
+              <caret line="114" column="44" selection-start-line="114" selection-start-column="44" selection-end-line="114" selection-end-column="44" />
               <folding>
                 <element signature="e#358#381#0" expanded="true" />
               </folding>
@@ -137,11 +136,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mwmtracker/config.yaml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="278">
-              <caret line="66" column="6" selection-start-line="66" selection-start-column="6" selection-end-line="66" selection-end-column="6" />
+            <state relative-caret-position="91">
+              <caret line="64" column="20" selection-start-line="64" selection-start-column="20" selection-end-line="64" selection-end-column="20" />
             </state>
           </provider>
         </entry>
@@ -230,8 +229,8 @@
         <option value="$PROJECT_DIR$/mwmtracker/util.py" />
         <option value="$PROJECT_DIR$/mwmtracker/train_model.py" />
         <option value="$PROJECT_DIR$/mwmtracker/tracker.py" />
-        <option value="$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py" />
         <option value="$PROJECT_DIR$/mwmtracker/config.yaml" />
+        <option value="$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py" />
       </list>
     </option>
   </component>
@@ -526,23 +525,28 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py</url>
-          <line>189</line>
+          <line>160</line>
           <option name="timeStamp" value="71" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py</url>
-          <line>226</line>
+          <line>197</line>
           <option name="timeStamp" value="72" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py</url>
-          <line>126</line>
-          <option name="timeStamp" value="79" />
+          <line>138</line>
+          <option name="timeStamp" value="82" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/mwmtracker/train_model.py</url>
+          <line>61</line>
+          <option name="timeStamp" value="83" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py</url>
-          <line>152</line>
-          <option name="timeStamp" value="80" />
+          <line>89</line>
+          <option name="timeStamp" value="84" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -562,6 +566,34 @@
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="evaluateCodeFragment">
+      <expression>
+        <expression-string>for a, b, in data_splitter.get_n_splits(X=train_data, y=train_labels):
+    print(&quot;a:&quot;, len(a))
+    print(&quot;b;&quot;, len(b))</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>for a, b, in data_splitter.get_n_split(X=train_data, y=train_labels):
+    print(&quot;a:&quot;, len(a))
+    print(&quot;b;&quot;, len(b))</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>for a, b, in data_splitter.split(X=train_data, y=train_labels):
+    print(&quot;a:&quot;, len(a))
+    print(&quot;b;&quot;, len(b))</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>for a, b, in data_splitter.split(X=train_data, y=train_labels):
+    print(&quot;a:&quot;, a)
+    print(&quot;b;&quot;, b)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>cv2.imshow('window', train_data[234])
 cv2.waitKey(0)</expression-string>
@@ -595,42 +627,6 @@ cv2.waitKey(0)</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
       </expression>
-      <expression>
-        <expression-string>img = train_data[742]
-label = train_labels[742]
-print('label:', label)
-cv2.imshow('img', img)
-cv2.waitKey(0)</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>img = train_data[742]
-label = train_labels[742]
-cv2.imshow('img', img)
-cv2.waitKey(0)</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>new_imgs = np.array(all_imgs[0])
-for i, img in enumerate(all_imgs):
-    if i == 0:
-        continue
-    new_imgs = np.vstack((new_imgs, img))</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>new_imgs = np.array(all_imgs[0])
-for i, img in enumerate(all_imgs):
-    if i == 0:
-        continue
-    print(&quot;new_imgs:&quot;, new_imgs, &quot;img:&quot;, img)
-    new_imgs = np.vstack((new_imgs, img))</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
-      </expression>
     </expressions>
     <expressions id="breakpointCondition">
       <expression>
@@ -641,7 +637,7 @@ for i, img in enumerate(all_imgs):
     </expressions>
     <expressions id="evaluateExpression">
       <expression>
-        <expression-string>valid_data</expression-string>
+        <expression-string>model.view_model()</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -656,32 +652,32 @@ for i, img in enumerate(all_imgs):
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
+        <expression-string>a, b = data_splitter.split(X=train_data, y=train_labels)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>a, b, c, d = data_splitter.split(X=train_data, y=train_labels)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>data_splitter.split(X=train_data, y=train_labels)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>data_splitter.split(train_data, train_labels)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>valid_data</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
         <expression-string>train_labels.reshape(60, 1)</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>valid_labels</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>class_weights = class_weight.compute_class_weight('balanced', np.array([0, 1]), train_labels[:, 0])</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>train_labels[:, 0]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>train_labels[0]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>class_weights = class_weight.compute_class_weight('balanced', np.array([0, 1]), train_labels)</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -789,15 +785,22 @@ for i, img in enumerate(all_imgs):
     </entry>
     <entry file="file://$USER_HOME$/anaconda3/envs/tf/lib/python3.6/codecs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="311">
-          <caret line="310" selection-start-line="310" selection-end-line="310" />
+        <state relative-caret-position="668">
+          <caret line="308" selection-start-line="308" selection-end-line="308" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mwmtracker/config.yaml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="91">
+          <caret line="64" column="20" selection-start-line="64" selection-start-column="20" selection-end-line="64" selection-end-column="20" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mwmtracker/train_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="401">
-          <caret line="74" selection-start-line="74" selection-end-line="74" />
+        <state relative-caret-position="244">
+          <caret line="61" selection-start-line="61" selection-end-line="61" />
           <folding>
             <element signature="e#585#594#0" expanded="true" />
           </folding>
@@ -806,18 +809,11 @@ for i, img in enumerate(all_imgs):
     </entry>
     <entry file="file://$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2567">
-          <caret line="55" column="37" lean-forward="true" selection-start-line="55" selection-start-column="37" selection-end-line="55" selection-end-column="37" />
+        <state relative-caret-position="255">
+          <caret line="114" column="44" selection-start-line="114" selection-start-column="44" selection-end-line="114" selection-end-column="44" />
           <folding>
             <element signature="e#358#381#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mwmtracker/config.yaml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="278">
-          <caret line="66" column="6" selection-start-line="66" selection-start-column="6" selection-end-line="66" selection-end-column="6" />
         </state>
       </provider>
     </entry>

@@ -14,6 +14,7 @@ from tensorflow.keras.layers import Convolution2D, MaxPooling2D, \
     ZeroPadding2D, Flatten, Dense, Dropout
 import numpy as np
 from sklearn.utils import class_weight
+from sklearn.model_selection import train_test_split
 import pickle
 import os
 
@@ -80,9 +81,9 @@ class CustomModel:
         # define the fully connected output layer
         model.add(Flatten())
         model.add(Dense(2048, activation='relu'))
-        model.add(Dropout(0.2))
+        model.add(Dropout(0.33))
         model.add(Dense(2048, activation='relu'))
-        model.add(Dropout(0.2))
+        model.add(Dropout(0.33))
         model.add(Dense(1, kernel_initializer='normal',
                                         activation='sigmoid'))
 
@@ -105,9 +106,13 @@ class CustomModel:
         :return:
         """
 
-        self.model.compile(optimizer=self.config['optimizer'],
+        opt_name = self.config['optimizer']
+        if opt_name == 'adam':
+            optimizer = tf.keras.optimizers.Adam(lr=1e-4)
+
+        self.model.compile(optimizer=optimizer,
                            loss='binary_crossentropy',
-                           metrics=['accuracy'])
+                           metrics=['binary_accuracy'])
 
     def split_train_data(self, train_data, train_labels):
         """
@@ -119,51 +124,17 @@ class CustomModel:
         :return:
         """
 
-        orig_total = 80 # train_data.shape[0]
-        num_valid = 20  #int(orig_total * self.config['validation_proportion'])
-        num_train = 60  #orig_total - num_valid
-        valid_labels = np.array([0] * num_valid)
+        seed = self.config['seed']
+        test_size = self.config['validation_proportion']
 
-        # while np.all(valid_labels == 0) or np.all(valid_labels == 1):
-        #     # randomly choose indices
-        #     rand_indices = np.random.choice(range(num_train),
-        #                                     size=num_valid,
-        #                                     replace=False)
-        #
-        #     # create mask for separating train data into train / valid
-        #     mask = np.ones(orig_total, dtype=bool)
-        #     mask[rand_indices] = False
-        #
-        #     valid_data = train_data[rand_indices, :, :, :] / 255.
-        #     valid_labels = train_labels[rand_indices].reshape(num_valid, 1)
-        #
-        #     new_train_data = train_data[mask, :, :, :] / 255.
-        #     new_train_labels = train_labels[mask].reshape(num_train, 1)
+        # randomly split data into train and validation sets
+        train_data, valid_data, train_labels, valid_labels = train_test_split(
+            train_data / 255., train_labels, test_size=test_size,
+            random_state=seed)
 
-        valid_data = np.vstack((train_data[:10, :, :, :], train_data[-10:, :,
-                                                        :, :])) / 255.
-        valid_labels = np.hstack((train_labels[:10], train_labels[-10:]))
-
-        new_train_data = np.vstack((train_data[10:40, :, :, :],
-                                    train_data[-40:-10, :, :, :])) / 255.
-        new_train_labels = np.hstack((train_labels[10:40],
-                                      train_labels[-40:-10]))
-
-        # reshuffle data sets to ensure randomization
-        valid_shuffle = np.random.permutation(num_valid)
-        train_shuffle = np.random.permutation(num_train)
-
-        valid_data = valid_data[valid_shuffle]
-        valid_labels = valid_labels[valid_shuffle]
-
-        train_data = new_train_data[train_shuffle]
-        train_labels = new_train_labels[train_shuffle]
-
-
-        valid_labels = valid_labels.reshape(num_valid, 1)
-        train_labels = train_labels.reshape(num_train, 1)
-
-
+        # reshape labels to fix rank
+        train_labels = train_labels.reshape(train_labels.shape[0], 1)
+        valid_labels = valid_labels.reshape(valid_labels.shape[0], 1)
 
         return train_data, train_labels, valid_data, valid_labels
 
@@ -188,7 +159,7 @@ class CustomModel:
             self.split_train_data(train_data, train_labels)
 
         epochs = self.config['num_epochs']
-        batch_size = 5  #self.config['batch_size']
+        batch_size = self.config['batch_size']
 
         # define class weights for unevenly represented data
         num_class = np.unique(train_labels[:, 0])
