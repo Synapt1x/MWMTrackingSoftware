@@ -10,8 +10,10 @@ to detect a mouse location during swimming during the tracking.
 """
 
 import tensorflow as tf
+from tensorflow.keras.layers import Convolution2D, MaxPooling2D, \
+    ZeroPadding2D, Flatten, Dense, Dropout
 import numpy as np
-import cv2
+from sklearn.utils import class_weight
 import pickle
 import os
 
@@ -54,35 +56,34 @@ class CustomModel:
         model = tf.keras.Sequential()
 
         # define input layer
-        model.add(tf.keras.layers.Conv2D(64, (3, 3), padding='same',
+        model.add(Convolution2D(64, (3, 3), padding='same',
                                          activation='relu',
                                          input_shape=self.input_shape))
 
         # define hidden convolutional layers
-        model.add(tf.keras.layers.Conv2D(64, (2, 2), padding='same',
+        model.add(Convolution2D(64, (2, 2), padding='same',
                                          activation='relu'))
-        model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
-        model.add(tf.keras.layers.Conv2D(128, (2, 2), padding='same',
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Convolution2D(128, (2, 2), padding='same',
                                          activation='relu'))
-        model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
-        model.add(tf.keras.layers.Conv2D(256, (2, 2), padding='same',
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Convolution2D(256, (2, 2), padding='same',
                                          activation='relu'))
-        model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
 
-        model.add(tf.keras.layers.ZeroPadding2D((1, 1)))
-        model.add(tf.keras.layers.Conv2D(512, (3, 3), activation='relu'))
-        model.add(tf.keras.layers.ZeroPadding2D((1, 1)))
-        model.add(tf.keras.layers.Conv2D(512, (3, 3), activation='relu'))
-        model.add(tf.keras.layers.MaxPooling2D((2, 2), strides=(2, 2)))
+        model.add(ZeroPadding2D(2))
+        model.add(Convolution2D(512, (3, 3), activation='relu'))
+        model.add(ZeroPadding2D(2))
+        model.add(Convolution2D(512, (3, 3), activation='relu'))
+        model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 
         # define the fully connected output layer
-        model.add(tf.keras.layers.Flatten())
-        model.add(tf.keras.layers.Dense(2048, activation='relu'))
-        model.add(tf.keras.layers.Dropout(0.4))
-        model.add(tf.keras.layers.Dense(2048, activation='relu'))
-        model.add(tf.keras.layers.Dropout(0.4))
-        model.add(tf.keras.layers.Dense(1,
-                                        kernel_initializer='normal',
+        model.add(Flatten())
+        model.add(Dense(2048, activation='relu'))
+        model.add(Dropout(0.2))
+        model.add(Dense(2048, activation='relu'))
+        model.add(Dropout(0.2))
+        model.add(Dense(1, kernel_initializer='normal',
                                         activation='sigmoid'))
 
         model.summary()
@@ -118,24 +119,51 @@ class CustomModel:
         :return:
         """
 
-        orig_total = train_data.shape[0]
-        num_valid = int(orig_total * self.config['validation_proportion'])
-        num_train = orig_total - num_valid
+        orig_total = 80 # train_data.shape[0]
+        num_valid = 20  #int(orig_total * self.config['validation_proportion'])
+        num_train = 60  #orig_total - num_valid
+        valid_labels = np.array([0] * num_valid)
 
-        # randomly choose indices
-        rand_indices = np.random.choice(range(num_valid),
-                                        size=num_valid,
-                                        replace=False)
+        # while np.all(valid_labels == 0) or np.all(valid_labels == 1):
+        #     # randomly choose indices
+        #     rand_indices = np.random.choice(range(num_train),
+        #                                     size=num_valid,
+        #                                     replace=False)
+        #
+        #     # create mask for separating train data into train / valid
+        #     mask = np.ones(orig_total, dtype=bool)
+        #     mask[rand_indices] = False
+        #
+        #     valid_data = train_data[rand_indices, :, :, :] / 255.
+        #     valid_labels = train_labels[rand_indices].reshape(num_valid, 1)
+        #
+        #     new_train_data = train_data[mask, :, :, :] / 255.
+        #     new_train_labels = train_labels[mask].reshape(num_train, 1)
 
-        # create mask for separating train data into train / valid
-        mask = np.ones(orig_total, dtype=bool)
-        mask[rand_indices] = False
+        valid_data = np.vstack((train_data[:10, :, :, :], train_data[-10:, :,
+                                                        :, :])) / 255.
+        valid_labels = np.hstack((train_labels[:10], train_labels[-10:]))
 
-        valid_data = train_data[rand_indices, :, :, :] / 255.
-        valid_labels = train_labels[rand_indices].reshape(num_valid, 1)
+        new_train_data = np.vstack((train_data[10:40, :, :, :],
+                                    train_data[-40:-10, :, :, :])) / 255.
+        new_train_labels = np.hstack((train_labels[10:40],
+                                      train_labels[-40:-10]))
 
-        train_data = train_data[mask, :, :, :] / 255.
-        train_labels = train_labels[mask].reshape(num_train, 1)
+        # reshuffle data sets to ensure randomization
+        valid_shuffle = np.random.permutation(num_valid)
+        train_shuffle = np.random.permutation(num_train)
+
+        valid_data = valid_data[valid_shuffle]
+        valid_labels = valid_labels[valid_shuffle]
+
+        train_data = new_train_data[train_shuffle]
+        train_labels = new_train_labels[train_shuffle]
+
+
+        valid_labels = valid_labels.reshape(num_valid, 1)
+        train_labels = train_labels.reshape(num_train, 1)
+
+
 
         return train_data, train_labels, valid_data, valid_labels
 
@@ -160,12 +188,19 @@ class CustomModel:
             self.split_train_data(train_data, train_labels)
 
         epochs = self.config['num_epochs']
-        batch_size = self.config['batch_size']
+        batch_size = 5  #self.config['batch_size']
+
+        # define class weights for unevenly represented data
+        num_class = np.unique(train_labels[:, 0])
+        class_weights = class_weight.compute_class_weight('balanced',
+                                                          num_class,
+                                                          train_labels[:, 0])
 
         # if augmentation is to be used
         if self.config['augmentation']:
             datagen = tf.keras.preprocessing.image.ImageDataGenerator(
-                rotation_range=30,
+                rotation_range=45,
+                vertical_flip=True,
                 horizontal_flip=True)
             datagen.fit(train_data)
 
@@ -186,14 +221,16 @@ class CustomModel:
                                                    callbacks=[checkpoint_func],
                                                    validation_data=(
                                                        valid_data,
-                                                       valid_labels))
+                                                       valid_labels),
+                                                   class_weight=class_weights)
             else:
                 history = self.model.fit(train_data, train_labels,
                                          validation_data=(
                                          valid_data, valid_labels),
                                          epochs=epochs, batch_size=batch_size,
                                          callbacks=[checkpoint_func],
-                                         verbose=verbose)
+                                         verbose=verbose,
+                                         class_weight=class_weights)
 
         with open(self.config['traindir']+os.sep+'history', 'wb') as \
                 file:
