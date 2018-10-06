@@ -63,7 +63,7 @@ cnn:
   traindir: data/trainData
   training_verbose: 0
 
-  dropout: 0.33
+  dropout: 0.5
 
   augmentation: True
 
