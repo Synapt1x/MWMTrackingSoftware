@@ -73,7 +73,7 @@ cnn:
   optimizer: adam
 
   validation_proportion: 0.25
-  batch_size: 150
+  batch_size: 100
   num_epochs: 200
   seed: 13
 
