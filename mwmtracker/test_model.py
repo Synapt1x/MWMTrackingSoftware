@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-""" Code used for training a specified CNN model, using valid training data
+""" Code used for testing a specified CNN model, using valid training data
 through extraction.
 
-train_model.py: this contains the code for loading/extracting training data
-and training the CNN.
+test_cnn.py: this contains the code for loading a video and testing the model
+on classifying a selected ROI as mouse or not.
 
 """
 
@@ -27,9 +27,9 @@ import util
 import yaml
 
 
-def train_model():
+def test_cnn():
     """
-    Main code for training the designated neural network model.
+    Main code for testing the designated neural network model.
 
     :return:
     """
@@ -47,7 +47,7 @@ def train_model():
     config['h'] = config['img_size']
     config['w'] = config['img_size']
 
-    train_data, train_labels = util.load_train_data()
+    config['load_weights'] = True
 
     if config['tracker'] == 'yolo':
         # import and create yolo tracker
@@ -65,11 +65,19 @@ def train_model():
         model = Model(config)
         model.initialize()
 
-    if len(sys.argv) > 1:
-        config['training_verbose'] = 1 if sys.argv[1] == '-v' else 0
+    data_vids = util.load_files(config['datadir'])
+    num_vids = len(data_vids)
 
-    model.train(train_data, train_labels, int(config['training_verbose']))
+    for num in range(config['num_train_vids']):
+        print("num:", num, "total num:", config['num_train_vids'])
+
+        img_size = config['img_size']
+        i = np.random.randint(num_vids - 1)
+
+        video = cv2.VideoCapture(data_vids[i])
+
+        util.test_model(model, img_size, video, config['traindir'])
 
 
 if __name__ == '__main__':
-    train_model()
+    test_cnn()

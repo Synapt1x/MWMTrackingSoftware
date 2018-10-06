@@ -12,6 +12,7 @@ to detect a mouse location during swimming during the tracking.
 import tensorflow as tf
 from tensorflow.keras.layers import Convolution2D, MaxPooling2D, \
     ZeroPadding2D, Flatten, Dense, Dropout
+from tensorflow.keras.models import load_model
 import numpy as np
 from sklearn.utils import class_weight
 from sklearn.model_selection import train_test_split
@@ -41,9 +42,8 @@ class CustomModel:
         """
 
         if self.config['load_weights']:
-            self.model = tf.keras.models.load_model(self.config['traindir'] +
-                                                    os.sep +
-                                                self.config['fitted_weights'])
+            self.model = load_model(self.config['traindir'] +
+                                    os.sep + self.config['fitted_weights'])
         else:
             self.model = self.create_model()
 
@@ -98,6 +98,19 @@ class CustomModel:
         """
 
         self.model.summary()
+
+    def load_weights(self, filename=None):
+        """
+        Load fitted weights for the model
+
+        :return:
+        """
+
+        if filename is None:
+            self.model = load_model(self.config['traindir'] +
+                                    os.sep + self.config['fitted_weights'])
+        else:
+            self.model = load_model(filename)
 
     def compile_model(self):
         """
@@ -207,9 +220,28 @@ class CustomModel:
                 file:
             pickle.dump(history.history, file)
 
+    def single_query(self, test_img):
+        """
+        Query the neural network to find output using a single valid input
+        test image.
+
+        :param test_img:
+        :return:
+        """
+
+        h, w, c = test_img.shape
+
+        if h == self.h and w == self.w:
+
+            prediction = self.model.predict(np.expand_dims(test_img, 0))
+
+            return True, int(prediction[0][0])
+        else:
+            return False, None
+
     def query(self, frame):
         """
-        query the neural network to find output using a simple sliding window
+        Query the neural network to find output using a simple sliding window
         approach and distance limiting based on previous location
         :return:
         """
