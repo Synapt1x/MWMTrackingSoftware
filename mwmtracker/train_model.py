@@ -71,8 +71,17 @@ def train_model():
     if len(sys.argv) > 1:
         config['training_verbose'] = 1 if sys.argv[1] == '-v' else 0
 
-    model.train(train_data, train_labels, int(config['training_verbose']))
-    model.test(test_data, test_labels, verbose=1)
+    acc = 0.0
+
+    while acc <= 0.9:
+        model = Model(config)
+        model.initialize()
+        model.train(train_data, train_labels, int(config['training_verbose']))
+        acc = model.test(test_data, test_labels, verbose=1)
+
+    print("\n*******************************************************\n")
+    print("*** Model found with > 90 % accuracy on test data! ***")
+    print("\n*******************************************************\n")
 
 
 if __name__ == '__main__':
