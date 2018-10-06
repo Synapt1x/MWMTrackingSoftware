@@ -8,7 +8,7 @@ tracker: cnn
 # Data directories and parameters
 #=====================================#
 
-datadir: data/test
+datadir: data/testVids
 outputdir: data/output
 templatedir: data/templates
 save_extract_images: True
@@ -20,7 +20,7 @@ maxx: 1040
 miny: 172
 maxy: 700
 
-num_train_vids: True
+num_train_vids: 10
 frame_skip: 4
 
 savetoexcel: True
