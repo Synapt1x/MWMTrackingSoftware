@@ -256,7 +256,7 @@ class CustomModel:
             if predict_class == true_val:
                 correct_predictions += 1
 
-        acc = correct_predictions / len(predictions)
+        acc = float(correct_predictions) / len(predictions)
 
         if verbose:
             print("\n=======================================================\n")
