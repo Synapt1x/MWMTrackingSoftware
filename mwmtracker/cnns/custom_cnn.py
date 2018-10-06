@@ -125,7 +125,7 @@ class CustomModel:
 
         self.model.compile(optimizer=optimizer,
                            loss='binary_crossentropy',
-                           metrics=['binary_accuracy'])
+                           metrics=['accuracy'])
 
     def split_train_data(self, train_data, train_labels):
         """
