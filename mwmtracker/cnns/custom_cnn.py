@@ -13,6 +13,7 @@ import tensorflow as tf
 from tensorflow.keras.layers import Convolution2D, MaxPooling2D, \
     ZeroPadding2D, Flatten, Dense, Dropout
 from tensorflow.keras.models import load_model
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 import numpy as np
 from sklearn.utils import class_weight
 from sklearn.model_selection import train_test_split
@@ -151,7 +152,7 @@ class CustomModel:
 
         return train_data, train_labels, valid_data, valid_labels
 
-    def train(self, train_data, train_labels, verbose):
+    def train(self, train_data, train_labels, verbose=1):
         """
         Train the model using the provided training data along with the
         appropriate labels.
@@ -189,9 +190,20 @@ class CustomModel:
             datagen.fit(train_data)
 
         # create checkpointer for saving weights to output file
-        checkpoint_func = tf.keras.callbacks.ModelCheckpoint(
+        checkpoint_func = ModelCheckpoint(
             filepath=self.config['traindir']+os.sep+self.config[
                 'output_weights'], verbose=1, save_best_only=True)
+
+        if self.config['early_stop']:
+            early_stopping = EarlyStopping(monitor='val_loss', min_delta=0,
+                                           patience=self.config[
+                                               'early_stop_epochs'],
+                                           verbose=self.config[
+                                               'early_stop_verbose'],
+                                           mode='auto')
+            callbacks = [checkpoint_func, early_stopping]
+        else:
+            callbacks = [checkpoint_func]
 
         # fit the model
         with tf.device('/device:GPU:0'):
@@ -202,7 +214,7 @@ class CustomModel:
                                                    steps_per_epoch=train_data.shape[0] // batch_size,
                                                    epochs=epochs,
                                                    verbose=verbose,
-                                                   callbacks=[checkpoint_func],
+                                                   callbacks=callbacks,
                                                    validation_data=(
                                                        valid_data,
                                                        valid_labels),
@@ -212,13 +224,46 @@ class CustomModel:
                                          validation_data=(
                                          valid_data, valid_labels),
                                          epochs=epochs, batch_size=batch_size,
-                                         callbacks=[checkpoint_func],
+                                         callbacks=callbacks,
                                          verbose=verbose,
                                          class_weight=class_weights)
 
         with open(self.config['traindir']+os.sep+'history', 'wb') as \
                 file:
             pickle.dump(history.history, file)
+
+    def test(self, test_data, test_labels, verbose=1):
+        """
+        Test the model using the reserved test data along with the
+        appropriate labels.
+
+        :param test_data: (ndarray) - testing images as a tensor of shape
+                                     [n, w, h, c] for n images of size w x h
+                                     with c color channels
+        :param test_labels: (ndarray) - testing image labels for each of n
+                                       images
+        :return:
+        """
+
+        predictions = self.model.predict(test_data)
+        correct_predictions = 0
+
+        for i, predict in enumerate(predictions):
+            predict = predict[0]
+            predict_class = 1 if predict >= 0.5 else 0
+            true_val = test_labels[i]
+
+            if predict_class == true_val:
+                correct_predictions += 1
+
+        acc = correct_predictions / len(predictions)
+
+        if verbose:
+            print("\n=======================================================\n")
+            print("*** Testing accuracy:", acc, "***")
+            print("\n=======================================================\n")
+
+        return acc
 
     def single_query(self, test_img):
         """
@@ -235,7 +280,9 @@ class CustomModel:
 
             prediction = self.model.predict(np.expand_dims(test_img, 0))
 
-            return True, int(prediction[0][0])
+            predict_class = 1 if prediction[0][0] >= 0.5 else 0
+
+            return True, predict_class
         else:
             return False, None
 

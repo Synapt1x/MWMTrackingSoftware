@@ -392,7 +392,8 @@ def save_train_data(filename):
         pickle.dump([all_imgs, labels], file)
 
 
-def extract_train_data(img_size=64, video=None, output_dir=None):
+def extract_train_data(img_size=64, video=None, output_dir=None,
+                       pickle='train_data.pickle'):
     """
     Interactively extract training data from a provided video
     :param output_dir:
@@ -406,8 +407,11 @@ def extract_train_data(img_size=64, video=None, output_dir=None):
     if video is None:
         return
 
-    filename = output_dir + os.sep + 'train_data.pickle'
-    all_imgs, labels = load_train_data(filename, as_array=False)
+    filename = output_dir + os.sep + pickle
+    try:
+        all_imgs, labels = load_train_data(filename, as_array=False)
+    except EOFError:
+        pass
 
     valid, frame = video.read()
 

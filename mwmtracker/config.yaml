@@ -61,7 +61,14 @@ yolo:
 cnn:
   train_model: True
   traindir: data/trainData
-  training_verbose: 0
+  training_verbose:
+
+  trainpickle: train_data.pickle
+  testpickle: test_data.pickle
+
+  early_stop: True
+  early_stop_epochs: 2
+  early_stop_verbose: 1
 
   dropout: 0.5
 

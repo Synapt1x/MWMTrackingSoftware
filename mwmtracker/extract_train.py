@@ -22,6 +22,7 @@ import os
 import cv2
 import numpy as np
 import util
+import sys
 import yaml
 
 
@@ -48,6 +49,10 @@ def train_model():
     data_vids = util.load_files(config['datadir'])
     num_vids = len(data_vids)
 
+    if len(sys.argv) > 1:
+         pickle = config['testpickle'] if sys.argv[1] == '-test' else \
+             config['trainpickle']
+
     for num in range(config['num_train_vids']):
 
         print("num:", num, "total num:", config['num_train_vids'])
@@ -57,7 +62,8 @@ def train_model():
 
         video = cv2.VideoCapture(data_vids[i])
 
-        util.extract_train_data(img_size, video, config['traindir'])
+        util.extract_train_data(img_size, video, config['traindir'],
+                                pickle=pickle)
 
 
 if __name__ == '__main__':

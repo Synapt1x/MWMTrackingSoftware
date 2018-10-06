@@ -47,7 +47,10 @@ def train_model():
     config['h'] = config['img_size']
     config['w'] = config['img_size']
 
-    train_data, train_labels = util.load_train_data()
+    train_data, train_labels = util.load_train_data(config['traindir'] + os.sep
+                                                 + config['trainpickle'])
+    test_data, test_labels = util.load_train_data(config['traindir'] + os.sep
+                                                 + config['testpickle'])
 
     if config['tracker'] == 'yolo':
         # import and create yolo tracker
@@ -69,6 +72,7 @@ def train_model():
         config['training_verbose'] = 1 if sys.argv[1] == '-v' else 0
 
     model.train(train_data, train_labels, int(config['training_verbose']))
+    model.test(test_data, test_labels, verbose=1)
 
 
 if __name__ == '__main__':
