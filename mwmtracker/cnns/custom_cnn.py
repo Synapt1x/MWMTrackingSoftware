@@ -278,7 +278,9 @@ class CustomModel:
 
         if h == self.h and w == self.w:
 
-            prediction = self.model.predict(np.expand_dims(test_img, 0))
+            prediction = self.model.predict(np.expand_dims(test_img,
+                                                           0)).astype(
+                np.float32)
 
             predict_class = 1 if prediction[0][0] >= 0.5 else 0
 

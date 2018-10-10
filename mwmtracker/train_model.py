@@ -73,14 +73,14 @@ def train_model():
 
     acc = 0.0
 
-    while acc <= 0.9:
+    while acc <= 0.99:
         model = Model(config)
         model.initialize()
         model.train(train_data, train_labels, int(config['training_verbose']))
         acc = model.test(test_data, test_labels, verbose=1)
 
     print("\n*******************************************************\n")
-    print("*** Model found with > 90 % accuracy on test data! ***")
+    print("*** Model found with > 99 % accuracy on test data! ***")
     print("\n*******************************************************\n")
 
 

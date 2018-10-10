@@ -52,6 +52,8 @@ def train_model():
     if len(sys.argv) > 1:
          pickle = config['testpickle'] if sys.argv[1] == '-test' else \
              config['trainpickle']
+    else:
+        pickle = config['trainpickle']
 
     for num in range(config['num_train_vids']):
 
