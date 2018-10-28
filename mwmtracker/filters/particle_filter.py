@@ -21,7 +21,7 @@ class ParticleFilter:
         """constructor"""
 
         self.num_particles = config['num_particles']
-        self.config = config
+        self.config = {**config, **config[config['detector']]}
         self.particles = None
         self.full_frame = np.array([], dtype=np.uint8)
         self.template_vals = np.array([])
@@ -66,8 +66,16 @@ class ParticleFilter:
         self.weights = np.zeros(shape=self.num_particles)
 
         # initialize the detector used to measure error during each frame
-        self.detector = SimpleDetector(self.config[self.config['detector']],
-                                       self.config['detector'])
+        if self.config['detector'] in ['Canny', 'template']:
+            self.detector = SimpleDetector(self.config[self.config['detector']],
+                                           self.config['detector'])
+        elif self.config['detector'] == 'cnn':
+            # import and create custom cnn tracker
+            from cnns.custom_cnn import CustomModel as Detector
+
+            # initialize model tracker
+            self.detector = Detector(self.config)
+            self.detector.initialize()
 
         return
 
@@ -85,7 +93,11 @@ class ParticleFilter:
 
     def process_frame(self, template=None):
 
-        temp_h, temp_w = template.shape[:2]
+        if self.config['detector'] == 'template':
+            temp_h, temp_w = template.shape[:2]
+        else:
+            temp_h, temp_w = self.config['img_size'], self.config['img_size']
+            half_h, half_w = temp_h // 2, temp_w // 2
 
         means = np.zeros(self.particles.shape[1])
         cov = np.array([[self.dist_noise, 0., 0., 0.],
@@ -96,13 +108,14 @@ class ParticleFilter:
                                               size=self.num_particles)
         self.particles += error
 
-        valid, self.template_vals = self.detector.detect(self.full_frame,
-                                                    template, True)
-        self.template_vals = self.template_vals[:-1, :-1]
-        self.template_vals[self.template_vals > 0.1] = 1.0
+        if self.config['detector'] in ['Canny', 'template']:
+            valid, self.template_vals = self.detector.detect(self.full_frame,
+                                                        template, True)
+            self.template_vals = self.template_vals[:-1, :-1]
+            self.template_vals[self.template_vals > 0.1] = 1.0
 
-        # cv2.imshow('TEMPLATE VALS', self.template_vals)
-        # cv2.waitKey(0)
+            # cv2.imshow('TEMPLATE VALS', self.template_vals)
+            # cv2.waitKey(0)
 
         # TODO: Add error check for determining if template likely found
 
@@ -119,9 +132,11 @@ class ParticleFilter:
             i, j = int(i), int(j)
 
             # extract from full frame the comparison frame
-            if 0 < i < self.max_h and 0 < j < self.max_w:
-                # comp_frame = self.full_frame[i: i + temp_h,
-                #              j: j + temp_w]
+            if 0 + half_h < i < self.max_h - temp_h and 0 + half_w \
+                    < j < self.max_w - half_w:
+                comp_frame = self.full_frame[i - half_h: i + half_h,
+                                             j - half_w: j + temp_w]
+
                 # TODO: Change method of comparison to HOG and/or segmenter
                 # diff = template - comp_frame
                 # mse = np.sqrt((np.sum(np.square(diff))) / (temp_h * temp_w))

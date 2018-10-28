@@ -2,7 +2,7 @@
 #=====================================#
 
 # Set the tracking system to be used for processing
-tracker: cnn
+tracker: pfilter
 
 
 # Data directories and parameters
@@ -87,7 +87,7 @@ cnn:
 
 pfilter:
   num_particles: 10000
-  detector: template
+  detector: cnn
 
 
 # Parameters for OpenCV tracker

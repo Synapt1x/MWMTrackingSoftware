@@ -246,7 +246,7 @@ class Tracker:
             # while frames have successfully been extracted
             while valid:
 
-                frame = util.resize_frame(frame, self.config['resize'])
+                frame = util.resize_frame(frame, self.model.config['resize'])
 
                 frame_num += 1
 
