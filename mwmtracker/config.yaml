@@ -8,7 +8,7 @@ tracker: pfilter
 # Data directories and parameters
 #=====================================#
 
-datadir: data/test
+datadir: data/testVids
 outputdir: data/output
 templatedir: data/templates
 save_extract_images: True
@@ -20,7 +20,7 @@ maxx: 1040
 miny: 172
 maxy: 700
 
-num_train_vids: True
+num_train_vids: 10
 frame_skip: 4
 
 savetoexcel: True
@@ -61,7 +61,17 @@ yolo:
 cnn:
   train_model: True
   traindir: data/trainData
-  training_verbose: 0
+  training_verbose: False
+
+  trainpickle: train_data.pickle
+  testpickle: test_data.pickle
+
+  early_stop: True
+  early_stop_epochs: 15
+  early_stop_verbose: 1
+
+  dropout: 0.5
+
   augmentation: True
 
   img_size: 64
@@ -69,15 +79,16 @@ cnn:
   resize: 1.0
   optimizer: adam
 
-  validation_proportion: 0.2
-  batch_size: 200
-  num_epochs: 500
+  validation_proportion: 0.25
+  batch_size: 100
+  num_epochs: 50
+  seed: 13
 
   learning_rate: 0.75
 
   output_weights: custom_weights.hdf5
   fitted_weights: custom_weights.hdf5
-  load_weights: True
+  load_weights: False
 
   window_stride: 32
 

@@ -292,6 +292,52 @@ def get_rois(event, x, y, flags, param):
                         labels.append(0)
 
 
+def test_roi(event, x, y, flags, param):
+    """
+    Test an image section from the current frame to be used for testing
+    the current CNN for its prediction.
+
+    :param event:
+    :param x:
+    :param y:
+    :param flags:
+    :param param:
+    :return:
+    """
+
+    if event == cv2.EVENT_LBUTTONDOWN:
+
+        img_size, frame, model = param
+
+        h, w = frame.shape[:2]
+
+        # extract image from the current frame
+        if 0 + img_size <= x <= w - img_size and 0 + img_size <= y <= h - \
+                img_size:
+
+            test_img = frame[y - img_size // 2: y + img_size // 2,
+                            x - img_size // 2: x + img_size // 2]
+
+        valid, output = model.single_query(test_img)
+
+        # if there was an error then do nothing
+        if valid:
+            # change the output color based on the prediction
+            if output == 0:
+                col = (0, 0, 255)
+            elif output == 1:
+                col = (0, 255, 0)
+            else:
+                col = (255, 0, 0)
+
+            pt1 = (x - img_size // 2, y - img_size // 2)
+            pt2 = (x + img_size // 2, y + img_size // 2)
+
+            frame = cv2.rectangle(frame, pt1, pt2, col, thickness=2)
+
+            cv2.imshow("Test the CNN model by clicking on the image", frame)
+
+
 def reset_train_data(pickle_name='data/trainData/train_data.pickle'):
     """
     Load training data from the specified pickle and overwrite it with empty
@@ -346,7 +392,8 @@ def save_train_data(filename):
         pickle.dump([all_imgs, labels], file)
 
 
-def extract_train_data(img_size=64, video=None, output_dir=None):
+def extract_train_data(img_size=64, video=None, output_dir=None,
+                       pickle='train_data.pickle'):
     """
     Interactively extract training data from a provided video
     :param output_dir:
@@ -360,8 +407,11 @@ def extract_train_data(img_size=64, video=None, output_dir=None):
     if video is None:
         return
 
-    filename = output_dir + os.sep + 'train_data.pickle'
-    all_imgs, labels = load_train_data(filename, as_array=False)
+    filename = output_dir + os.sep + pickle
+    try:
+        all_imgs, labels = load_train_data(filename, as_array=False)
+    except EOFError:
+        pass
 
     valid, frame = video.read()
 
@@ -389,6 +439,49 @@ def extract_train_data(img_size=64, video=None, output_dir=None):
 
     # update pickle file
     save_train_data(filename)
+
+
+def test_model(cnn_model, img_size=64, video=None, output_dir=None):
+    """
+    Interactively test the convolutional neural net to determine if it
+    accurately classifies a selected ROI as a mouse or not.
+
+    :param img_size:
+    :param video:
+    :param output_dir:
+    :return:
+    """
+
+    global test_img
+
+    # exit if no video was passed in
+    if video is None or cnn_model is None:
+        return
+
+    valid, frame = video.read()
+
+    cv2.namedWindow("Test the CNN model by clicking on the image")
+
+    # while frames have successfully been extracted
+    while valid:
+
+        cv2.setMouseCallback("Test the CNN model by clicking on the image",
+                             test_roi, [img_size, frame, cnn_model])
+
+        # show frame to extract ROIs from
+        cv2.imshow("Test the CNN model by clicking on the image", frame)
+        key = cv2.waitKey(0) & 0xFF
+        if key == ord('q') or key == ord('Q'):
+            break
+
+        [video.read() for _ in range(frame_skip)]
+
+        valid, frame = video.read()
+
+        if not valid:
+            break
+
+    cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':

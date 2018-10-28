@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-""" Code used for extracting training data for training a custom CNN model.
+""" Code used for testing a specified CNN model, using valid training data
+through extraction.
 
-extract_train.py: this contains code for running the util.extract_train_data
-function specifically for populating training data.
+test_cnn.py: this contains the code for loading a video and testing the model
+on classifying a selected ROI as mouse or not.
 
 """
 
@@ -19,16 +20,16 @@ __status__ = "Development"
 
 
 import os
+import sys
 import cv2
 import numpy as np
 import util
-import sys
 import yaml
 
 
-def train_model():
+def test_cnn():
     """
-    Main code for running the tracking software.
+    Main code for testing the designated neural network model.
 
     :return:
     """
@@ -46,17 +47,28 @@ def train_model():
     config['h'] = config['img_size']
     config['w'] = config['img_size']
 
+    config['load_weights'] = True
+
+    if config['tracker'] == 'yolo':
+        # import and create yolo tracker
+        from cnns.yolo import Yolo as Model
+
+        # initialize model tracker
+        model = Model(config)
+        model.initialize()
+
+    else:
+        # default to importing and creating custom cnn tracker
+        from cnns.custom_cnn import CustomModel as Model
+
+        # initialize model tracker
+        model = Model(config)
+        model.initialize()
+
     data_vids = util.load_files(config['datadir'])
     num_vids = len(data_vids)
 
-    if len(sys.argv) > 1:
-         pickle = config['testpickle'] if sys.argv[1] == '-test' else \
-             config['trainpickle']
-    else:
-        pickle = config['trainpickle']
-
     for num in range(config['num_train_vids']):
-
         print("num:", num, "total num:", config['num_train_vids'])
 
         img_size = config['img_size']
@@ -64,9 +76,8 @@ def train_model():
 
         video = cv2.VideoCapture(data_vids[i])
 
-        util.extract_train_data(img_size, video, config['traindir'],
-                                pickle=pickle)
+        util.test_model(model, img_size, video, config['traindir'])
 
 
 if __name__ == '__main__':
-    train_model()
+    test_cnn()

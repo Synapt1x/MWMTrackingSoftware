@@ -10,8 +10,13 @@ to detect a mouse location during swimming during the tracking.
 """
 
 import tensorflow as tf
+from tensorflow.keras.layers import Convolution2D, MaxPooling2D, \
+    ZeroPadding2D, Flatten, Dense, Dropout
+from tensorflow.keras.models import load_model
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 import numpy as np
-import cv2
+from sklearn.utils import class_weight
+from sklearn.model_selection import train_test_split
 import pickle
 import os
 
@@ -38,9 +43,8 @@ class CustomModel:
         """
 
         if self.config['load_weights']:
-            self.model = tf.keras.models.load_model(self.config['traindir'] +
-                                                    os.sep +
-                                                self.config['fitted_weights'])
+            self.model = load_model(self.config['traindir'] +
+                                    os.sep + self.config['fitted_weights'])
         else:
             self.model = self.create_model()
 
@@ -54,35 +58,34 @@ class CustomModel:
         model = tf.keras.Sequential()
 
         # define input layer
-        model.add(tf.keras.layers.Conv2D(64, (3, 3), padding='same',
+        model.add(Convolution2D(64, (3, 3), padding='same',
                                          activation='relu',
                                          input_shape=self.input_shape))
 
         # define hidden convolutional layers
-        model.add(tf.keras.layers.Conv2D(64, (2, 2), padding='same',
+        model.add(Convolution2D(64, (2, 2), padding='same',
                                          activation='relu'))
-        model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
-        model.add(tf.keras.layers.Conv2D(128, (2, 2), padding='same',
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Convolution2D(128, (2, 2), padding='same',
                                          activation='relu'))
-        model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
-        model.add(tf.keras.layers.Conv2D(256, (2, 2), padding='same',
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Convolution2D(256, (2, 2), padding='same',
                                          activation='relu'))
-        model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
 
-        model.add(tf.keras.layers.ZeroPadding2D((1, 1)))
-        model.add(tf.keras.layers.Conv2D(512, (3, 3), activation='relu'))
-        model.add(tf.keras.layers.ZeroPadding2D((1, 1)))
-        model.add(tf.keras.layers.Conv2D(512, (3, 3), activation='relu'))
-        model.add(tf.keras.layers.MaxPooling2D((2, 2), strides=(2, 2)))
+        model.add(ZeroPadding2D(2))
+        model.add(Convolution2D(512, (3, 3), activation='relu'))
+        model.add(ZeroPadding2D(2))
+        model.add(Convolution2D(512, (3, 3), activation='relu'))
+        model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 
         # define the fully connected output layer
-        model.add(tf.keras.layers.Flatten())
-        model.add(tf.keras.layers.Dense(2048, activation='relu'))
-        model.add(tf.keras.layers.Dropout(0.4))
-        model.add(tf.keras.layers.Dense(2048, activation='relu'))
-        model.add(tf.keras.layers.Dropout(0.4))
-        model.add(tf.keras.layers.Dense(1,
-                                        kernel_initializer='normal',
+        model.add(Flatten())
+        model.add(Dense(2048, activation='relu'))
+        model.add(Dropout(self.config['dropout']))
+        model.add(Dense(2048, activation='relu'))
+        model.add(Dropout(self.config['dropout']))
+        model.add(Dense(1, kernel_initializer='normal',
                                         activation='sigmoid'))
 
         model.summary()
@@ -97,6 +100,19 @@ class CustomModel:
 
         self.model.summary()
 
+    def load_weights(self, filename=None):
+        """
+        Load fitted weights for the model
+
+        :return:
+        """
+
+        if filename is None:
+            self.model = load_model(self.config['traindir'] +
+                                    os.sep + self.config['fitted_weights'])
+        else:
+            self.model = load_model(filename)
+
     def compile_model(self):
         """
         Compile the model using the parameters and optimizer specified in
@@ -104,7 +120,11 @@ class CustomModel:
         :return:
         """
 
-        self.model.compile(optimizer=self.config['optimizer'],
+        opt_name = self.config['optimizer']
+        if opt_name == 'adam':
+            optimizer = tf.keras.optimizers.Adam(lr=1e-4)
+
+        self.model.compile(optimizer=optimizer,
                            loss='binary_crossentropy',
                            metrics=['accuracy'])
 
@@ -118,28 +138,21 @@ class CustomModel:
         :return:
         """
 
-        orig_total = train_data.shape[0]
-        num_valid = int(orig_total * self.config['validation_proportion'])
-        num_train = orig_total - num_valid
+        seed = self.config['seed']
+        test_size = self.config['validation_proportion']
 
-        # randomly choose indices
-        rand_indices = np.random.choice(range(num_valid),
-                                        size=num_valid,
-                                        replace=False)
+        # randomly split data into train and validation sets
+        train_data, valid_data, train_labels, valid_labels = train_test_split(
+            train_data / 255., train_labels, test_size=test_size,
+            random_state=seed)
 
-        # create mask for separating train data into train / valid
-        mask = np.ones(orig_total, dtype=bool)
-        mask[rand_indices] = False
-
-        valid_data = train_data[rand_indices, :, :, :] / 255.
-        valid_labels = train_labels[rand_indices].reshape(num_valid, 1)
-
-        train_data = train_data[mask, :, :, :] / 255.
-        train_labels = train_labels[mask].reshape(num_train, 1)
+        # reshape labels to fix rank
+        train_labels = train_labels.reshape(train_labels.shape[0], 1)
+        valid_labels = valid_labels.reshape(valid_labels.shape[0], 1)
 
         return train_data, train_labels, valid_data, valid_labels
 
-    def train(self, train_data, train_labels, verbose):
+    def train(self, train_data, train_labels, verbose=1):
         """
         Train the model using the provided training data along with the
         appropriate labels.
@@ -162,17 +175,35 @@ class CustomModel:
         epochs = self.config['num_epochs']
         batch_size = self.config['batch_size']
 
+        # define class weights for unevenly represented data
+        num_class = np.unique(train_labels[:, 0])
+        class_weights = class_weight.compute_class_weight('balanced',
+                                                          num_class,
+                                                          train_labels[:, 0])
+
         # if augmentation is to be used
         if self.config['augmentation']:
             datagen = tf.keras.preprocessing.image.ImageDataGenerator(
-                rotation_range=30,
+                rotation_range=45,
+                vertical_flip=True,
                 horizontal_flip=True)
             datagen.fit(train_data)
 
         # create checkpointer for saving weights to output file
-        checkpoint_func = tf.keras.callbacks.ModelCheckpoint(
+        checkpoint_func = ModelCheckpoint(
             filepath=self.config['traindir']+os.sep+self.config[
                 'output_weights'], verbose=1, save_best_only=True)
+
+        if self.config['early_stop']:
+            early_stopping = EarlyStopping(monitor='val_loss', min_delta=0,
+                                           patience=self.config[
+                                               'early_stop_epochs'],
+                                           verbose=self.config[
+                                               'early_stop_verbose'],
+                                           mode='auto')
+            callbacks = [checkpoint_func, early_stopping]
+        else:
+            callbacks = [checkpoint_func]
 
         # fit the model
         with tf.device('/device:GPU:0'):
@@ -183,25 +214,83 @@ class CustomModel:
                                                    steps_per_epoch=train_data.shape[0] // batch_size,
                                                    epochs=epochs,
                                                    verbose=verbose,
-                                                   callbacks=[checkpoint_func],
+                                                   callbacks=callbacks,
                                                    validation_data=(
                                                        valid_data,
-                                                       valid_labels))
+                                                       valid_labels),
+                                                   class_weight=class_weights)
             else:
                 history = self.model.fit(train_data, train_labels,
                                          validation_data=(
                                          valid_data, valid_labels),
                                          epochs=epochs, batch_size=batch_size,
-                                         callbacks=[checkpoint_func],
-                                         verbose=verbose)
+                                         callbacks=callbacks,
+                                         verbose=verbose,
+                                         class_weight=class_weights)
 
         with open(self.config['traindir']+os.sep+'history', 'wb') as \
                 file:
             pickle.dump(history.history, file)
 
+    def test(self, test_data, test_labels, verbose=1):
+        """
+        Test the model using the reserved test data along with the
+        appropriate labels.
+
+        :param test_data: (ndarray) - testing images as a tensor of shape
+                                     [n, w, h, c] for n images of size w x h
+                                     with c color channels
+        :param test_labels: (ndarray) - testing image labels for each of n
+                                       images
+        :return:
+        """
+
+        predictions = self.model.predict(test_data)
+        correct_predictions = 0
+
+        for i, predict in enumerate(predictions):
+            predict = predict[0]
+            predict_class = 1 if predict >= 0.5 else 0
+            true_val = test_labels[i]
+
+            if predict_class == true_val:
+                correct_predictions += 1
+
+        acc = float(correct_predictions) / len(predictions)
+
+        if verbose:
+            print("\n=======================================================\n")
+            print("*** Testing accuracy:", acc, "***")
+            print("\n=======================================================\n")
+
+        return acc
+
+    def single_query(self, test_img):
+        """
+        Query the neural network to find output using a single valid input
+        test image.
+
+        :param test_img:
+        :return:
+        """
+
+        h, w, c = test_img.shape
+
+        if h == self.h and w == self.w:
+
+            prediction = self.model.predict(np.expand_dims(test_img,
+                                                           0)).astype(
+                np.float32)
+
+            predict_class = 1 if prediction[0][0] >= 0.5 else 0
+
+            return True, predict_class
+        else:
+            return False, None
+
     def query(self, frame):
         """
-        query the neural network to find output using a simple sliding window
+        Query the neural network to find output using a simple sliding window
         approach and distance limiting based on previous location
         :return:
         """
