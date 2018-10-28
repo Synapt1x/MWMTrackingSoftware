@@ -240,6 +240,9 @@ def display_particles(frame, particles):
     for (x, y, dx, dy) in particles:
         frame = cv2.circle(frame, (int(y), int(x)), 1, (255, 0, 0), 1)
 
+    cv2.imshow("current frame", frame)
+    cv2.waitKey(0)
+
     return frame
 
 

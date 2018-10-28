@@ -35,6 +35,7 @@ class CustomModel:
 
         self.input_shape = (self.h, self.w, 3)
         self.model = None
+        self.initialized = False
 
     def initialize(self):
         """
@@ -42,11 +43,14 @@ class CustomModel:
 
         """
 
-        if self.config['load_weights']:
-            self.model = load_model(self.config['traindir'] +
-                                    os.sep + self.config['fitted_weights'])
-        else:
-            self.model = self.create_model()
+        if not self.initialized:
+            if self.config['load_weights']:
+                self.model = load_model(self.config['traindir'] +
+                                        os.sep + self.config['fitted_weights'])
+            else:
+                self.model = self.create_model()
+
+            self.initialized = True
 
     def create_model(self):
         """
@@ -265,7 +269,7 @@ class CustomModel:
 
         return acc
 
-    def single_query(self, test_img):
+    def single_query(self, test_img, thresh=None):
         """
         Query the neural network to find output using a single valid input
         test image.
@@ -282,7 +286,10 @@ class CustomModel:
                                                            0)).astype(
                 np.float32)
 
-            predict_class = 1 if prediction[0][0] >= 0.5 else 0
+            if thresh is not None:
+                predict_class = 1 if prediction[0][0] >= 0.5 else 0
+            else:
+                predict_class = prediction[0][0]
 
             return True, predict_class
         else:

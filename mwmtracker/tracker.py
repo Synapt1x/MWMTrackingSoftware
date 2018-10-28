@@ -329,6 +329,8 @@ class Tracker:
 
         elif self.config['tracker'] == 'pfilter':
 
+            #util.display_particles(frame, self.model.particles)
+
             self.model.process_frame(self.template)
             self.model.resample()
             x, y = self.model.query()
@@ -354,6 +356,14 @@ class Tracker:
         # If template is not defined then extract a new one
         if self.template is None:
             self.extract_template()
+
+        if self.config['tracker'] == 'pfilter':
+            roi = cv2.selectROI("Select initial bounds for mouse location",
+                                frame)
+            cv2.destroyWindow("Select initial bounds for mouse location")
+            self.model.initialize(frame.shape[0], frame.shape[1],
+                                  h=roi[3], w=roi[2],
+                                  start_h=roi[1], start_w=roi[0])
 
         # detect location of the mouse
         valid, x, y = self.detect_loc(frame)

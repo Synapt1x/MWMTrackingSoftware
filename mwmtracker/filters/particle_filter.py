@@ -29,7 +29,8 @@ class ParticleFilter:
         self.template_hog = None
         self.detector = None
 
-    def initialize(self, h, w, dist_noise=None, vel_noise=None, detector=None):
+    def initialize(self, max_h, max_w, h=None, w=None, start_h=0, start_w=0,
+                   dist_noise=None, vel_noise=None, detector=None):
         """
         initialize particles to randomize n-vector for each particle
 
@@ -37,8 +38,13 @@ class ParticleFilter:
         :param h: height of the video
         """
 
-        self.max_h = h
-        self.max_w = w
+        self.max_h = max_h
+        self.max_w = max_w
+
+        if h is None:
+            h = max_h
+        if w is None:
+            w = max_w
 
         #TODO: Need more work on playing with noise
         if dist_noise is None:
@@ -50,14 +56,16 @@ class ParticleFilter:
 
         # x_vals = np.random.uniform(0., w, size=(self.num_particles, 1))
         # y_vals = np.random.uniform(0., h, size=(self.num_particles, 1))
-        y_vals = np.random.normal(h // 2., h // 6, size=(self.num_particles,
-                                                         1))
-        x_vals = np.random.normal(w // 2, w // 6, size=(self.num_particles,
-                                                         1))
-        x_vals[x_vals < 0] = 0
-        x_vals[x_vals > w] = w
-        y_vals[y_vals < 0] = 0
-        y_vals[y_vals > h] = h
+        y_vals = np.random.normal(start_h + h // 2,
+                                  h // 10,
+                                  size=(self.num_particles, 1)).astype(np.int)
+        x_vals = np.random.normal(start_w + w // 2,
+                                   w // 10,
+                                   size=(self.num_particles, 1)).astype(np.int)
+        x_vals[x_vals < start_w] = start_w
+        x_vals[x_vals > (start_w + w)] = start_w + w
+        y_vals[y_vals < start_h] = start_h
+        y_vals[y_vals > (start_h + h)] = start_h + h
 
         x_dot_vals = np.random.normal(0., 0.1, size=(self.num_particles, 1))
         y_dot_vals = np.random.normal(0., 0.1, size=(self.num_particles, 1))
@@ -75,7 +83,8 @@ class ParticleFilter:
 
             # initialize model tracker
             self.detector = Detector(self.config)
-            self.detector.initialize()
+            if not self.detector.initialized:
+                self.detector.initialize()
 
         return
 
@@ -91,7 +100,7 @@ class ParticleFilter:
 
         return np.exp(-err / (2 * self.error_noise ** 2))
 
-    def process_frame(self, template=None):
+    def process_frame(self, template=None, roi=None):
 
         if self.config['detector'] == 'template':
             temp_h, temp_w = template.shape[:2]
@@ -135,21 +144,27 @@ class ParticleFilter:
             if 0 + half_h < i < self.max_h - temp_h and 0 + half_w \
                     < j < self.max_w - half_w:
                 comp_frame = self.full_frame[i - half_h: i + half_h,
-                                             j - half_w: j + temp_w]
+                                             j - half_w: j + half_w]
 
-                # TODO: Change method of comparison to HOG and/or segmenter
-                # diff = template - comp_frame
-                # mse = np.sqrt((np.sum(np.square(diff))) / (temp_h * temp_w))
+                valid, err = self.detector.single_query(comp_frame)
 
-                # weight = np.exp(-err / (2 * self.error_noise ** 2))
-                weight = self.calc_error(i, j)
+                if valid:
+                    weight = 1 - np.exp(-err / (2 * self.error_noise ** 2))
+                    if abs(err) < 1E-9:
+                        weight = 0.0
+                    # weight = self.calc_error(i, j)
+                else:
+                    weight = 0.0
                 self.weights[p_i] = weight  # 1 / mse
 
             else:
 
                 self.weights[p_i] = 0.0
 
-        self.weights /= np.sum(self.weights)
+        if np.sum(self.weights) < 1E-9:
+            self.weights[:] = 1. / len(self.weights)
+        else:
+            self.weights /= np.sum(self.weights)
 
     def resample(self):
         """

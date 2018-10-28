@@ -3,7 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="a1c8d6b9-2191-4603-b277-eb3b87037761" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mwmtracker/train_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/mwmtracker/train_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mwmtracker/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/mwmtracker/config.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mwmtracker/filters/particle_filter.py" beforeDir="false" afterPath="$PROJECT_DIR$/mwmtracker/filters/particle_filter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mwmtracker/tracker.py" beforeDir="false" afterPath="$PROJECT_DIR$/mwmtracker/tracker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mwmtracker/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/mwmtracker/util.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -14,7 +18,7 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/MWMTracker$extract_test_data.coverage" NAME="extract_test_data Coverage Results" MODIFIED="1539139698428" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
     <SUITE FILE_PATH="coverage/MWMTracker$extract_training_data.coverage" NAME="extract_training_data Coverage Results" MODIFIED="1539139662300" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
-    <SUITE FILE_PATH="coverage/MWMTracker$RunMain.coverage" NAME="RunMain Coverage Results" MODIFIED="1538527534742" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
+    <SUITE FILE_PATH="coverage/MWMTracker$RunMain.coverage" NAME="RunMain Coverage Results" MODIFIED="1540770667246" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
     <SUITE FILE_PATH="coverage/MWMTracker$trainCNN_VERBOSE.coverage" NAME="trainCNN-VERBOSE Coverage Results" MODIFIED="1538853066548" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
     <SUITE FILE_PATH="coverage/MWMTracker$trainCNN.coverage" NAME="trainCNN Coverage Results" MODIFIED="1539139958036" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
     <SUITE FILE_PATH="coverage/MWMTracker$TestCNN.coverage" NAME="TestCNN Coverage Results" MODIFIED="1539139915869" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mwmtracker" />
@@ -23,25 +27,25 @@
     <session id="-1069376193">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="24" />
-          <entry key="project.open.time.0" value="6" />
+          <entry key="project.closed" value="25" />
+          <entry key="project.open.time.0" value="7" />
           <entry key="project.open.time.4" value="11" />
           <entry key="project.open.time.5" value="5" />
           <entry key="project.open.time.6" value="3" />
           <entry key="project.open.time.7" value="5" />
-          <entry key="project.open.time.8" value="2" />
-          <entry key="project.opened" value="32" />
+          <entry key="project.open.time.8" value="3" />
+          <entry key="project.opened" value="34" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="py" value="37" />
+          <entry key="py" value="38" />
           <entry key="yaml" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Python" value="37" />
+          <entry key="Python" value="38" />
           <entry key="YAML" value="2" />
         </counts>
       </usages-collector>
@@ -49,14 +53,14 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="Python Console" value="52" />
-          <entry key="py" value="36011" />
-          <entry key="yaml" value="1426" />
+          <entry key="py" value="38311" />
+          <entry key="yaml" value="1438" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="36063" />
-          <entry key="YAML" value="1426" />
+          <entry key="Python" value="38363" />
+          <entry key="YAML" value="1438" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.js.language.service.starts" />
@@ -67,8 +71,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mwmtracker/train_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="918">
-              <caret line="54" column="35" lean-forward="true" selection-start-line="54" selection-start-column="35" selection-end-line="54" selection-end-column="35" />
+            <state relative-caret-position="774">
+              <caret line="54" column="35" selection-start-line="54" selection-start-column="35" selection-end-line="54" selection-end-column="35" />
               <folding>
                 <element signature="e#585#594#0" expanded="true" />
               </folding>
@@ -77,10 +81,23 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mwmtracker/main.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="355">
+              <caret line="52" selection-start-line="52" selection-end-line="52" />
+              <folding>
+                <element signature="e#25#214#1" expanded="true" />
+                <element signature="e#575#584#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mwmtracker/test_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="714">
-              <caret line="47" column="32" selection-start-line="47" selection-start-column="32" selection-end-line="47" selection-end-column="32" />
+            <state relative-caret-position="1026">
+              <caret line="68" column="29" selection-start-line="68" selection-start-column="29" selection-end-line="68" selection-end-column="29" />
               <folding>
                 <element signature="e#611#620#0" expanded="true" />
               </folding>
@@ -91,7 +108,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mwmtracker/extract_train.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="836">
+            <state relative-caret-position="499">
               <caret line="55" column="38" selection-start-line="55" selection-start-column="38" selection-end-line="55" selection-end-column="38" />
               <folding>
                 <element signature="e#596#605#0" expanded="true" />
@@ -103,10 +120,21 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/mwmtracker/tracker.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="275">
-              <caret line="358" column="44" lean-forward="true" selection-start-line="358" selection-start-column="44" selection-end-line="358" selection-end-column="44" />
+            <state relative-caret-position="178">
+              <caret line="333" selection-start-line="333" selection-end-line="333" />
               <folding>
+                <element signature="e#25#269#1" expanded="true" />
                 <element signature="e#270#281#0" expanded="true" />
+                <element signature="e#487#1554#0" expanded="true" />
+                <element signature="e#1628#3351#0" expanded="true" />
+                <element signature="e#3395#4831#0" expanded="true" />
+                <element signature="e#4870#5262#0" expanded="true" />
+                <element signature="e#5304#6706#0" expanded="true" />
+                <element signature="e#6746#9315#0" expanded="true" />
+                <element signature="e#9372#9535#0" expanded="true" />
+                <element signature="e#9589#10144#0" expanded="true" />
+                <element signature="e#11080#12421#0" expanded="true" />
+                <element signature="e#11977#12752#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -115,7 +143,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mwmtracker/data_processor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
+            <state relative-caret-position="144">
               <caret line="8" selection-start-line="8" selection-end-line="8" />
               <folding>
                 <element signature="e#335#354#0" expanded="true" />
@@ -127,14 +155,25 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mwmtracker/util.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4539">
-              <caret line="273" column="31" selection-start-line="273" selection-start-column="31" selection-end-line="273" selection-end-column="31" />
+            <state relative-caret-position="342">
+              <caret line="243" column="18" selection-start-line="243" selection-start-column="18" selection-end-line="243" selection-end-column="18" />
               <folding>
+                <element signature="e#25#221#1" expanded="true" />
                 <element signature="e#222#231#0" expanded="true" />
-                <marker date="1539139909166" expanded="true" signature="9337:10584" ph="..." />
-                <marker date="1539139909166" expanded="true" signature="10653:10993" ph="..." />
-                <marker date="1539139909166" expanded="true" signature="11096:11101" ph="..." />
-                <marker date="1539139909166" expanded="true" signature="13015:14050" ph="..." />
+                <element signature="e#543#956#0" expanded="true" />
+                <element signature="e#1010#1241#0" expanded="true" />
+                <element signature="e#1288#4690#0" expanded="true" />
+                <element signature="e#4759#5624#0" expanded="true" />
+                <element signature="e#5678#6322#0" expanded="true" />
+                <element signature="e#6360#6880#0" expanded="true" />
+                <element signature="e#6918#7327#0" expanded="true" />
+                <element signature="e#7750#9294#0" expanded="true" />
+                <element signature="e#9342#10581#0" expanded="true" />
+                <element signature="e#10658#10990#0" expanded="true" />
+                <element signature="e#11101#11582#0" expanded="true" />
+                <element signature="e#11620#11808#0" expanded="true" />
+                <element signature="e#11932#12944#0" expanded="true" />
+                <element signature="e#13020#14047#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -143,8 +182,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mwmtracker/config.yaml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1122">
-              <caret line="66" column="30" selection-start-line="66" selection-start-column="30" selection-end-line="66" selection-end-column="30" />
+            <state relative-caret-position="197">
+              <caret line="34" column="14" selection-start-line="34" selection-start-column="14" selection-end-line="34" selection-end-column="14" />
             </state>
           </provider>
         </entry>
@@ -152,10 +191,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mwmtracker/filters/particle_filter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="340">
-              <caret line="22" column="27" selection-start-line="22" selection-start-column="27" selection-end-line="22" selection-end-column="27" />
+            <state relative-caret-position="178">
+              <caret line="143" selection-start-line="143" selection-end-line="143" />
               <folding>
+                <element signature="e#25#258#1" expanded="true" />
                 <element signature="e#259#277#0" expanded="true" />
+                <element signature="e#370#407#1" expanded="true" />
+                <element signature="e#449#773#0" expanded="true" />
+                <element signature="e#904#2887#0" expanded="true" />
+                <element signature="e#2787#3005#0" expanded="true" />
+                <element signature="e#5442#5928#0" expanded="true" />
+                <element signature="e#5959#6200#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -164,10 +210,22 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4675">
-              <caret line="284" selection-start-line="284" selection-end-line="284" />
+            <state relative-caret-position="412">
+              <caret line="293" selection-start-line="293" selection-end-line="293" />
               <folding>
+                <element signature="e#25#356#1" expanded="true" />
                 <element signature="e#358#381#0" expanded="true" />
+                <element signature="e#769#819#1" expanded="true" />
+                <element signature="e#861#1087#0" expanded="true" />
+                <element signature="e#1123#1554#0" expanded="true" />
+                <element signature="e#1427#3027#0" expanded="true" />
+                <element signature="e#3063#3160#0" expanded="true" />
+                <element signature="e#3213#3516#0" expanded="true" />
+                <element signature="e#3555#3974#0" expanded="true" />
+                <element signature="e#4042#4807#0" expanded="true" />
+                <element signature="e#4875#8624#0" expanded="true" />
+                <element signature="e#8689#9813#0" expanded="true" />
+                <element signature="e#10446#11457#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -184,17 +242,10 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>self.config[model_type]</find>
-      <find>thresh</find>
-      <find>self.h</find>
-      <find>calc_error</find>
-      <find>self.model_type = config[</find>
       <find>SimpleDetect</find>
       <find>SimpleDetector</find>
       <find>self.model_type</find>
-      <find>detector</find>
       <find>print(</find>
-      <find>sel</find>
       <find>self.template</find>
       <find>self.template =</find>
       <find>model_typ</find>
@@ -212,6 +263,15 @@
       <find>Conv2D</find>
       <find>train</find>
       <find>num_train_voids</find>
+      <find>selectROI</find>
+      <find>detect_loc</find>
+      <find>process_frame</find>
+      <find>detect_loc(</find>
+      <find>sel</find>
+      <find>self.model.initialize</find>
+      <find>.initialize(</find>
+      <find>detector</find>
+      <find>verbose</find>
     </findStrings>
     <replaceStrings>
       <replace>h</replace>
@@ -227,17 +287,17 @@
         <option value="$PROJECT_DIR$/mwmtracker/opencvtrackers/cvtrackers.py" />
         <option value="$PROJECT_DIR$/mwmtracker/detectors/detectors.py" />
         <option value="$PROJECT_DIR$/mwmtracker/detectors/simple_detector.py" />
-        <option value="$PROJECT_DIR$/mwmtracker/filters/particle_filter.py" />
         <option value="$PROJECT_DIR$/mwmtracker/cnns/yolo.py" />
         <option value="$PROJECT_DIR$/mwmtracker/cnns/train_model.py" />
         <option value="$PROJECT_DIR$/mwmtracker/main.py" />
-        <option value="$PROJECT_DIR$/mwmtracker/tracker.py" />
         <option value="$PROJECT_DIR$/mwmtracker/test_cnn.py" />
-        <option value="$PROJECT_DIR$/mwmtracker/config.yaml" />
         <option value="$PROJECT_DIR$/mwmtracker/extract_train.py" />
-        <option value="$PROJECT_DIR$/mwmtracker/util.py" />
         <option value="$PROJECT_DIR$/mwmtracker/train_model.py" />
+        <option value="$PROJECT_DIR$/mwmtracker/util.py" />
         <option value="$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py" />
+        <option value="$PROJECT_DIR$/mwmtracker/filters/particle_filter.py" />
+        <option value="$PROJECT_DIR$/mwmtracker/tracker.py" />
+        <option value="$PROJECT_DIR$/mwmtracker/config.yaml" />
       </list>
     </option>
   </component>
@@ -261,7 +321,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/mwmtracker/extract_train.py" />
-    <property name="settings.editor.selected.configurable" value="terminal" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -291,7 +351,7 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="$PROJECT_DIR$/../anaconda3/envs/tf/bin/python" />
+      <option name="SDK_HOME" value="$PROJECT_DIR$/../anaconda3/envs/tensorflow/bin/python" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/mwmtracker" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
@@ -462,16 +522,18 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="27" width="1920" height="1053" extended-state="6" />
+    <frame x="0" y="25" width="1920" height="1055" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.20255864" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Inspection Results" weight="0.32938644" />
       <window_info anchor="bottom" id="Concurrent Activities Diagram" order="0" weight="0.32934782" />
       <window_info anchor="bottom" id="Message" order="1" />
       <window_info anchor="bottom" id="Find" order="2" weight="0.32938644" />
-      <window_info anchor="bottom" x="0" y="113" width="1920" height="967" id="Run" order="3" type="WINDOWED" weight="0.32934782" />
-      <window_info anchor="bottom" id="Debug" order="4" weight="0.39891306" />
+      <window_info active="true" anchor="bottom" x="0" y="113" width="1920" height="967" id="Run" order="3" visible="true" weight="0.32831" />
+      <window_info anchor="bottom" id="Debug" order="4" weight="0.39827773" />
       <window_info anchor="bottom" id="Cvs" order="5" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="7" />
@@ -530,40 +592,20 @@
           <line>58</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/mwmtracker/tracker.py</url>
-          <line>297</line>
-          <option name="timeStamp" value="32" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/mwmtracker/tracker.py</url>
-          <line>93</line>
-          <option name="timeStamp" value="36" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/mwmtracker/tracker.py</url>
-          <line>339</line>
-          <option name="timeStamp" value="52" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/mwmtracker/util.py</url>
-          <line>415</line>
+          <line>418</line>
           <option name="timeStamp" value="70" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py</url>
-          <line>222</line>
+          <line>226</line>
           <option name="timeStamp" value="72" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py</url>
-          <line>152</line>
+          <line>156</line>
           <option name="timeStamp" value="82" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py</url>
-          <line>276</line>
-          <option name="timeStamp" value="86" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/mwmtracker/extract_train.py</url>
@@ -572,7 +614,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py</url>
-          <line>260</line>
+          <line>264</line>
           <option name="timeStamp" value="90" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -586,9 +628,24 @@
           <option name="timeStamp" value="92" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/mwmtracker/test_model.py</url>
+          <line>64</line>
+          <option name="timeStamp" value="94" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/mwmtracker/tracker.py</url>
-          <line>363</line>
-          <option name="timeStamp" value="93" />
+          <line>401</line>
+          <option name="timeStamp" value="111" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/mwmtracker/tracker.py</url>
+          <line>333</line>
+          <option name="timeStamp" value="112" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/mwmtracker/tracker.py</url>
+          <line>335</line>
+          <option name="timeStamp" value="113" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -679,47 +736,52 @@ cv2.waitKey(0)</expression-string>
     </expressions>
     <expressions id="evaluateExpression">
       <expression>
-        <expression-string>test_data</expression-string>
+        <expression-string>self.data['x']</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>train_data</expression-string>
+        <expression-string>self.data</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>config['num_train_vids']</expression-string>
+        <expression-string>self.model.query()</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>all_imgs</expression-string>
+        <expression-string>np.exp(0)</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>prediction[0][0]</expression-string>
+        <expression-string>weight</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>prediction[0]</expression-string>
+        <expression-string>self.detector</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>prediction</expression-string>
+        <expression-string>comp_frame</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>np.expand_dims(test_img, 0)</expression-string>
+        <expression-string>self.full_frame</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>test_img.expand_dims(1)</expression-string>
+        <expression-string>self.max_h</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>half_h</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -756,13 +818,6 @@ cv2.waitKey(0)</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mwmtracker/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="952">
-          <caret line="56" selection-start-line="56" selection-end-line="56" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mwmtracker/video_processor.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="289">
@@ -771,87 +826,30 @@ cv2.waitKey(0)</expression-string>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mwmtracker/test_cnn.py" />
-    <entry file="file://$USER_HOME$/anaconda3/envs/tf/lib/python3.6/codecs.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="201">
-          <caret line="310" selection-start-line="310" selection-end-line="310" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/anaconda3/envs/tf/lib/python3.6/codecs.py" />
     <entry file="file://$PROJECT_DIR$/mwmtracker/train_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="918">
-          <caret line="54" column="35" lean-forward="true" selection-start-line="54" selection-start-column="35" selection-end-line="54" selection-end-column="35" />
+        <state relative-caret-position="774">
+          <caret line="54" column="35" selection-start-line="54" selection-start-column="35" selection-end-line="54" selection-end-column="35" />
           <folding>
             <element signature="e#585#594#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mwmtracker/util.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4539">
-          <caret line="273" column="31" selection-start-line="273" selection-start-column="31" selection-end-line="273" selection-end-column="31" />
-          <folding>
-            <element signature="e#222#231#0" expanded="true" />
-            <marker date="1539139909166" expanded="true" signature="9337:10584" ph="..." />
-            <marker date="1539139909166" expanded="true" signature="10653:10993" ph="..." />
-            <marker date="1539139909166" expanded="true" signature="11096:11101" ph="..." />
-            <marker date="1539139909166" expanded="true" signature="13015:14050" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mwmtracker/config.yaml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1122">
-          <caret line="66" column="30" selection-start-line="66" selection-start-column="30" selection-end-line="66" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mwmtracker/filters/particle_filter.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="22" column="27" selection-start-line="22" selection-start-column="27" selection-end-line="22" selection-end-column="27" />
-          <folding>
-            <element signature="e#259#277#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4675">
-          <caret line="284" selection-start-line="284" selection-end-line="284" />
-          <folding>
-            <element signature="e#358#381#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mwmtracker/test_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="714">
-          <caret line="47" column="32" selection-start-line="47" selection-start-column="32" selection-end-line="47" selection-end-column="32" />
+        <state relative-caret-position="1026">
+          <caret line="68" column="29" selection-start-line="68" selection-start-column="29" selection-end-line="68" selection-end-column="29" />
           <folding>
             <element signature="e#611#620#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mwmtracker/extract_train.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="836">
-          <caret line="55" column="38" selection-start-line="55" selection-start-column="38" selection-end-line="55" selection-end-column="38" />
-          <folding>
-            <element signature="e#596#605#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mwmtracker/data_processor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
+        <state relative-caret-position="144">
           <caret line="8" selection-start-line="8" selection-end-line="8" />
           <folding>
             <element signature="e#335#354#0" expanded="true" />
@@ -859,12 +857,115 @@ cv2.waitKey(0)</expression-string>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/mwmtracker/extract_train.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="499">
+          <caret line="55" column="38" selection-start-line="55" selection-start-column="38" selection-end-line="55" selection-end-column="38" />
+          <folding>
+            <element signature="e#596#605#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mwmtracker/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="355">
+          <caret line="52" selection-start-line="52" selection-end-line="52" />
+          <folding>
+            <element signature="e#25#214#1" expanded="true" />
+            <element signature="e#575#584#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mwmtracker/filters/particle_filter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="178">
+          <caret line="143" selection-start-line="143" selection-end-line="143" />
+          <folding>
+            <element signature="e#25#258#1" expanded="true" />
+            <element signature="e#259#277#0" expanded="true" />
+            <element signature="e#370#407#1" expanded="true" />
+            <element signature="e#449#773#0" expanded="true" />
+            <element signature="e#904#2887#0" expanded="true" />
+            <element signature="e#2787#3005#0" expanded="true" />
+            <element signature="e#5442#5928#0" expanded="true" />
+            <element signature="e#5959#6200#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mwmtracker/cnns/custom_cnn.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="412">
+          <caret line="293" selection-start-line="293" selection-end-line="293" />
+          <folding>
+            <element signature="e#25#356#1" expanded="true" />
+            <element signature="e#358#381#0" expanded="true" />
+            <element signature="e#769#819#1" expanded="true" />
+            <element signature="e#861#1087#0" expanded="true" />
+            <element signature="e#1123#1554#0" expanded="true" />
+            <element signature="e#1427#3027#0" expanded="true" />
+            <element signature="e#3063#3160#0" expanded="true" />
+            <element signature="e#3213#3516#0" expanded="true" />
+            <element signature="e#3555#3974#0" expanded="true" />
+            <element signature="e#4042#4807#0" expanded="true" />
+            <element signature="e#4875#8624#0" expanded="true" />
+            <element signature="e#8689#9813#0" expanded="true" />
+            <element signature="e#10446#11457#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mwmtracker/util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="243" column="18" selection-start-line="243" selection-start-column="18" selection-end-line="243" selection-end-column="18" />
+          <folding>
+            <element signature="e#25#221#1" expanded="true" />
+            <element signature="e#222#231#0" expanded="true" />
+            <element signature="e#543#956#0" expanded="true" />
+            <element signature="e#1010#1241#0" expanded="true" />
+            <element signature="e#1288#4690#0" expanded="true" />
+            <element signature="e#4759#5624#0" expanded="true" />
+            <element signature="e#5678#6322#0" expanded="true" />
+            <element signature="e#6360#6880#0" expanded="true" />
+            <element signature="e#6918#7327#0" expanded="true" />
+            <element signature="e#7750#9294#0" expanded="true" />
+            <element signature="e#9342#10581#0" expanded="true" />
+            <element signature="e#10658#10990#0" expanded="true" />
+            <element signature="e#11101#11582#0" expanded="true" />
+            <element signature="e#11620#11808#0" expanded="true" />
+            <element signature="e#11932#12944#0" expanded="true" />
+            <element signature="e#13020#14047#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mwmtracker/config.yaml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="197">
+          <caret line="34" column="14" selection-start-line="34" selection-start-column="14" selection-end-line="34" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/mwmtracker/tracker.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="275">
-          <caret line="358" column="44" lean-forward="true" selection-start-line="358" selection-start-column="44" selection-end-line="358" selection-end-column="44" />
+        <state relative-caret-position="178">
+          <caret line="333" selection-start-line="333" selection-end-line="333" />
           <folding>
+            <element signature="e#25#269#1" expanded="true" />
             <element signature="e#270#281#0" expanded="true" />
+            <element signature="e#487#1554#0" expanded="true" />
+            <element signature="e#1628#3351#0" expanded="true" />
+            <element signature="e#3395#4831#0" expanded="true" />
+            <element signature="e#4870#5262#0" expanded="true" />
+            <element signature="e#5304#6706#0" expanded="true" />
+            <element signature="e#6746#9315#0" expanded="true" />
+            <element signature="e#9372#9535#0" expanded="true" />
+            <element signature="e#9589#10144#0" expanded="true" />
+            <element signature="e#11080#12421#0" expanded="true" />
+            <element signature="e#11977#12752#0" expanded="true" />
           </folding>
         </state>
       </provider>

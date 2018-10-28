@@ -32,7 +32,7 @@ outputExcel: trackingData.xlsx
 
 framerate: 30
 alpha: 0.25
-verbose: True
+verbose: False
 
 
 # Hyperparams for general cnn training
@@ -88,7 +88,7 @@ cnn:
 
   output_weights: custom_weights.hdf5
   fitted_weights: custom_weights.hdf5
-  load_weights: False
+  load_weights: True
 
   window_stride: 32
 
@@ -97,7 +97,7 @@ cnn:
 #=====================================#
 
 pfilter:
-  num_particles: 10000
+  num_particles: 500
   detector: cnn
 
 
