@@ -73,7 +73,7 @@ def train_model():
 
     acc = 0.0
 
-    while acc <= 0.99:
+    while acc <= 0.97:
         model = Model(config)
         model.initialize()
         model.train(train_data, train_labels, int(config['training_verbose']))
