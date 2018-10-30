@@ -1,4 +1,4 @@
 mwmtracker/data/*
 *.hdf5
-.idea/*
+.idea/
 *.pyc
