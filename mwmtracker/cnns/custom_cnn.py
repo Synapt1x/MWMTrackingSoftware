@@ -303,8 +303,11 @@ class CustomModel:
         """
 
         stride = self.config['window_stride']
-        min_h, max_h, min_w, max_w = self.config['miny'], self.config['maxy'], \
-                                     self.config['minx'], self.config['maxx']
+        if frame.ndim != 3:
+            return False, None, None
+        min_h, max_h, min_w, max_w = 0, frame.shape[0], 0, frame.shape[1]
+        # min_h, max_h, min_w, max_w = self.config['miny'], self.config['maxy'], \
+        #                              self.config['minx'], self.config['maxx']
 
         imgs = []
         coords = []
@@ -319,15 +322,19 @@ class CustomModel:
                 coords.append((i, j))
 
         imgs = np.array(imgs)
+        coords = np.array(coords)
+
+        if frame.ndim != 4:
+            return False, None, None
 
         predictions = self.model.predict(imgs)
         if all(predictions == 1.0) or all(predictions == 0.0):
             return False, None, None
 
-        first_best = np.argmax(predictions)
-        best_i, best_j = coords[first_best]
+        coords = coords[predictions[:, 0] == 1.]
+        avg_x, avg_y = np.mean(coords, axis=0)
 
-        return True, best_i + self.h // 2, best_j + self.w // 2
+        return True, avg_x, avg_y
 
 
 if __name__ == '__main__':

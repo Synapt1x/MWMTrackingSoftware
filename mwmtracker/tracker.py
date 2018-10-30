@@ -262,6 +262,10 @@ class Tracker:
 
                 self.t = self.current_vid.get(cv2.CAP_PROP_POS_MSEC) / 1000
 
+                [self.current_vid.read() for _ in range(self.config[
+                                                            'frame_skip'])]
+                frame_num += self.config['frame_skip']
+
                 valid, frame = self.current_vid.read()
 
             # save data to pandas dataframe and write to excel
@@ -288,14 +292,16 @@ class Tracker:
         self.data['data'].save_to_excel(self.config['datadir'].split(
             os.sep)[-1])
 
-    def extract_detect_img(self, frame, i, j):
+    def extract_detect_img(self, frame, j, i, h=None, w=None):
         """
         Provided a bounding box, return an image of the detection
         """
 
-        h, w = self.template.shape[:2]
+        if h == None or w == None:
+            h, w = self.template.shape[:2]
 
-        return frame[i: i + h, j: j + w]
+        return frame[i - h // 2: i + h // 2,
+                     j - w // 2: j + w // 2]
 
     def update_template(self, frame, i, j):
         """
@@ -366,7 +372,16 @@ class Tracker:
                                   start_h=roi[1], start_w=roi[0])
 
         # detect location of the mouse
-        valid, x, y = self.detect_loc(frame)
+        if self.config['boundLoc']:
+            roi = cv2.selectROI("Select initial bounds for mouse location",
+                                frame)
+            first_img = frame[int(roi[1]):int(roi[1]+roi[3]),
+                              int(roi[0]):int(roi[0]+roi[2])]
+            valid, x, y = self.detect_loc(first_img)
+            x += roi[0]
+            y += roi[1]
+        else:
+            valid, x, y = self.detect_loc(frame)
 
         # save the first frame
         self.first_frame = frame
@@ -397,7 +412,16 @@ class Tracker:
 
         #valid, box = self.model.model.update(frame)
 
-        valid, x, y = self.detect_loc(frame)
+        # detect location of the mouse
+        if self.config['boundLoc']:
+            prev_x, prev_y = self.data['x'][-1], self.data['y'][-1]
+            h, w = self.config['img_size'] * 3, self.config['img_size'] * 3
+            valid, x, y = self.detect_loc(self.extract_detect_img(frame, prev_x,
+                                                                  prev_y, h, w))
+            x += prev_x - int(w * 1.5)
+            y += prev_y - int(h * 1.5)
+        else:
+            valid, x, y = self.detect_loc(frame)
 
         if valid:
             # tracking success
@@ -407,7 +431,7 @@ class Tracker:
 
             self.current_pos = [x, y]
 
-            self.update_template(frame, x, y)
+            # self.update_template(frame, x, y)
 
             # UL_corner = (int(box[0]), int(box[1]))
             # BR_corner = (int(box[0] + box[2]), int(box[1] + box[3]))

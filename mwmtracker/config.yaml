@@ -2,7 +2,7 @@
 #=====================================#
 
 # Set the tracking system to be used for processing
-tracker: pfilter
+tracker: cnn
 
 
 # Data directories and parameters
@@ -14,6 +14,7 @@ templatedir: data/templates
 save_extract_images: True
 
 boundPool: False
+boundLoc: True
 # coordinates from previous pool bounding
 minx: 400
 maxx: 1040
@@ -33,6 +34,7 @@ outputExcel: trackingData.xlsx
 framerate: 30
 alpha: 0.25
 verbose: False
+prev_bounds: 280
 
 
 # Hyperparams for general cnn training
@@ -90,14 +92,14 @@ cnn:
   fitted_weights: custom_weights.hdf5
   load_weights: True
 
-  window_stride: 32
+  window_stride: 8
 
 
 # Parameters for Particle filter
 #=====================================#
 
 pfilter:
-  num_particles: 500
+  num_particles: 250
   detector: cnn
 
 
