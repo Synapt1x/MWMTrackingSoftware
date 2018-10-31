@@ -52,7 +52,7 @@ class CustomModel:
 
             self.initialized = True
 
-    def create_model(self):
+    def create_large_model(self):
         """
         create model
 
@@ -88,6 +88,46 @@ class CustomModel:
         model.add(Dense(2048, activation='relu'))
         model.add(Dropout(self.config['dropout']))
         model.add(Dense(2048, activation='relu'))
+        model.add(Dropout(self.config['dropout']))
+        model.add(Dense(1, kernel_initializer='normal',
+                                        activation='sigmoid'))
+
+        model.summary()
+
+        return model
+
+    def create_model(self):
+        """
+        create model
+
+        :return: return the model
+        """
+
+        model = tf.keras.Sequential()
+
+        # define input layer
+        model.add(Convolution2D(64, (3, 3), padding='same',
+                                         activation='relu',
+                                         input_shape=self.input_shape))
+
+        # define hidden convolutional layers
+        model.add(Convolution2D(64, (2, 2), padding='same',
+                                         activation='relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Convolution2D(128, (2, 2), padding='same',
+                                         activation='relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Convolution2D(256, (2, 2), padding='same',
+                                         activation='relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+
+        model.add(ZeroPadding2D(2))
+        model.add(Convolution2D(256, (3, 3), activation='relu'))
+        model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+
+        # define the fully connected output layer
+        model.add(Flatten())
+        model.add(Dense(512, activation='relu'))
         model.add(Dropout(self.config['dropout']))
         model.add(Dense(1, kernel_initializer='normal',
                                         activation='sigmoid'))
@@ -324,7 +364,7 @@ class CustomModel:
         imgs = np.array(imgs)
         coords = np.array(coords)
 
-        if frame.ndim != 4:
+        if imgs.ndim != 4:
             return False, None, None
 
         predictions = self.model.predict(imgs)
@@ -334,7 +374,8 @@ class CustomModel:
         coords = coords[predictions[:, 0] == 1.]
         avg_x, avg_y = np.mean(coords, axis=0)
 
-        return True, avg_x, avg_y
+        return True, avg_x + self.config['img_size'] // 2, avg_y + self.config[
+            'img_size'] // 2
 
 
 if __name__ == '__main__':

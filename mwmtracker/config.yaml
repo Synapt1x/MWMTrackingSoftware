@@ -2,7 +2,7 @@
 #=====================================#
 
 # Set the tracking system to be used for processing
-tracker: cnn
+tracker: pfilter
 
 
 # Data directories and parameters
@@ -13,16 +13,17 @@ outputdir: data/output
 templatedir: data/templates
 save_extract_images: True
 
-boundPool: False
+getMouseParams: True
+boundPool: True
 boundLoc: True
 # coordinates from previous pool bounding
-minx: 400
-maxx: 1040
-miny: 172
-maxy: 700
+minx: 380
+maxx: 1000
+miny: 140
+maxy: 675
 
 num_train_vids: 10
-frame_skip: 4
+frame_skip: 0
 
 savetoexcel: True
 outputExcel: trackingData.xlsx
@@ -34,7 +35,7 @@ outputExcel: trackingData.xlsx
 framerate: 30
 alpha: 0.25
 verbose: False
-prev_bounds: 280
+prev_bounds: 128
 
 
 # Hyperparams for general cnn training
@@ -88,19 +89,20 @@ cnn:
 
   learning_rate: 0.75
 
-  output_weights: custom_weights.hdf5
-  fitted_weights: custom_weights.hdf5
+  output_weights: custom_weights-smaller.hdf5
+  fitted_weights: custom_weights-smaller.hdf5
   load_weights: True
 
-  window_stride: 8
+  window_stride: 4
 
 
 # Parameters for Particle filter
 #=====================================#
 
 pfilter:
-  num_particles: 250
-  detector: cnn
+  num_particles: 1000
+  bound_size: 180
+  detector: canny
 
 
 # Parameters for OpenCV tracker
@@ -119,9 +121,12 @@ template:
   template_thresh: 0.8
 
 canny:
-  threshold1: 180
-  threshold2: 360
-  min_area: 300
-  max_area: 800
-  min_arc_length: 60
-  max_arc_length: 180
+  threshold1: 140
+  threshold2: 280
+  min_area: 140
+  max_area: 1000
+  min_arc_length: 20
+  max_arc_length: 400
+
+kalman:
+  noise: 1.0

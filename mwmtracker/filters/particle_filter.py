@@ -30,7 +30,8 @@ class ParticleFilter:
         self.detector = None
 
     def initialize(self, max_h, max_w, h=None, w=None, start_h=0, start_w=0,
-                   dist_noise=None, vel_noise=None, detector=None):
+                   dist_noise=None, vel_noise=None, detector=None,
+                   mouse_params=None):
         """
         initialize particles to randomize n-vector for each particle
 
@@ -48,7 +49,7 @@ class ParticleFilter:
 
         #TODO: Need more work on playing with noise
         if dist_noise is None:
-            self.dist_noise = min(h, w) / 20
+            self.dist_noise = min(h, w) / 2
         else:
             self.dist_noise = dist_noise
         self.error_noise = 0.5
@@ -74,15 +75,16 @@ class ParticleFilter:
         self.weights = np.zeros(shape=self.num_particles)
 
         # initialize the detector used to measure error during each frame
-        if self.config['detector'] in ['Canny', 'template']:
+        if self.config['detector'] in ['canny', 'template']:
             self.detector = SimpleDetector(self.config[self.config['detector']],
-                                           self.config['detector'])
+                                           self.config['detector'],
+                                           mouse_params=mouse_params)
         elif self.config['detector'] == 'cnn':
             # import and create custom cnn tracker
             from cnns.custom_cnn import CustomModel as Detector
 
             # initialize model tracker
-            self.detector = Detector(self.config)
+            self.detector = Detector(self.config[self.config['detector']])
             if not self.detector.initialized:
                 self.detector.initialize()
 
@@ -100,13 +102,19 @@ class ParticleFilter:
 
         return np.exp(-err / (2 * self.error_noise ** 2))
 
-    def process_frame(self, template=None, roi=None):
+    def process_frame(self, frame=None, template=None,
+                      start_h=None, start_w=None):
 
         if self.config['detector'] == 'template':
             temp_h, temp_w = template.shape[:2]
-        else:
+        elif self.config['detector'] == 'cnn':
             temp_h, temp_w = self.config['img_size'], self.config['img_size']
             half_h, half_w = temp_h // 2, temp_w // 2
+        else:
+            half_h, half_w = self.config['bound_size'] // 2, self.config[
+                'bound_size'] // 2
+
+        cv2.imwrite('process_frame.png', frame)
 
         means = np.zeros(self.particles.shape[1])
         cov = np.array([[self.dist_noise, 0., 0., 0.],
@@ -117,16 +125,22 @@ class ParticleFilter:
                                               size=self.num_particles)
         self.particles += error
 
-        if self.config['detector'] in ['Canny', 'template']:
+        if self.config['detector'] == 'template':
             valid, self.template_vals = self.detector.detect(self.full_frame,
                                                         template, True)
             self.template_vals = self.template_vals[:-1, :-1]
             self.template_vals[self.template_vals > 0.1] = 1.0
 
-            # cv2.imshow('TEMPLATE VALS', self.template_vals)
-            # cv2.waitKey(0)
-
-        # TODO: Add error check for determining if template likely found
+        if self.config['detector'] == 'canny':
+            if frame is not None:
+                valid, all_locs, _ = self.detector.detect(frame,
+                                                          keep_all_locs=True)
+                if not valid:
+                    valid, all_locs, _ = self.detector.detect(self.full_frame,
+                                                              keep_all_locs=True)
+            else:
+                valid, all_locs, _ = self.detector.detect(self.full_frame,
+                                                          keep_all_locs=True)
 
         for p_i in range(len(self.particles)):
 
@@ -141,15 +155,27 @@ class ParticleFilter:
             i, j = int(i), int(j)
 
             # extract from full frame the comparison frame
-            if 0 + half_h < i < self.max_h - temp_h and 0 + half_w \
+            if 0 + half_h < i < self.max_h - half_h and 0 + half_w \
                     < j < self.max_w - half_w:
                 comp_frame = self.full_frame[i - half_h: i + half_h,
                                              j - half_w: j + half_w]
+                name = 'testimgs/' + str(p_i) + '-comp_frame.png'
+                cv2.imwrite(name, comp_frame)
 
-                valid, err = self.detector.single_query(comp_frame)
+                if self.config['detector'] == 'cnn':
+                    valid, err = self.detector.single_query(comp_frame)
+                else:
+                    if start_h is not None:
+                        test_i = i - start_h
+                        test_j = j - start_w
+                        valid, err = self.detector.calc_err(test_j,
+                                                            test_i, all_locs)
+                    else:
+                        valid, err = self.detector.calc_err(i, j, all_locs)
 
                 if valid:
-                    weight = 1 - np.exp(-err / (2 * self.error_noise ** 2))
+                    # weight = 1 - np.exp(-err / (2 * self.error_noise ** 2))
+                    weight = 1 / err
                     if abs(err) < 1E-9:
                         weight = 0.0
                     # weight = self.calc_error(i, j)

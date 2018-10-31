@@ -11,6 +11,7 @@ import cv2
 import numpy as np
 import argparse
 import pickle
+import pandas as pd
 from video_processor import Video_processor
 from math import *
 
@@ -485,6 +486,24 @@ def test_model(cnn_model, img_size=64, video=None, output_dir=None):
             break
 
     cv2.destroyAllWindows()
+
+
+def write_ids(vid_folder=None, num_days=6, num_trials=4):
+    """
+    Save video IDs to a file
+
+    :return:
+    """
+
+    base_df = pd.DataFrame({}, index='video_num')
+
+    for day in range(6):
+
+        for trial in range(num_trials):
+
+            
+
+
 
 
 if __name__ == '__main__':

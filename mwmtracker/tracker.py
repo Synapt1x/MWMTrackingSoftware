@@ -16,6 +16,8 @@ from video_processor import Video_processor
 
 
 TEMPLATE_JUMP = 25
+mouse_loc = ()
+mouse_params = {}
 
 
 class Tracker:
@@ -112,6 +114,17 @@ class Tracker:
             # initialize model
             self.model = Model(self.config)
 
+        elif model_type == 'kalman':
+
+            self.model = cv2.KalmanFilter()
+            self.model.measurementMatrix = np.array([[1, 0, 0, 0],
+                                                     [0, 1, 0, 0]], np.float32)
+            self.model.transitionMatrix = np.array([[1, 0, 1, 0],
+                                                    [0, 1, 0, 1],
+                                                    [0, 0, 1, 0],
+                                                    [0, 0, 0, 1]], np.float32)
+            self.model.processNoiseCov = np.eye(4, 4, dtype=np.float32)
+
     def initialize_tracker(self):
         """
         Initialize tracker and load relevant data.
@@ -139,13 +152,13 @@ class Tracker:
         first_vid.release()
 
         # if the pool bounding option is set then ask user to bound the pool
-        if self.config['boundPool']:
-
-            if valid:
-                self.pool_rect = cv2.selectROI(
-                    'Draw a Bounding box around the pool', frame)
-
-            cv2.destroyAllWindows()
+        # if self.config['boundPool']:
+        #
+        #     if valid:
+        #         self.pool_rect = cv2.selectROI(
+        #             'Draw a Bounding box around the pool', frame)
+        #
+        #     cv2.destroyAllWindows()
 
         # initialize tracker with height and width if needed
         if self.config['tracker'] == 'pfilter':
@@ -245,8 +258,9 @@ class Tracker:
 
             # while frames have successfully been extracted
             while valid:
-
-                frame = util.resize_frame(frame, self.model.config['resize'])
+                if self.config['tracker'] != 'kalman':
+                    if 'config' in self.model.config:
+                        frame = util.resize_frame(frame, self.model.config['resize'])
 
                 frame_num += 1
 
@@ -255,10 +269,19 @@ class Tracker:
                 if self.config['tracker'] == 'pfilter':
                     self.model.full_frame = frame
 
+                if self.config['boundPool']:
+                    orig_frame = frame.copy()
+                    frame = frame[self.config['miny']: self.config['maxy'],
+                                  self.config['minx']: self.config['maxx']]
+
                 if init_vid:
                     self.process_frame(frame)
                 else:
                     init_vid = self.process_initial_frame(frame)
+                    if self.config['boundPool']:
+                        self.first_frame = orig_frame
+                    else:
+                        self.first_frame = frame
 
                 self.t = self.current_vid.get(cv2.CAP_PROP_POS_MSEC) / 1000
 
@@ -321,7 +344,7 @@ class Tracker:
                         + (1 - self.config['alpha']) *
                          self.template).astype(np.uint8)
 
-    def detect_loc(self, frame):
+    def detect_loc(self, frame, start_h=None, start_w=None):
         """
         Use the chosen method to detect the location of the mouse
         :param frame: (ndarray) - image as numpy array
@@ -337,11 +360,11 @@ class Tracker:
 
             #util.display_particles(frame, self.model.particles)
 
-            self.model.process_frame(self.template)
+            self.model.process_frame(frame, start_h=start_h, start_w=start_w)
             self.model.resample()
             x, y = self.model.query()
 
-            return True, int(x), int(y)
+            return True, int(y), int(x)
 
         elif self.config['tracker'] == 'cnn':
 
@@ -358,87 +381,150 @@ class Tracker:
         """
         Process initial frame to find ideal location for template.
         """
+        global mouse_params
 
         # If template is not defined then extract a new one
         if self.template is None:
             self.extract_template()
 
+        if self.config['getMouseParams']:
+            cv2.namedWindow("Click on the mouse")
+            cv2.setMouseCallback("Click on the mouse", get_mouse_params,
+                {'size': self.config['prev_bounds'],
+                 'canny_params': self.config['canny'],
+                 'frame': frame})
+            while True:
+                cv2.imshow("Click on the mouse", frame)
+                key = cv2.waitKey(1) & 0xFF
+
+                # if the 'c' key or space bar is pressed, break from the loop
+                if key == ord("c") or key == 32:
+                    break
+            cv2.destroyWindow("Click on the mouse")
+            if self.config['tracker'] == 'canny':
+                # re-initialize with initial mouse selection
+                self.model.config = {**self.model.config, **mouse_params}
+
         if self.config['tracker'] == 'pfilter':
-            roi = cv2.selectROI("Select initial bounds for mouse location",
+            roi = cv2.selectROI("Select initial bounds for particles",
                                 frame)
-            cv2.destroyWindow("Select initial bounds for mouse location")
+            cv2.destroyWindow("Select initial bounds for particles")
             self.model.initialize(frame.shape[0], frame.shape[1],
                                   h=roi[3], w=roi[2],
-                                  start_h=roi[1], start_w=roi[0])
+                                  start_h=roi[1], start_w=roi[0],
+                                  mouse_params=mouse_params)
 
         # detect location of the mouse
         if self.config['boundLoc']:
-            roi = cv2.selectROI("Select initial bounds for mouse location",
+            roi = cv2.selectROI("Select bounds for mouse location",
                                 frame)
+            cv2.destroyWindow("Select bounds for mouse location")
             first_img = frame[int(roi[1]):int(roi[1]+roi[3]),
                               int(roi[0]):int(roi[0]+roi[2])]
-            valid, x, y = self.detect_loc(first_img)
-            x += roi[0]
-            y += roi[1]
+            valid, x, y = self.detect_loc(first_img,
+                                          start_h=int(roi[1]),
+                                          start_w=int(roi[0]))
+            if self.config['tracker'] != 'pfilter':
+                if valid:
+                    x += roi[0]
+                    y += roi[1]
+                    if self.config['boundPool']:
+                        x += self.config['minx']
+                        y += self.config['miny']
         else:
             valid, x, y = self.detect_loc(frame)
 
-        # save the first frame
-        self.first_frame = frame
+        if not valid:
+            self.ask_xy(frame)
+            x, y = mouse_loc
 
-        if valid:
+        # tracking success
+        self.data['x'].append(x)
+        self.data['y'].append(y)
+        self.data['t'].append(self.t)
+        self.current_pos = [x, y]
 
-            # initialize tracking data for current video
-            self.data['x'].append(x)
-            self.data['y'].append(y)
-            self.data['t'].append(self.t)
-            self.current_pos = [x, y]
+        return valid
 
-            # self.update_template(frame, x, y)
+    def ask_xy(self, frame):
 
-            if self.config['verbose']:
-                cv2.circle(img=frame, center=(x, y), radius=2,
-                           color=[0, 255, 0], thickness=2)
-            return True
-        else:
-            return False
+        while True:
+            cv2.imshow("Cannot detect. Please click mouse location.", frame)
+            cv2.setMouseCallback("Cannot detect. Please click mouse location.",
+                                 fail_detect_click)
+            key = cv2.waitKey(1) & 0xFF
 
-        # draw bounding box if a match if found
+            # if the 'c' key or space bar is pressed, break from the loop
+            if key == ord("c") or key == 32:
+                break
 
     def process_frame(self, frame):
         """
         Process frame using selected tracker model.
         """
 
-        #valid, box = self.model.model.update(frame)
+        global mouse_loc
 
         # detect location of the mouse
         if self.config['boundLoc']:
             prev_x, prev_y = self.data['x'][-1], self.data['y'][-1]
-            h, w = self.config['img_size'] * 3, self.config['img_size'] * 3
-            valid, x, y = self.detect_loc(self.extract_detect_img(frame, prev_x,
-                                                                  prev_y, h, w))
-            x += prev_x - int(w * 1.5)
-            y += prev_y - int(h * 1.5)
+            if self.config['boundPool']:
+                prev_x -= self.config['minx']
+                prev_y -= self.config['miny']
+            h, w = self.config['prev_bounds'], self.config['prev_bounds']
+            new_rect = self.extract_detect_img(frame, prev_x, prev_y, h, w)
+            cv2.imwrite('new_rect.png', new_rect)
+            valid, x, y = self.detect_loc(new_rect, start_h=prev_x - h // 2,
+                                          start_w=prev_y - w // 2)
+            if self.config['tracker'] != 'pfilter':
+                if valid:
+                    x += prev_x - int(w * 0.75)
+                    y += prev_y - int(h * 0.75)
+                    if self.config['boundPool']:
+                        x += self.config['minx']
+                        y += self.config['miny']
         else:
             valid, x, y = self.detect_loc(frame)
 
-        if valid:
-            # tracking success
-            self.data['x'].append(x)
-            self.data['y'].append(y)
-            self.data['t'].append(self.t)
+        if not valid:
+            self.ask_xy(frame)
+            x, y = mouse_loc
+            if self.config['boundPool']:
+                x += self.config['minx']
+                y += self.config['miny']
 
-            self.current_pos = [x, y]
+        # tracking success
+        self.data['x'].append(x)
+        self.data['y'].append(y)
+        self.data['t'].append(self.t)
 
-            # self.update_template(frame, x, y)
+        self.current_pos = [x, y]
 
-            # UL_corner = (int(box[0]), int(box[1]))
-            # BR_corner = (int(box[0] + box[2]), int(box[1] + box[3]))
-            # cv2.rectangle(frame, UL_corner, BR_corner, (255,0,0), 2, 1)
-        else:
-            cv2.putText(frame, "Tracking failure detected", (100, 80),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)
+
+def fail_detect_click(event, x, y, flags, param):
+    global mouse_loc
+
+    # if the left mouse button was clicked, record location
+    if event == cv2.EVENT_LBUTTONDOWN:
+        mouse_loc = (x, y)
+
+
+def get_mouse_params(event, x, y, flags, param):
+    global mouse_params
+
+    size = 48
+    canny_params = param['canny_params']
+    frame = param['frame']
+    frame = frame[y - size: y + size,
+                  x - size: x + size]
+
+    # if the left mouse button was clicked, record location
+    if event == cv2.EVENT_LBUTTONDOWN:
+        from detectors.simple_detector import SimpleDetector
+
+        temp_detector = SimpleDetector(config=canny_params,
+                                       model_type='canny')
+        mouse_params = temp_detector.get_params(frame, canny_params, size, size)
 
 
 if __name__ == '__main__':
