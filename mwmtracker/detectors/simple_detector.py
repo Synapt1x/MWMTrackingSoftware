@@ -137,6 +137,9 @@ class SimpleDetector:
 
     def calc_err(self, i, j, all_locs):
 
+        if all_locs is None:
+            return False, 0.0
+
         best_dist = float('inf')
 
         for comp_i, comp_j in all_locs:

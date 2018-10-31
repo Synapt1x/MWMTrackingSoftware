@@ -41,7 +41,7 @@ class Tracker:
                      't': []}
 
         if self.config['saveIDs']:
-            self.data['data'].write_ids()
+            self.data['data'].write_ids(self.config['datadir'])
 
         # running parameters for the tracker
         self.vid_num = -1

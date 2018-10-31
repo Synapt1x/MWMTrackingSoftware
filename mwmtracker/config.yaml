@@ -23,7 +23,7 @@ miny: 140
 maxy: 675
 
 num_train_vids: 10
-frame_skip: 0
+frame_skip: 4
 
 savetoexcel: True
 outputExcel: trackingData.xlsx
