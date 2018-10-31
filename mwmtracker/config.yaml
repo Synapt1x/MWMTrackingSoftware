@@ -27,6 +27,7 @@ frame_skip: 0
 
 savetoexcel: True
 outputExcel: trackingData.xlsx
+saveIDs: True
 
 
 # Video processing parameters

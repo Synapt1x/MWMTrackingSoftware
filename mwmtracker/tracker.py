@@ -40,6 +40,9 @@ class Tracker:
                      'y': [],
                      't': []}
 
+        if self.config['saveIDs']:
+            self.data['data'].write_ids()
+
         # running parameters for the tracker
         self.vid_num = -1
         self.num_vids = 0

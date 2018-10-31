@@ -60,18 +60,47 @@ class Data_processor:
 
         self.excelWriter.save()
 
-    def write_ids(vid_folder=None, num_days=6, num_trials=4):
+    def write_ids(vid_folder=None, num_days=6, num_trials=4, n=10,
+                  num_vids=480):
         """
         Save video IDs to a file
 
         :return:
         """
 
-        base_df = pd.DataFrame({}, index='video_num')
+        cols = ['ID', 'Group', 'Day', 'Trial', 'Time']
+        base_df = pd.DataFrame({}, index=range(1, num_vids + 1), columns=cols)
+        day_orders = {1: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                          11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+                      2: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                          11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+                      3: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                          11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+                      4: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                          11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+                      5: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                          11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+                      6: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                          11, 12, 13, 14, 15, 16, 17, 18, 19, 20]}
+        vid_num = 1
 
-        for day in range(6):
+        for day in range(1, num_days + 1):
 
-            for trial in range(num_trials):
+            for trial in range(1, num_trials + 1):
+
+                for run_num in range(1, 2 * n + 1):
+
+                    mouse = day_orders[day][run_num - 1]
+                    if mouse <= 10:
+                        group = 'Control'
+                    else:
+                        group = 'Nilotinib'
+
+                    base_df.iloc[vid_num - 1] = [mouse, group, day, trial, 0]
+
+                    vid_num += 1
+
+        return base_df
 
 
 if __name__ == '__main__':
