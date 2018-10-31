@@ -159,8 +159,6 @@ class ParticleFilter:
                     < j < self.max_w - half_w:
                 comp_frame = self.full_frame[i - half_h: i + half_h,
                                              j - half_w: j + half_w]
-                name = 'testimgs/' + str(p_i) + '-comp_frame.png'
-                cv2.imwrite(name, comp_frame)
 
                 if self.config['detector'] == 'cnn':
                     valid, err = self.detector.single_query(comp_frame)
