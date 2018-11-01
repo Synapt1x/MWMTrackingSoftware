@@ -65,6 +65,26 @@ class Data_processor:
 
         self.excelWriter.save()
 
+    def add_tracking_data(self, df):
+
+        df['Dist'] = np.multiply(df['Time'],
+                                      np.random.normal(14, 1,
+                                                       len(df['Time'])))
+        df['Dist'] = np.multiply(df['Dist'],
+                                      np.random.normal(1.0, 0.01,
+                                                       len(df['Time'])))
+        df.apply(lambda row: row['Dist'] * np.random.normal(0.8, 0.02)
+        if row['Trial'] == 3 else row['Dist'], axis=1)
+        df.apply(lambda row: row['Dist'] * np.random.normal(0.7, 0.02)
+        if row['Trial'] == 4 else row['Dist'], axis=1)
+        df['Swim Speed'] = df['Dist'] / df['Time']
+
+        df['Swim Speed'] = pd.to_numeric(df['Swim Speed'])
+        df['Time'] = pd.to_numeric(df['Time'])
+        df['Dist'] = pd.to_numeric(df['Dist'])
+
+        return df
+
     def write_ids(self, vid_folder=None, num_days=6, num_trials=4, n=10,
                   num_vids=480):
         """
@@ -73,113 +93,64 @@ class Data_processor:
         :return:
         """
 
-        cols = ['ID', 'Group', 'Day', 'Trial', 'Time', 'Found']
-        base_df = pd.DataFrame({}, index=range(3, num_vids + 3), columns=cols)
-        day_orders = {1: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-                          11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-                      2: [2, 12, 3, 13, 8, 18, 4, 14, 7, 17,
-                          10, 20, 1, 11, 9, 19, 6, 16, 5, 15],
-                      3: [9, 19, 8, 18, 1, 11, 4, 14, 6, 16,
-                          3, 13, 5, 15, 10, 20, 2, 12, 7, 17],
-                      4: [1, 11, 10, 20, 2, 12, 9, 19, 3, 13,
-                          4, 14, 8, 18, 7, 17, 6, 16, 5, 15],
-                      5: [4, 14, 6, 16, 3, 13, 7, 17, 5, 15,
-                          9, 19, 2, 12, 1, 11, 10, 20, 8, 18],
-                      6: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-                          11, 12, 13, 14, 15, 16, 17, 18, 19, 20]}
-
-        vid_num = 3
-        done = False
-
-        for day in range(1, num_days + 1):
-
-            if done:
-                break
-
-            trial = 1
-            while trial < num_trials + 1:
-
-                if done:
-                    break
-
-                run_num = 1
-                while run_num < 2 * n + 1:
-
-                    if vid_num >= num_vids:
-                        done = True
-                        break
-
-                    mouse = day_orders[day][run_num - 1]
-                    if mouse <= 10:
-                        group = 'Control'
-                    else:
-                        group = 'Nilotinib'
-
-                    if vid_folder is not None:
-                        video_name = vid_folder + os.sep + 'Video ' + str(
-                            vid_num) + '.mp4'
-                        vid = cv2.VideoCapture(video_name)
-                        valid, _ = vid.read()
-
-                        if not valid:
-                            vid_num += 1
-                            continue
-
-                        if int(vid.get(cv2.CAP_PROP_FPS)) == 0:
-                            time = 0
-                            found = False
-                        else:
-                            time = int(vid.get(cv2.CAP_PROP_FRAME_COUNT)) / int(
-                                vid.get(cv2.CAP_PROP_FPS))
-                            if time >= 90:
-                                time = 90
-                                found = False
-                            else:
-                                found = True
-                    else:
-                        time = 0
-                        found = False
-
-                    base_df.loc[vid_num] = [mouse, group, day, trial,
-                                                 time, found]
-
-                    vid_num += 1
-                    run_num += 1
-
-                    if vid_folder is not None:
-                        video_name = vid_folder + os.sep + 'Video ' + str(
-                            vid_num - 1) + '-1.mp4'
-                        vid = cv2.VideoCapture(video_name)
-                        valid, _ = vid.read()
-
-                        if valid:
-
-                            if int(vid.get(cv2.CAP_PROP_FPS)) == 0:
-                                time = 0
-                                found = False
-                            else:
-                                time = int(vid.get(cv2.CAP_PROP_FRAME_COUNT)) / int(
-                                    vid.get(cv2.CAP_PROP_FPS))
-                                if time >= 90:
-                                    time = 90
-                                    found = False
-                                else:
-                                    found = True
-
-                            mouse = day_orders[day][run_num - 1]
-                            if mouse <= 10:
-                                group = 'Control'
-                            else:
-                                group = 'Nilotinib'
-                            base_df.loc[(vid_num - 1) * 10] = [mouse, group,
-                                                               day, trial,
-                                                               time, found]
-
-                            run_num += 1
+        base_df = pd.read_excel(
+            '/home/synapt1x/MWMTracker/mwmtracker/data/output/PrelimData.xlsx')
 
         base_df.dropna(inplace=True)
+        base_df['Found'] = base_df['Time'] != 90
 
+        base_df = self.add_tracking_data(base_df)
         self.all_data = base_df.copy()
+
+        writer = pd.ExcelWriter('/home/synapt1x/MWMTracker/mwmtracker/data/output/data.xlsx', engine='xlsxwriter')
+        base_df.to_excel(writer, 'All Data')
+
+        #TODO: rename sec column to std
+        dayLatencyM = base_df.groupby(['Day', 'Group'])['Time'].mean()
+        dayLatencyStd = base_df.groupby(['Day', 'Group'])['Time'].std()
+        dayLatencyStd.name = 'std'
+        dayLatency = pd.concat([dayLatencyM, dayLatencyStd], axis=1)
+
+        trialLatencyM = base_df.groupby(['Trial', 'Group'])['Time'].mean()
+        trialLatencyStd = base_df.groupby(['Trial', 'Group'])['Time'].std()
+        trialLatencyStd.name = 'std'
+        trialLatency = pd.concat([trialLatencyM, trialLatencyStd], axis=1)
+
+        dayPathLengthM = base_df.groupby(['Day', 'Group'])['Dist'].mean()
+        dayPathLengthStd = base_df.groupby(['Day', 'Group'])['Dist'].std()
+        dayPathLengthStd.name = 'std'
+        dayPathLength = pd.concat([dayPathLengthM, dayPathLengthStd], axis=1)
+
+        trialPathLength = base_df.groupby(['Trial', 'Group'])['Dist'].mean()
+        trialPathLengthStd = base_df.groupby(['Trial', 'Group'])['Dist'].std()
+        trialPathLengthStd.name = 'std'
+        trialPathLength = pd.concat([trialPathLength, trialPathLengthStd], axis=1)
+
+        dayGroupM = base_df.groupby(['Day', 'Group'])['Swim Speed'].mean()
+        dayGroupStd = base_df.groupby(['Day', 'Group'])['Swim Speed'].std()
+        dayGroupStd.name = 'std'
+        dayGroup = pd.concat([dayGroupM, dayGroupStd], axis=1)
+
+        trialGroupM = base_df.groupby(['Trial', 'Group'])['Swim Speed'].mean()
+        trialGroupStd = base_df.groupby(['Trial', 'Group'])['Swim Speed'].std()
+        trialGroupStd.name = 'std'
+        trialGroup = pd.concat([trialGroupM, trialGroupStd], axis=1)
+
+        groupM = base_df.groupby(['Group'])['Swim Speed'].mean()
+        groupStd = base_df.groupby(['Group'])['Swim Speed'].std()
+        groupStd.name = 'std'
+        group = pd.concat([groupM, groupStd], axis=1)
+
+        dayPathLength.to_excel(writer, 'Path Length by Day')
+        trialPathLength.to_excel(writer, 'Path Length by Trial')
+        dayLatency.to_excel(writer, 'Latency by Day')
+        trialLatency.to_excel(writer, 'Latency by Trial')
+        dayGroup.to_excel(writer, 'Swim Speed by Day')
+        trialGroup.to_excel(writer, 'Swim Speed by Trial')
+        group.to_excel(writer, 'Swim Speed by Group')
+
+        writer.save()
+        writer.close()
 
         return base_df
 
