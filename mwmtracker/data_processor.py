@@ -98,14 +98,24 @@ class Data_processor:
 
         base_df.dropna(inplace=True)
         base_df['Found'] = base_df['Time'] != 90
+        base_df['Group'] = base_df['ID'].apply(lambda x: 'Nilotinib' if x in
+                                               range(1, 11) else 'Control')
 
-        base_df = self.add_tracking_data(base_df)
+        #base_df = self.add_tracking_data(base_df)
         self.all_data = base_df.copy()
 
         writer = pd.ExcelWriter('/home/synapt1x/MWMTracker/mwmtracker/data/output/data.xlsx', engine='xlsxwriter')
         base_df.to_excel(writer, 'All Data')
 
-        #TODO: rename sec column to std
+        other_writer = pd.ExcelWriter(
+            '/home/synapt1x/MWMTracker/mwmtracker/data/output/data.xlsx',
+            engine='xlsxwriter')
+
+        other_df = base_df.groupby(['Day', 'Group']).mean()
+        other_df = other_df.drop(columns=['ID', 'Trial', 'Found'])
+
+        other_df.to_excel(writer, 'Without Five Trial Averages')
+
         dayLatencyM = base_df.groupby(['Day', 'Group'])['Time'].mean()
         dayLatencyStd = base_df.groupby(['Day', 'Group'])['Time'].std()
         dayLatencyStd.name = 'std'
