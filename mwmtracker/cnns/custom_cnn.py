@@ -117,17 +117,17 @@ class CustomModel:
         model.add(Convolution2D(128, (2, 2), padding='same',
                                          activation='relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Convolution2D(256, (2, 2), padding='same',
+        model.add(Convolution2D(128, (2, 2), padding='same',
                                          activation='relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
 
         model.add(ZeroPadding2D(2))
-        model.add(Convolution2D(256, (3, 3), activation='relu'))
+        model.add(Convolution2D(128, (3, 3), activation='relu'))
         model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 
         # define the fully connected output layer
         model.add(Flatten())
-        model.add(Dense(512, activation='relu'))
+        model.add(Dense(256, activation='relu'))
         model.add(Dropout(self.config['dropout']))
         model.add(Dense(1, kernel_initializer='normal',
                                         activation='sigmoid'))

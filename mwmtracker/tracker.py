@@ -35,7 +35,8 @@ class Tracker:
         self.train_vids = []
         self.validation_vids = []
         self.test_vids = []
-        self.data = {'data': Data_processor(config['outputExcel']),
+        self.data = {'data': Data_processor(config['outputExcel'],
+                                            self.config['cm_scale']),
                      'x': [],
                      'y': [],
                      't': []}
@@ -235,26 +236,29 @@ class Tracker:
         Process each video in the train video directory.
         """
 
-        # if the config indicates we need to extract train videos
-        # if self.config['extract_data']:
-        #     util.extract_train_data(self.config['traindir'],
-        #                             self.config['img_size'],
-        #                             self.current_vid)
-        #
-        # if self.config['load_pickle']:
-        #     self.data['train_data'], self.data['train_labels'] = \
-        #         util.load_train_data()
-
         # check if template has been defined
         if not self.template_defined and self.num_vids > 0:
             self.extract_template()
 
-        frame_num = 0
-
         # loop over each video in training set
         for vid_i in range(self.num_vids):
 
+            if not self.data['data'].dist_data.empty:
+                vid_num = int(self.data['train_vids'][vid_i].split(" ")[-1].split(
+                    ".")[0])
+                if vid_num in np.array(self.data['data'].dist_data['vid num'],
+                                       dtype=np.int):
+
+                    self.current_vid.release()  # release the current video
+
+                    if vid_i < self.num_vids - 1:
+                        self.template = self.orig_template.copy()
+                        self.load_next_vid()
+                    continue
+
             init_vid = False
+
+            frame_num = 0
 
             # process current video
             valid, frame = self.current_vid.read()
@@ -315,8 +319,7 @@ class Tracker:
                 self.template = self.orig_template.copy()
                 self.load_next_vid()
 
-        self.data['data'].save_to_excel(self.config['datadir'].split(
-            os.sep)[-1])
+        self.data['data'].save_to_excel()
 
     def extract_detect_img(self, frame, j, i, h=None, w=None):
         """
@@ -400,8 +403,11 @@ class Tracker:
                 cv2.imshow("Click on the mouse", frame)
                 key = cv2.waitKey(1) & 0xFF
 
+                if key == ord('s'):
+                    cv2.destroyWindow("Click on the mouse")
+                    return False
                 # if the 'c' key or space bar is pressed, break from the loop
-                if key == ord("c") or key == 32:
+                if key == ord('c') or key == 32:
                     break
             cv2.destroyWindow("Click on the mouse")
             if self.config['tracker'] == 'canny':
@@ -424,9 +430,16 @@ class Tracker:
             cv2.destroyWindow("Select bounds for mouse location")
             first_img = frame[int(roi[1]):int(roi[1]+roi[3]),
                               int(roi[0]):int(roi[0]+roi[2])]
-            valid, x, y = self.detect_loc(first_img,
-                                          start_h=int(roi[1]),
-                                          start_w=int(roi[0]))
+            if self.config['getMouseParams']:
+                valid, x, y = True, mouse_params['initial_x'], mouse_params[
+                    'initial_y']
+                if self.config['boundPool']:
+                    x += self.config['minx']
+                    y += self.config['miny']
+            else:
+                valid, x, y = self.detect_loc(first_img,
+                                              start_h=int(roi[1]),
+                                              start_w=int(roi[0]))
             if self.config['tracker'] != 'pfilter':
                 if valid:
                     x += roi[0]
@@ -440,6 +453,10 @@ class Tracker:
         if not valid:
             self.ask_xy(frame)
             x, y = mouse_loc
+
+        if self.config['boundPool']:
+            x += self.config['minx']
+            y += self.config['miny']
 
         # tracking success
         self.data['x'].append(x)
@@ -461,12 +478,23 @@ class Tracker:
             if key == ord("c") or key == 32:
                 break
 
+        self.config['frame_skip'] = 7
+
+    def prev_dist(self, x, y):
+
+        x_dist = (x - self.data['x'][-1]) ** 2
+        y_dist = (y - self.data['y'][-1]) ** 2
+
+        return np.sqrt(x_dist + y_dist)
+
     def process_frame(self, frame):
         """
         Process frame using selected tracker model.
         """
 
         global mouse_loc
+
+        self.config['frame_skip'] = 2
 
         # detect location of the mouse
         if self.config['boundLoc']:
@@ -476,7 +504,6 @@ class Tracker:
                 prev_y -= self.config['miny']
             h, w = self.config['prev_bounds'], self.config['prev_bounds']
             new_rect = self.extract_detect_img(frame, prev_x, prev_y, h, w)
-            cv2.imwrite('new_rect.png', new_rect)
             valid, x, y = self.detect_loc(new_rect, start_h=prev_x - h // 2,
                                           start_w=prev_y - w // 2)
             if self.config['tracker'] != 'pfilter':
@@ -492,9 +519,14 @@ class Tracker:
         if not valid:
             self.ask_xy(frame)
             x, y = mouse_loc
-            if self.config['boundPool']:
-                x += self.config['minx']
-                y += self.config['miny']
+
+        if self.config['boundPool']:
+            x += self.config['minx']
+            y += self.config['miny']
+
+        if self.prev_dist(x, y) > self.config['dist_error']:
+            self.ask_xy(frame)
+            x, y = mouse_loc
 
         # tracking success
         self.data['x'].append(x)
@@ -509,6 +541,7 @@ def fail_detect_click(event, x, y, flags, param):
 
     # if the left mouse button was clicked, record location
     if event == cv2.EVENT_LBUTTONDOWN:
+
         mouse_loc = (x, y)
 
 
@@ -527,7 +560,11 @@ def get_mouse_params(event, x, y, flags, param):
 
         temp_detector = SimpleDetector(config=canny_params,
                                        model_type='canny')
-        mouse_params = temp_detector.get_params(frame, canny_params, size, size)
+        mouse_params = temp_detector.get_params(frame, canny_params, size,
+                                                size)
+        mouse_params['initial_x'] = x
+        mouse_params['initial_y'] = y
+        mouse_params['col'] = param['frame'][y, x]
 
 
 if __name__ == '__main__':

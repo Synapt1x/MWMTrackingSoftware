@@ -49,7 +49,7 @@ class ParticleFilter:
 
         #TODO: Need more work on playing with noise
         if dist_noise is None:
-            self.dist_noise = min(h, w) / 2
+            self.dist_noise = min(h, w) / 4
         else:
             self.dist_noise = dist_noise
         self.error_noise = 0.5
@@ -114,8 +114,6 @@ class ParticleFilter:
             half_h, half_w = self.config['bound_size'] // 2, self.config[
                 'bound_size'] // 2
 
-        cv2.imwrite('process_frame.png', frame)
-
         means = np.zeros(self.particles.shape[1])
         cov = np.array([[self.dist_noise, 0., 0., 0.],
                         [0., self.dist_noise, 0., 0.],
@@ -134,7 +132,8 @@ class ParticleFilter:
         if self.config['detector'] == 'canny':
             if frame is not None:
                 valid, all_locs, _ = self.detector.detect(frame,
-                                                          keep_all_locs=True)
+                                                          keep_all_locs=True,
+                                                          check_color=False)
                 if not valid:
                     valid, all_locs, _ = self.detector.detect(self.full_frame,
                                                               keep_all_locs=True)
@@ -144,11 +143,11 @@ class ParticleFilter:
 
         for p_i in range(len(self.particles)):
 
-            i, j, dx, dy = self.particles[p_i]
+            j, i, dx, dy = self.particles[p_i]
 
             # apply motion model with random movement noise
-            i += dx + np.random.normal(0, self.dist_noise)
-            j += dy + np.random.normal(0, self.dist_noise)
+            i += dy + np.random.normal(0, self.dist_noise)
+            j += dx + np.random.normal(0, self.dist_noise)
 
             # TODO: add interpolation to scale continuous values to ints
 
@@ -157,8 +156,8 @@ class ParticleFilter:
             # extract from full frame the comparison frame
             if 0 + half_h < i < self.max_h - half_h and 0 + half_w \
                     < j < self.max_w - half_w:
-                comp_frame = self.full_frame[i - half_h: i + half_h,
-                                             j - half_w: j + half_w]
+                comp_frame = frame[j - half_h: j + half_h,
+                                             i - half_w: i + half_w]
 
                 if self.config['detector'] == 'cnn':
                     valid, err = self.detector.single_query(comp_frame)
@@ -173,7 +172,8 @@ class ParticleFilter:
 
                 if valid:
                     # weight = 1 - np.exp(-err / (2 * self.error_noise ** 2))
-                    weight = 1 / err
+                    #weight = 1 / err
+                    weight = np.exp(-err)
                     if abs(err) < 1E-9:
                         weight = 0.0
                     # weight = self.calc_error(i, j)

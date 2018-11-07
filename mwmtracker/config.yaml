@@ -2,7 +2,7 @@
 #=====================================#
 
 # Set the tracking system to be used for processing
-tracker: pfilter
+tracker: canny
 
 
 # Data directories and parameters
@@ -13,17 +13,23 @@ outputdir: data/output
 templatedir: data/templates
 save_extract_images: True
 
+ongoing_save: True
+
+cm_scale: 6.4
+
 getMouseParams: True
 boundPool: True
-boundLoc: True
+boundLoc: False
 # coordinates from previous pool bounding
-minx: 380
-maxx: 1000
+minx: 460
+maxx: 1080
 miny: 140
 maxy: 675
 
+dist_error: 400
+
 num_train_vids: 10
-frame_skip: 4
+frame_skip: 2
 
 savetoexcel: True
 outputExcel: trackingData.xlsx
@@ -85,7 +91,7 @@ cnn:
 
   validation_proportion: 0.25
   batch_size: 100
-  num_epochs: 50
+  num_epochs: 10
   seed: 13
 
   learning_rate: 0.75
@@ -101,7 +107,7 @@ cnn:
 #=====================================#
 
 pfilter:
-  num_particles: 1000
+  num_particles: 4000
   bound_size: 180
   detector: canny
 
@@ -122,12 +128,11 @@ template:
   template_thresh: 0.8
 
 canny:
-  threshold1: 140
-  threshold2: 280
-  min_area: 140
-  max_area: 1000
-  min_arc_length: 20
-  max_arc_length: 400
+  threshold1: 210
+  threshold2: 360
+  area_diff: 400
+  circle_area_diff: 1200
+  arc_diff: 400
 
 kalman:
   noise: 1.0
