@@ -20,6 +20,7 @@ cm_scale: 6.4
 getMouseParams: True
 boundPool: True
 boundLoc: False
+maskPool: True
 # coordinates from previous pool bounding
 minx: 460
 maxx: 1080

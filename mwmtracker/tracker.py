@@ -156,13 +156,17 @@ class Tracker:
         first_vid.release()
 
         # if the pool bounding option is set then ask user to bound the pool
-        # if self.config['boundPool']:
-        #
-        #     if valid:
-        #         self.pool_rect = cv2.selectROI(
-        #             'Draw a Bounding box around the pool', frame)
-        #
-        #     cv2.destroyAllWindows()
+        if self.config['boundPool']:
+
+            if valid:
+                self.pool_rect = cv2.selectROI(
+                    'Draw a Bounding box around the pool', frame)
+
+            cv2.destroyAllWindows()
+            self.config['minx'] = self.pool_rect[0]
+            self.config['maxx'] = self.pool_rect[0] + self.pool_rect[1]
+            self.config['miny'] = self.pool_rect[1]
+            self.config['maxy'] = self.pool_rect[1] + self.pool_rect[2]
 
         # initialize tracker with height and width if needed
         if self.config['tracker'] == 'pfilter':
@@ -478,7 +482,7 @@ class Tracker:
             if key == ord("c") or key == 32:
                 break
 
-        self.config['frame_skip'] = 7
+        self.config['frame_skip'] = 9
 
     def prev_dist(self, x, y):
 
