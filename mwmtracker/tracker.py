@@ -494,8 +494,19 @@ class Tracker:
 
     def ask_xy(self, frame):
 
+        ask_frame = frame.copy()
+
+        x_coord = self.data['x'][-1]
+        y_coord = self.data['y'][-1]
+        if self.config['boundPool']:
+            x_coord -= self.config['minx']
+            y_coord -= self.config['miny']
+
+        ask_frame = cv2.circle(ask_frame, (x_coord, y_coord),
+                           thickness=5, color=(0, 255, 0), radius=2)
+
         while True:
-            cv2.imshow("Cannot detect. Please click mouse location.", frame)
+            cv2.imshow("Cannot detect. Please click mouse location.", ask_frame)
             cv2.setMouseCallback("Cannot detect. Please click mouse location.",
                                  fail_detect_click)
             key = cv2.waitKey(1) & 0xFF
