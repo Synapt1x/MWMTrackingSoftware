@@ -57,6 +57,7 @@ class SimpleDetector:
         contour_frame, contours, hierarchy = cv2.findContours(edge_frame,
                                                       cv2.RETR_TREE,
                                                       cv2.CHAIN_APPROX_SIMPLE)
+        cv2.imwrite('contour_frame.png', contour_frame)
         found = False
 
         if not keep_all_locs:
@@ -78,20 +79,21 @@ class SimpleDetector:
 
                 delta_area = abs(area - self.config['area'])
                 delta_circ_area = abs(circle_area - self.config['circle_area'])
-                delta_arc = abs(arc_length - self.config['arc_length'])
+                # delta_arc = abs(arc_length - self.config['arc_length'])
 
                 area_check = delta_area < self.config['area_diff']
-                circ_area_check = delta_circ_area < self.config[
+                min_val = self.config['circle_area'] / self.config[
                     'circle_area_diff']
-                arc_check = delta_arc < self.config['arc_diff']
+                max_val = self.config['circle_area'] * self.config[
+                    'circle_area_diff']
+                circ_area_check = min_val < circle_area < max_val
+                # arc_check = delta_arc < self.config['arc_diff']
 
-                if area_check and arc_check and circ_area_check:
+                if circ_area_check:
                     found = True
 
-                    if delta_area <= best_area and delta_arc <= best_arc and\
-                            delta_circ_area <= best_circ_area:
-                        best_area = delta_area
-                        best_arc = delta_arc
+                    if delta_circ_area <= best_circ_area:
+                        best_circ_area = delta_circ_area
 
                         x = int(moments['m10'] / moments['m00'])
                         y = int(moments['m01'] / moments['m00'])
@@ -227,14 +229,25 @@ class SimpleDetector:
                                                               cv2.RETR_TREE,
                                                               cv2.CHAIN_APPROX_SIMPLE)
 
-        for contour in contours:
+        best_x_dist = float('inf')
+        best_y_dist = float('inf')
+
+        for c_i in range(len(contours)):
+
+            contour = contours[c_i]
             # extract moments and features of detected contour
             moments = cv2.moments(contour)
 
             x = int(moments['m10'] / moments['m00'])
             y = int(moments['m01'] / moments['m00'])
 
-            if abs(x - true_x) < 12.0 and abs(y - true_y) < 12.0:
+            x_dist = abs(x - true_x)
+            y_dist = abs(y - true_y)
+
+            if x_dist < best_x_dist and y_dist < best_y_dist:
+
+                best_x_dist = x_dist
+                best_y_dist = y_dist
 
                 (_, _), radius = cv2.minEnclosingCircle(contour)
                 mouse_params['circle_area'] = np.pi * radius ** 2

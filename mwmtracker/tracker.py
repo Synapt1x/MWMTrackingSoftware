@@ -155,19 +155,6 @@ class Tracker:
         self.vid_num = -1
         first_vid.release()
 
-        # if the pool bounding option is set then ask user to bound the pool
-        if self.config['boundPool']:
-
-            if valid:
-                self.pool_rect = cv2.selectROI(
-                    'Draw a Bounding box around the pool', frame)
-
-            cv2.destroyAllWindows()
-            self.config['minx'] = self.pool_rect[0]
-            self.config['maxx'] = self.pool_rect[0] + self.pool_rect[1]
-            self.config['miny'] = self.pool_rect[1]
-            self.config['maxy'] = self.pool_rect[1] + self.pool_rect[2]
-
         # initialize tracker with height and width if needed
         if self.config['tracker'] == 'pfilter':
             self.model.initialize(h, w)
@@ -267,6 +254,19 @@ class Tracker:
             # process current video
             valid, frame = self.current_vid.read()
 
+            if valid:
+                if self.config['boundPool']:
+                    self.pool_rect = cv2.selectROI(
+                        'Draw a Bounding box around the pool', frame)
+
+                    cv2.destroyAllWindows()
+                    self.config['minx'] = self.pool_rect[0]
+                    self.config['maxx'] = self.pool_rect[0] + \
+                                          self.pool_rect[2]
+                    self.config['miny'] = self.pool_rect[1]
+                    self.config['maxy'] = self.pool_rect[1] + \
+                                          self.pool_rect[3]
+
             # while frames have successfully been extracted
             while valid:
                 if self.config['tracker'] != 'kalman':
@@ -281,9 +281,26 @@ class Tracker:
                     self.model.full_frame = frame
 
                 if self.config['boundPool']:
+
                     orig_frame = frame.copy()
                     frame = frame[self.config['miny']: self.config['maxy'],
                                   self.config['minx']: self.config['maxx']]
+
+                    if self.config['maskPool']:
+                        mask = np.zeros(shape=frame.shape,
+                                        dtype=frame.dtype)
+                        mid_x = (self.config['minx'] + self.config['maxx']) \
+                                // 2 - self.config['minx']
+                        mid_y = (self.config['miny'] + self.config['maxy']) \
+                                // 2 - self.config['miny']
+                        mask = cv2.circle(mask, center=(mid_x, mid_y),
+                                          radius=max(mid_x, mid_y),
+                                          color=(255, 255, 255),
+                                          thickness=cv2.FILLED)
+                        mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+                        frame = cv2.bitwise_and(frame, frame, mask=mask)
+                        frame[np.where((frame == [0, 0, 0]).all(axis=2))] = [
+                            164, 164, 164]
 
                 if init_vid:
                     self.process_frame(frame)
@@ -414,9 +431,14 @@ class Tracker:
                 if key == ord('c') or key == 32:
                     break
             cv2.destroyWindow("Click on the mouse")
-            if self.config['tracker'] == 'canny':
-                # re-initialize with initial mouse selection
-                self.model.config = {**self.model.config, **mouse_params}
+        else:
+            mouse_params['area'] = 500
+            mouse_params['circle_area'] = 2500
+            mouse_params['arc_length'] = 600
+
+        if self.config['tracker'] == 'canny':
+            # re-initialize with initial mouse selection
+            self.model.config = {**self.model.config, **mouse_params}
 
         if self.config['tracker'] == 'pfilter':
             roi = cv2.selectROI("Select initial bounds for particles",
@@ -482,14 +504,16 @@ class Tracker:
             if key == ord("c") or key == 32:
                 break
 
-        self.config['frame_skip'] = 9
+        self.config['frame_skip'] = 19
 
     def prev_dist(self, x, y):
 
         x_dist = (x - self.data['x'][-1]) ** 2
         y_dist = (y - self.data['y'][-1]) ** 2
 
-        return np.sqrt(x_dist + y_dist)
+        dist = np.sqrt(x_dist + y_dist)
+
+        return dist
 
     def process_frame(self, frame):
         """
@@ -531,6 +555,9 @@ class Tracker:
         if self.prev_dist(x, y) > self.config['dist_error']:
             self.ask_xy(frame)
             x, y = mouse_loc
+            if self.config['boundPool']:
+                x += self.config['minx']
+                y += self.config['miny']
 
         # tracking success
         self.data['x'].append(x)
@@ -566,6 +593,7 @@ def get_mouse_params(event, x, y, flags, param):
                                        model_type='canny')
         mouse_params = temp_detector.get_params(frame, canny_params, size,
                                                 size)
+        print("Mouse params circ area:", mouse_params['circle_area'])
         mouse_params['initial_x'] = x
         mouse_params['initial_y'] = y
         mouse_params['col'] = param['frame'][y, x]
