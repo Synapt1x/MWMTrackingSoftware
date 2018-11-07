@@ -433,7 +433,7 @@ class Tracker:
             cv2.destroyWindow("Click on the mouse")
         else:
             mouse_params['area'] = 500
-            mouse_params['circle_area'] = 2500
+            mouse_params['circle_area'] = 2100
             mouse_params['arc_length'] = 600
 
         if self.config['tracker'] == 'canny':
@@ -504,7 +504,7 @@ class Tracker:
             if key == ord("c") or key == 32:
                 break
 
-        self.config['frame_skip'] = 9
+        self.config['frame_skip'] = 7
 
     def prev_dist(self, x, y):
 

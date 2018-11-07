@@ -85,7 +85,7 @@ class SimpleDetector:
                     'circle_area_diff']
                 max_val = self.config['circle_area'] * self.config[
                     'circle_area_diff']
-                circ_area_check = min_val < circle_area < max_val
+                circ_area_check = 0 < circle_area < max_val
                 # arc_check = delta_arc < self.config['arc_diff']
 
                 if circ_area_check:
@@ -104,7 +104,7 @@ class SimpleDetector:
                 return True, x, y
 
             else:
-
+                print("Failed")
                 return False, None, None
 
         else:
@@ -146,6 +146,7 @@ class SimpleDetector:
 
                 return True, all_locs, None
             else:
+                print("Failed")
                 return False, None, None
 
     def calc_err(self, i, j, all_locs):
