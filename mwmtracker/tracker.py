@@ -504,7 +504,7 @@ class Tracker:
             if key == ord("c") or key == 32:
                 break
 
-        self.config['frame_skip'] = 19
+        self.config['frame_skip'] = 9
 
     def prev_dist(self, x, y):
 

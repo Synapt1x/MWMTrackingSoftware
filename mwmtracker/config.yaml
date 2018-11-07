@@ -129,7 +129,7 @@ template:
   template_thresh: 0.8
 
 canny:
-  threshold1: 180
+  threshold1: 200
   threshold2: 360
   area_diff: 250
   circle_area_diff: 3.25

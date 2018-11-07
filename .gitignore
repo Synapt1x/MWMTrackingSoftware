@@ -1,4 +1,7 @@
-mwmtracker/data/*
+mwmtracker/data/testVids
+mwmtracker/data/templates
+mwmtracker/data/test
+mwmtracker/data/trainData
 *.hdf5
 .idea/
 *.pyc

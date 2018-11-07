@@ -57,7 +57,6 @@ class SimpleDetector:
         contour_frame, contours, hierarchy = cv2.findContours(edge_frame,
                                                       cv2.RETR_TREE,
                                                       cv2.CHAIN_APPROX_SIMPLE)
-        cv2.imwrite('contour_frame.png', contour_frame)
         found = False
 
         if not keep_all_locs:
