@@ -26,7 +26,7 @@ class SimpleDetector:
             self.config = {**self.config, **mouse_params}
 
     def detect(self, frame=None, template=None, detector=False,
-               keep_all_locs=False, check_color=False):
+               keep_all_locs=False, check_color=False, x=None, y=None):
 
         if frame is None and self.model_type == 'canny':
             return False, None, None
@@ -38,7 +38,8 @@ class SimpleDetector:
             return self.canny_detect(frame, self.config['threshold1'],
                                      self.config['threshold2'],
                                      keep_all_locs,
-                                     check_color=check_color)
+                                     check_color=check_color,
+                                     prev_x=x, prev_y=y)
         elif self.model_type == 'template':
             return self.template_match(frame,
                                        self.config['template_ccorr'],
@@ -47,7 +48,8 @@ class SimpleDetector:
                                        detector=detector)
 
     def canny_detect(self, frame, thresh1=60, thresh2=320,
-                     keep_all_locs=False, check_color=False):
+                     keep_all_locs=False, check_color=False,
+                     prev_x=None, prev_y=None):
 
         # use Canny detector to find edges and find contours to find all
         # detected shapes
@@ -57,14 +59,15 @@ class SimpleDetector:
         contour_frame, contours, hierarchy = cv2.findContours(edge_frame,
                                                       cv2.RETR_TREE,
                                                       cv2.CHAIN_APPROX_SIMPLE)
-        cv2.imwrite('contour_frame.png', contour_frame)
         found = False
+        dists_passed = prev_x is not None and prev_y is not None
 
         if not keep_all_locs:
 
             best_area = float('inf')
             best_arc = float('inf')
             best_circ_area = float('inf')
+            best_dist = float('inf')
 
             for contour in contours:
                 # extract moments and features of detected contour
@@ -80,23 +83,40 @@ class SimpleDetector:
                 delta_area = abs(area - self.config['area'])
                 delta_circ_area = abs(circle_area - self.config['circle_area'])
                 # delta_arc = abs(arc_length - self.config['arc_length'])
+                if dists_passed:
+                    cur_x = int(moments['m10'] / moments['m00'])
+                    cur_y = int(moments['m01'] / moments['m00'])
+
+                    dist = np.sqrt((cur_x - prev_x) ** 2 + (cur_y - prev_y)
+                                   ** 2)
+                    if dist > self.config['dist_error']:
+                        continue
 
                 area_check = delta_area < self.config['area_diff']
                 min_val = self.config['circle_area'] / self.config[
                     'circle_area_diff']
                 max_val = self.config['circle_area'] * self.config[
                     'circle_area_diff']
-                circ_area_check = 0 < circle_area < max_val
+                circ_area_check = min_val < circle_area < max_val
                 # arc_check = delta_arc < self.config['arc_diff']
 
                 if circ_area_check:
                     found = True
 
-                    if delta_circ_area <= best_circ_area:
-                        best_circ_area = delta_circ_area
+                    if dists_passed:
+                        if delta_circ_area <= best_circ_area and dist < \
+                                best_dist:
+                            best_circ_area = delta_circ_area
+                            best_dist = dist
 
-                        x = int(moments['m10'] / moments['m00'])
-                        y = int(moments['m01'] / moments['m00'])
+                            x = int(moments['m10'] / moments['m00'])
+                            y = int(moments['m01'] / moments['m00'])
+                    else:
+                        if delta_circ_area <= best_circ_area:
+                            best_circ_area = delta_circ_area
+
+                            x = int(moments['m10'] / moments['m00'])
+                            y = int(moments['m01'] / moments['m00'])
                 else:
                     continue
 

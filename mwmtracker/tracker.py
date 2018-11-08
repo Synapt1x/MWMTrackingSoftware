@@ -319,6 +319,8 @@ class Tracker:
 
                 valid, frame = self.current_vid.read()
 
+            print("Processing for " + self.current_vid_name + " complete\n")
+
             # save data to pandas dataframe and write to excel
             self.data['data'].save_frame(self.current_vid_name,
                                          self.data['x'],
@@ -371,7 +373,7 @@ class Tracker:
                         + (1 - self.config['alpha']) *
                          self.template).astype(np.uint8)
 
-    def detect_loc(self, frame, start_h=None, start_w=None):
+    def detect_loc(self, frame, start_h=None, start_w=None, x=None, y=None):
         """
         Use the chosen method to detect the location of the mouse
         :param frame: (ndarray) - image as numpy array
@@ -381,7 +383,7 @@ class Tracker:
         if self.config['tracker'] == 'template' or self.config['tracker'] ==\
                 'canny':
 
-            return self.model.detect(frame, self.config)
+            return self.model.detect(frame, self.config, x=x, y=y)
 
         elif self.config['tracker'] == 'pfilter':
 
@@ -477,8 +479,7 @@ class Tracker:
             valid, x, y = self.detect_loc(frame)
 
         if not valid:
-            self.ask_xy(frame)
-            x, y = mouse_loc
+            return valid
 
         if self.config['boundPool']:
             x += self.config['minx']
@@ -566,7 +567,12 @@ class Tracker:
                         x += self.config['minx']
                         y += self.config['miny']
         else:
-            valid, x, y = self.detect_loc(frame)
+            if self.config['comp_dist']:
+                prev_x = self.data['x'][-1] - self.config['minx']
+                prev_y = self.data['y'][-1] - self.config['miny']
+                valid, x, y = self.detect_loc(frame, x=prev_x, y=prev_y)
+            else:
+                valid, x, y = self.detect_loc(frame)
 
         if not valid:
             self.ask_xy(frame)

@@ -27,7 +27,8 @@ maxx: 1080
 miny: 140
 maxy: 675
 
-dist_error: 135
+dist_error: 75
+comp_dist: True
 
 num_train_vids: 10
 frame_skip: 2
@@ -129,10 +130,10 @@ template:
   template_thresh: 0.8
 
 canny:
-  threshold1: 180
+  threshold1: 200
   threshold2: 380
   area_diff: 250
-  circle_area_diff: 4
+  circle_area_diff: 5.0
   arc_diff: 400
 
 kalman:
