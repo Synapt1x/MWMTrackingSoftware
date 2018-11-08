@@ -342,6 +342,8 @@ class Tracker:
                 self.template = self.orig_template.copy()
                 self.load_next_vid()
 
+        print("")
+
         self.data['data'].save_to_excel()
 
     def extract_detect_img(self, frame, j, i, h=None, w=None):
