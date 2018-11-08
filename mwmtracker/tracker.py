@@ -498,18 +498,21 @@ class Tracker:
 
         x_coord = self.data['x'][-1]
         y_coord = self.data['y'][-1]
-        prev_2_x_coord = self.data['x'][-2]
-        prev_2_y_coord = self.data['y'][-2]
+        if len(self.data['x']) > 1:
+            prev_2_x_coord = self.data['x'][-2]
+            prev_2_y_coord = self.data['y'][-2]
         if self.config['boundPool']:
             x_coord -= self.config['minx']
             y_coord -= self.config['miny']
-            prev_2_x_coord -= self.config['minx']
-            prev_2_y_coord -= self.config['miny']
+            if len(self.data['x']) > 1:
+                prev_2_x_coord -= self.config['minx']
+                prev_2_y_coord -= self.config['miny']
 
         ask_frame = cv2.circle(ask_frame, (x_coord, y_coord),
                            thickness=5, color=(0, 255, 0), radius=2)
-        ask_frame = cv2.circle(ask_frame, (prev_2_x_coord, prev_2_y_coord),
-                               thickness=2, color=(0, 255, 0), radius=1)
+        if len(self.data['x']) > 1:
+            ask_frame = cv2.circle(ask_frame, (prev_2_x_coord, prev_2_y_coord),
+                                   thickness=2, color=(0, 255, 0), radius=1)
 
         while True:
             cv2.imshow("Cannot detect. Please click mouse location.", ask_frame)
