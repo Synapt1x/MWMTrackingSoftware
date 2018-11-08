@@ -156,7 +156,7 @@ class Tracker:
         first_vid.release()
 
         # initialize tracker with height and width if needed
-        if self.config['tracker'] == 'pfilter':
+s        if self.config['tracker'] == 'pfilter':
             self.model.initialize(h, w)
 
         # load initial video
