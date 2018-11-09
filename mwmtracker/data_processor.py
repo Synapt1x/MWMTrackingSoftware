@@ -15,7 +15,7 @@ import numpy as np
 import cv2
 import util
 import openpyxl
-
+from scipy.stats import ttest_ind, ttest_rel
 
 class Data_processor:
     """
@@ -165,8 +165,6 @@ class Data_processor:
         self.tracking_data = pd.read_excel(self.excelFilename,
                                            'Timed Dist Data')
 
-        print("here")
-
     def compute_annulus_crossing_index(self, target_bounds, quadrants):
 
         target_min_x, target_min_y, target_max_x, target_max_y = target_bounds
@@ -182,6 +180,9 @@ class Data_processor:
                        mid_y + (mid_y - target_max_y),
                        mid_x + (mid_x - target_min_x),
                        mid_y + (mid_y - target_min_y)]
+
+        cols = ['vid num', 'mouse', 'Group', 'trial', 'ACI', 'time target',
+                'time target proportion']
 
         def check_in_bound(x, y):
 
@@ -199,9 +200,7 @@ class Data_processor:
 
             return in_a or in_b or in_c
 
-        output_df = pd.DataFrame(columns=['vid num', 'mouse', 'Group',
-                                          'trial', 'ACI', 'time target',
-                                          'time target proportion'])
+        output_df = pd.DataFrame(columns=cols)
 
         probe_data = pd.read_excel(self.excelFilename,
                                           'Probe Tracking Data')
@@ -272,16 +271,72 @@ class Data_processor:
             else:
                 time_target_proportion = 0.
 
-            print("mouse:", mouse, "group:", group,
-                  "trial:", trial, "time target:",
-                  time_target,
-                  "time proportion:",
-                  time_target_proportion,
-                  "aci:", aci)
+            output_df = output_df.append(pd.Series(
+                [vid, mouse, group, trial, aci, time_target,
+                 time_target_proportion], index=output_df.columns),
+                ignore_index=True)
 
-        #TODO: add row
+        new_writer = pd.ExcelWriter(self.excelFilename, engine='openpyxl')
 
-        print("here")
+        memory_filename = os.sep.join(self.excelFilename.split(os.sep)[:-1]) \
+                          + os.sep + 'MemoryData.xlsx'
+        single_writer = pd.ExcelWriter(memory_filename, engine='xlsxwriter')
+
+        if os.path.exists(self.excelFilename):
+            book = openpyxl.load_workbook(self.excelFilename)
+            new_writer.book = book
+
+        group_means = output_df.groupby('Group').mean()
+        group_std = output_df.groupby('Group').std()
+        group_stderr = output_df.groupby('Group')['ACI', 'time target',
+                                                  'time target proportion',
+                                                  ].sem()
+        group_std = group_std.rename(
+            columns={'ACI': 'ACI std', 'time target': 'time target std',
+                     'time target proportion': 'time target proportion std'})
+        group_stderr = group_stderr.rename(
+            columns={'ACI': 'ACI sem', 'time target': 'time target sem',
+                     'time target proportion': 'time target proportion sem'})
+
+        group_df = group_means.merge(group_std, how='outer', left_index=True,
+                                     right_index=True)
+        group_df = group_df.merge(group_stderr, how='outer', left_index=True,
+                                     right_index=True)
+
+        output_df.to_excel(new_writer, sheet_name='Probe Data')
+        group_df.to_excel(new_writer, sheet_name='Probe Comparison')
+
+        aci_t_val, aci_p_val = ttest_ind(
+            *output_df.groupby('Group')['ACI'].apply(lambda x: list(x)),
+            equal_var=False)
+
+        time_t_val, time_p_val = ttest_ind(
+            *output_df.groupby('Group')['time target'].apply(lambda x: list(x)),
+            equal_var=False)
+
+        time_prop_t_val, time_prop_p_val = ttest_ind(
+            *output_df.groupby('Group')['time target proportion'].apply(lambda
+                                                                            x: list(x)),
+            equal_var=False)
+
+        # write stats to excel and save main excel
+        stats_df = pd.DataFrame()
+        stats_df['ACI p-val'] = [aci_p_val]
+        stats_df['time target p-val'] = [time_p_val]
+        stats_df['time target proportion p-val'] = [time_prop_p_val]
+
+        stats_df.to_excel(new_writer, sheet_name='Probe Stats')
+        new_writer.save()
+        new_writer.close()
+
+        # write all data to single memory sheet as well
+        group_df.to_excel(single_writer, sheet_name='Probe Comparison')
+        stats_df.to_excel(single_writer, sheet_name='Probe Stats')
+        output_df.to_excel(single_writer, sheet_name='Probe Data')
+        probe_data.to_excel(single_writer, sheet_name='All Probe Tracking Data')
+
+        single_writer.save()
+        single_writer.close()
 
     def write_raw_times(self, vid_folder):
 
