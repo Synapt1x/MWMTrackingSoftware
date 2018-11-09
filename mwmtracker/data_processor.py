@@ -167,6 +167,72 @@ class Data_processor:
 
         print("here")
 
+    def compute_annulus_crossing_index(self, target_bounds, quadrants):
+
+        #TODO: complete getting ROI bounds
+        #target_min_x, target_min_y, target_max_x, target_max_y = target_bounds
+
+        #mid_x = quadrants[0] + quadrants[2] // 2
+        mid_x = 700
+        #mid_y = quadrants[1] + quadrants[3] // 2
+        mid_y = 380
+
+        output_df = pd.DataFrame(columns=['vid num', 'mouse', 'trial', 'ACI',
+                                          'time target',
+                                          'time target proportion'])
+
+        probe_data = pd.read_excel(self.excelFilename,
+                                          'Probe Tracking Data')
+
+        vid_nums, num_counts = np.unique(probe_data['vid num'].values,
+                                         return_counts=True)
+
+        mouse_nums = [1, 11, 2, 12, 3, 13, 4, 14, 5, 15, 6, 16, 7, 17,
+                      8, 18, 9, 19, 10, 20]
+        trials = [1, 2, 3, 4]
+
+        m_num = 0
+        t_num = 0
+
+        for vid in vid_nums:
+
+            mouse = mouse_nums[m_num]
+            trial = trials[t_num]
+
+            if m_num == len(mouse_nums) - 1:
+                t_num += 1
+            m_num = (m_num + 1) % len(mouse_nums)
+
+            passes = 0
+            passes_other = 0
+            time_target = 0.
+            time_other = 0.
+
+            temp_df = probe_data[probe_data['vid num'] == vid]
+
+            for i, row in temp_df.iterrows():
+                x = row['x']
+                y = row['y']
+                t = row['Time']
+
+                if x < mid_x and y < mid_y:
+                    time_target += t
+                else:
+                    time_other += 1
+
+                #if target_min_x < x target_max_x and target_min_y < y <
+                # target_max_y:
+                #   passes += 1
+
+                #TODO: compute passes over other quads
+
+            aci = float(passes) / passes_other
+            time_target_proportion = float(time_target) / time_other
+
+        #TODO: add row
+
+        print("here")
+
     def write_raw_times(self, vid_folder):
 
         raw_times_df = pd.DataFrame(columns=['vid num', 'Time'])

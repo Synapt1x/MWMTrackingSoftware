@@ -19,11 +19,6 @@ __status__ = "Development"
 
 
 import os
-import cv2
-import numpy as np
-import pandas as pd
-import util
-import sys
 import yaml
 from data_processor import Data_processor
 
@@ -59,6 +54,8 @@ def process_data():
 
     if config['add_tracking_times']:
         data.merge_tracking_data_times(config['datadir'])
+
+    data.compute_annulus_crossing_index([], [])
 
     data.fix_prelim_data()
 
