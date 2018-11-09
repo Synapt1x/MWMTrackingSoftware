@@ -5,3 +5,4 @@ mwmtracker/data/trainData
 *.hdf5
 .idea/
 *.pyc
+mwmtracker/data/output/
