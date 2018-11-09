@@ -31,9 +31,9 @@ class Data_processor:
         self.initialize_writer()
         self.output_data = pd.DataFrame(columns=['vid num', 'x', 'y',
                                                  'dist', 't'])
-        self.dist_data = pd.DataFrame(columns=['vid num', 'dist'])
-        self.all_data = pd.DataFrame()
-        self.dist_data = pd.DataFrame()
+
+        self.dist_data = pd.read_excel(self.excelFilename,
+                                       sheet_name="Timed Dist Data")
 
         self.cm_scale = cm_scale
 
@@ -169,13 +169,35 @@ class Data_processor:
 
     def compute_annulus_crossing_index(self, target_bounds, quadrants):
 
-        #TODO: complete getting ROI bounds
-        #target_min_x, target_min_y, target_max_x, target_max_y = target_bounds
+        target_min_x, target_min_y, target_max_x, target_max_y = target_bounds
+        mid_x, mid_y = quadrants
 
-        #mid_x = quadrants[0] + quadrants[2] // 2
-        mid_x = 700
-        #mid_y = quadrants[1] + quadrants[3] // 2
-        mid_y = 380
+        quad_a_targ = [mid_x + (mid_x - target_max_x),
+                       target_min_y, mid_x + (mid_x - target_min_x),
+                       target_max_y]
+        quad_b_targ = [target_min_x,
+                       mid_y + (mid_y - target_max_y),
+                       target_max_x, mid_y + (mid_y - target_min_y)]
+        quad_c_targ = [mid_x + (mid_x - target_max_x),
+                       mid_y + (mid_y - target_max_y),
+                       mid_x + (mid_x - target_min_x),
+                       mid_y + (mid_y - target_min_y)]
+
+        def check_in_bound(x, y):
+
+            return target_min_x < target_max_x and target_min_y < y < \
+                target_max_y
+
+        def check_in_other_bound(x, y):
+
+            in_a = quad_a_targ[0] < x < quad_a_targ[2] and quad_a_targ[1] < \
+                   y < quad_a_targ[3]
+            in_b = quad_b_targ[0] < x < quad_b_targ[2] and quad_b_targ[1] < \
+                   y < quad_b_targ[3]
+            in_c = quad_c_targ[0] < x < quad_c_targ[2] and quad_c_targ[1] < \
+                   y < quad_c_targ[3]
+
+            return in_a or in_b or in_c
 
         output_df = pd.DataFrame(columns=['vid num', 'mouse', 'Group',
                                           'trial', 'ACI', 'time target',
@@ -213,6 +235,9 @@ class Data_processor:
             passes_other = 0
             time_target = 0.
             time_other = 0.
+
+            prev_x = 0
+            prev_y = 0
             prev_t = 0.
 
             temp_df = probe_data[probe_data['vid num'] == vid]
@@ -222,18 +247,21 @@ class Data_processor:
                 y = row['y']
                 dt = row['Time'] - prev_t
 
+                if check_in_bound(x, y) and not check_in_bound(prev_x, \
+                        prev_y):
+                    passes += 1
+                if check_in_other_bound(x, y) and not check_in_other_bound(
+                    prev_x, prev_y):
+                    passes_other += 1
+
                 if x < mid_x and y < mid_y:
                     time_target += dt
                 else:
                     time_other += dt
 
                 prev_t = row['Time']
-
-                #if target_min_x < x target_max_x and target_min_y < y <
-                # target_max_y:
-                #   passes += 1
-
-                #TODO: compute passes over other quads
+                prev_x = x
+                prev_y = y
 
             if passes_other > 1E-12:
                 aci = float(passes) / passes_other
@@ -248,7 +276,8 @@ class Data_processor:
                   "trial:", trial, "time target:",
                   time_target,
                   "time proportion:",
-                  time_target_proportion)
+                  time_target_proportion,
+                  "aci:", aci)
 
         #TODO: add row
 

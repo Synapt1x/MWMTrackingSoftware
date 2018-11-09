@@ -35,6 +35,8 @@ tracking_excel: trackingData.xlsx
 raw_data: PrelimData.xlsx
 add_tracking_times: False
 
+saveIDs: False
+
 
 # Video processing parameters
 #=====================================#
