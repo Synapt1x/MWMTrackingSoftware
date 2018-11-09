@@ -60,7 +60,6 @@ def acquire_template(dirname, vidname):
 
     global topleft, botright
 
-    #TODO: Add to func args: dirname
     template_dir = '/home/synapt1x/MWMTracker/templates/'
     template_file = template_dir + 'template1.png'
 

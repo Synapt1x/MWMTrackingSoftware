@@ -35,14 +35,14 @@ class Tracker:
         self.train_vids = []
         self.validation_vids = []
         self.test_vids = []
-        self.data = {'data': Data_processor(config['outputExcel'],
+        self.data = {'data': Data_processor(config['tracking_excel'],
                                             self.config['cm_scale']),
                      'x': [],
                      'y': [],
                      't': []}
 
         if self.config['saveIDs']:
-            self.data['data'].write_ids(self.config['datadir'])
+            self.data['data'].write_data(self.config['datadir'])
 
         # running parameters for the tracker
         self.vid_num = -1
@@ -328,7 +328,7 @@ class Tracker:
                                          self.data['t'])
 
             # save image to folder
-            img_name = self.config['outputdir'] + os.sep \
+            img_name = self.config['imagedir'] + os.sep \
                        + self.current_vid_name.split('.')[0] + '.jpg'
             self.video_writer.save_image(self.data['x'], self.data['y'],
                                          self.first_frame,
@@ -342,7 +342,7 @@ class Tracker:
                 self.template = self.orig_template.copy()
                 self.load_next_vid()
 
-        print("")
+        print("*** All videos have been processed ***")
 
         self.data['data'].save_to_excel()
 

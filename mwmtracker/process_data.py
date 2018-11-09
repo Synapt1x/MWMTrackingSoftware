@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-""" Code used for object tracking. Primary purpose is for tracking a mouse in
-the Morris Water Maze experiment.
+""" Code used for manipulating and outputting data.
 
-main.py: this contains the main code for running the tracking software.
+process_data.py: this contains code for loading, formatting, processing and
+exporting data to its final state.
 
 """
 
@@ -19,13 +19,18 @@ __status__ = "Development"
 
 
 import os
+import cv2
+import numpy as np
+import pandas as pd
+import util
+import sys
 import yaml
-from tracker import Tracker
+from data_processor import Data_processor
 
 
-def main():
+def process_data():
     """
-    Main code for running the tracking software.
+    Code for running data processor for formatting and saving data.
 
     :return:
     """
@@ -38,7 +43,7 @@ def main():
     with open(yaml_file, "r") as f:
         config = yaml.load(f)
 
-    # update data directories to current working dir
+    config = {**config, **config[config['tracker']]}
     config['datadir'] = os.path.join(curdir, config['datadir'])
     config['templatedir'] = os.path.join(curdir, config['templatedir'])
     config['outputdir'] = os.path.join(curdir, config['outputdir'])
@@ -48,13 +53,15 @@ def main():
     config['raw_data'] = os.path.join(config['outputdir'], config[
         'raw_data'])
 
-    # Determine which tracker system should load
-    tracker = Tracker(config)
-    tracker.initialize_tracker()
+    data = Data_processor(config['tracking_excel'],
+                          config['raw_data'],
+                          config['cm_scale'])
 
-    # initialize tracker and videos
-    tracker.process_videos()
+    if config['add_tracking_times']:
+        data.merge_tracking_data_times(config['datadir'])
+
+    data.fix_prelim_data()
 
 
 if __name__ == '__main__':
-    main()
+    process_data()

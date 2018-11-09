@@ -14,6 +14,7 @@ import pandas as pd
 import numpy as np
 import cv2
 import util
+import openpyxl
 
 
 class Data_processor:
@@ -21,10 +22,12 @@ class Data_processor:
     Data Processor class
     """
 
-    def __init__(self, excelFilename='trackingData.xlsx', cm_scale=6.0):
+    def __init__(self, excelFilename='trackingData.xlsx',
+                 dataFilename='PrelimData.xlsx', cm_scale=6.0):
         """constructor"""
 
         self.excelFilename = excelFilename
+        self.dataFilename = dataFilename
         self.initialize_writer()
         self.output_data = pd.DataFrame(columns=['vid num', 'x', 'y',
                                                  'dist', 't'])
@@ -89,12 +92,6 @@ class Data_processor:
         self.excelWriter.save()
         self.excelWriter.close()
 
-    def add_tracking_data(self, df):
-
-        #TODO: Load tracking data from tracking data excel
-
-        return df
-
     def no_collapse_df(self, df, groups, output_var):
 
         out_df = df.groupby(['Day', 'Group'])['Dist'].mean()
@@ -140,7 +137,70 @@ class Data_processor:
 
         return final_df
 
-    def write_ids(self, vid_folder=None, num_days=6, num_trials=4, n=10,
+    def merge_tracking_data_times(self, vid_folder):
+
+        time_df = self.write_raw_times(vid_folder)
+
+        new_writer = pd.ExcelWriter(self.excelFilename, engine='openpyxl')
+
+        if os.path.exists(self.excelFilename):
+            book = openpyxl.load_workbook(self.excelFilename)
+            new_writer.book = book
+
+        self.tracking_data = pd.read_excel(self.excelFilename, 'Dist Data')
+
+        self.tracking_data = self.tracking_data.merge(time_df,
+                                                      how='inner',
+                                                      on='vid num')
+        self.tracking_data.sort_values(['vid num'], inplace=True)
+
+        self.tracking_data.to_excel(new_writer, 'Timed Dist Data')
+        new_writer.save()
+        new_writer.close()
+
+    def fix_prelim_data(self):
+
+        self.output_data = pd.read_excel(self.dataFilename)
+        self.tracking_data = pd.read_excel(self.excelFilename,
+                                           'Timed Dist Data')
+
+        print("here")
+
+    def write_raw_times(self, vid_folder):
+
+        raw_times_df = pd.DataFrame(columns=['vid num', 'Time'])
+
+        all_files = util.load_files(vid_folder)
+
+        for video_name in all_files:
+
+            vid_num = int(video_name.split(" ")[-1].split(".")[0])
+
+            vid = cv2.VideoCapture(video_name)
+            valid, _ = vid.read()
+
+            if valid:
+                if int(vid.get(cv2.CAP_PROP_FPS)) == 0:
+                    time = 0
+                    found = False
+                else:
+                    time = int(vid.get(cv2.CAP_PROP_FRAME_COUNT)) / int(
+                        vid.get(cv2.CAP_PROP_FPS))
+                    if time >= 90:
+                        time = 90
+                        found = False
+                    else:
+                        found = True
+
+            raw_times_df = raw_times_df.append(pd.Series([vid_num, time],
+                                               index=raw_times_df.columns),
+                                               ignore_index=True)
+
+        raw_times_df['vid num'] = raw_times_df['vid num'].astype(int)
+
+        return raw_times_df
+
+    def write_data(self, data_folder=None, num_days=6, num_trials=4, n=10,
                   num_vids=480):
         """
         Save video IDs to a file
@@ -151,53 +211,52 @@ class Data_processor:
         by_individual = False
         without_five = False
 
-        base_df = pd.read_excel(
-            '/home/synapt1x/MWMTracker/mwmtracker/data/output/PrelimData.xlsx')
-        self.output_data = pd.read_excel(self.excelFilename)
-        self.dist_data = pd.read_excel(self.excelFilename, sheet_name="Dist "
-                                                                      "Data")
+        self.output_data = pd.read_excel(self.dataFilename)
+        self.dist_data = pd.read_excel(self.dataFilename,
+                                       sheet_name="Dist Data")
 
-        base_df.dropna(inplace=True)
-        base_df['Found'] = base_df['Time'] != 90
-        base_df['Group'] = base_df['ID'].apply(lambda x: 'Nilotinib' if x in
+        self.output_data.dropna(inplace=True)
+        self.output_data['Found'] = self.output_data['Time'] != 90
+        self.output_data['Group'] = self.output_data['ID'].apply(lambda x: 'Nilotinib' if x in
                                                                         range(1, 11) else 'Control')
 
-        #base_df = self.add_tracking_data(base_df)
-        self.all_data = base_df.copy()
+        # base_df = self.add_tracking_data(base_df)
+        self.all_data = self.output_data.copy()
 
-        writer = pd.ExcelWriter('/home/synapt1x/MWMTracker/mwmtracker/data/output/data.xlsx', engine='xlsxwriter')
-        base_df.sort_values(['Day', 'Trial', 'ID'], inplace=True)
-        base_df.to_excel(writer, 'All Data')
+        writer = pd.ExcelWriter(data_folder + os.sep + 'data.xlsx',
+                                engine='xlsxwriter')
+        self.output_data.sort_values(['Day', 'Trial', 'ID'], inplace=True)
+        self.output_data.to_excel(writer, 'All Data')
 
-        trial_data = base_df.set_index('Trial')
+        trial_data = self.output_data.set_index('Trial')
         trial_data = trial_data.groupby(['Day', 'ID',
                                          'Group']).mean().reset_index()
         trial_data.to_excel(writer, 'Data by trial')
 
         if without_five:
 
-            other_df = base_df.groupby(['Day', 'Group']).mean()
+            other_df = self.output_data.groupby(['Day', 'Group']).mean()
             other_df = other_df.drop(columns=['ID', 'Trial', 'Found'])
 
             other_df.to_excel(writer, 'Without Five Trial Averages')
 
         if by_individual:
 
-            day_latency = self.collapse_df(base_df, ['Day', 'Group'],
+            day_latency = self.collapse_df(self.output_data, ['Day', 'Group'],
                                            'Time', ['Day', 'Control Time',
                                                     'Nilotinib Time',
                                                     'Control std',
                                                     'Nilotinib std',
                                                     'Control sem',
                                                     'Nilotinib sem'])
-            day_dists = self.collapse_df(base_df, ['Day', 'Group'],
+            day_dists = self.collapse_df(self.output_data, ['Day', 'Group'],
                                          'Dist', ['Day', 'Control Dist',
                                                   'Nilotinib Dist',
                                                   'Control std',
                                                   'Nilotinib std',
                                                   'Control sem',
                                                   'Nilotinib sem'])
-            day_speeds = self.collapse_df(base_df, ['Day', 'Group'],
+            day_speeds = self.collapse_df(self.output_data, ['Day', 'Group'],
                                          'Swim Speed', ['Day', 'Control '
                                                                'Swim Speed',
                                                         'Nilotinib Swim Speed',
@@ -236,7 +295,7 @@ class Data_processor:
         writer.save()
         writer.close()
 
-        return base_df
+        return self.output_data
 
 
 if __name__ == '__main__':

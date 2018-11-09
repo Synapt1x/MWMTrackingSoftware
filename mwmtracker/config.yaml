@@ -11,6 +11,7 @@ tracker: canny
 datadir: data/testVids
 outputdir: data/output
 templatedir: data/templates
+imagedir: data/images
 save_extract_images: True
 
 ongoing_save: True
@@ -22,10 +23,6 @@ boundPool: True
 boundLoc: False
 maskPool: True
 # coordinates from previous pool bounding
-minx: 460
-maxx: 1080
-miny: 140
-maxy: 675
 
 dist_error: 75
 comp_dist: True
@@ -34,8 +31,9 @@ num_train_vids: 10
 frame_skip: 2
 
 savetoexcel: True
-outputExcel: trackingData.xlsx
-saveIDs: True
+tracking_excel: trackingData.xlsx
+raw_data: PrelimData.xlsx
+add_tracking_times: False
 
 
 # Video processing parameters
