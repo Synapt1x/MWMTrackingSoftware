@@ -177,8 +177,8 @@ class Data_processor:
         #mid_y = quadrants[1] + quadrants[3] // 2
         mid_y = 380
 
-        output_df = pd.DataFrame(columns=['vid num', 'mouse', 'trial', 'ACI',
-                                          'time target',
+        output_df = pd.DataFrame(columns=['vid num', 'mouse', 'Group',
+                                          'trial', 'ACI', 'time target',
                                           'time target proportion'])
 
         probe_data = pd.read_excel(self.excelFilename,
@@ -189,6 +189,11 @@ class Data_processor:
 
         mouse_nums = [1, 11, 2, 12, 3, 13, 4, 14, 5, 15, 6, 16, 7, 17,
                       8, 18, 9, 19, 10, 20]
+        groups = ['Nilotinib', 'Control', 'Nilotinib', 'Control', 'Nilotinib',
+                  'Control', 'Nilotinib', 'Control', 'Nilotinib', 'Control',
+                  'Nilotinib', 'Control', 'Nilotinib', 'Control',
+                  'Nilotinib', 'Control', 'Nilotinib', 'Control',
+                  'Nilotinib', 'Control']
         trials = [1, 2, 3, 4]
 
         m_num = 0
@@ -197,6 +202,7 @@ class Data_processor:
         for vid in vid_nums:
 
             mouse = mouse_nums[m_num]
+            group = groups[m_num]
             trial = trials[t_num]
 
             if m_num == len(mouse_nums) - 1:
@@ -207,18 +213,21 @@ class Data_processor:
             passes_other = 0
             time_target = 0.
             time_other = 0.
+            prev_t = 0.
 
             temp_df = probe_data[probe_data['vid num'] == vid]
 
             for i, row in temp_df.iterrows():
                 x = row['x']
                 y = row['y']
-                t = row['Time']
+                dt = row['Time'] - prev_t
 
                 if x < mid_x and y < mid_y:
-                    time_target += t
+                    time_target += dt
                 else:
-                    time_other += 1
+                    time_other += dt
+
+                prev_t = row['Time']
 
                 #if target_min_x < x target_max_x and target_min_y < y <
                 # target_max_y:
@@ -226,8 +235,20 @@ class Data_processor:
 
                 #TODO: compute passes over other quads
 
-            aci = float(passes) / passes_other
-            time_target_proportion = float(time_target) / time_other
+            if passes_other > 1E-12:
+                aci = float(passes) / passes_other
+            else:
+                aci = 0.
+            if time_other > 1E-12:
+                time_target_proportion = float(time_target) / time_other
+            else:
+                time_target_proportion = 0.
+
+            print("mouse:", mouse, "group:", group,
+                  "trial:", trial, "time target:",
+                  time_target,
+                  "time proportion:",
+                  time_target_proportion)
 
         #TODO: add row
 
