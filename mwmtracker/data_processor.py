@@ -153,6 +153,7 @@ class Data_processor:
                                                       how='inner',
                                                       on='vid num')
         self.tracking_data.sort_values(['vid num'], inplace=True)
+        self.tracking_data = self.tracking_data.reset_index(drop=True)
 
         self.tracking_data.to_excel(new_writer, 'Timed Dist Data')
         new_writer.save()
