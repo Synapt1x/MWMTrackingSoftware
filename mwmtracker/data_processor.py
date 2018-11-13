@@ -205,12 +205,13 @@ class Data_processor:
         #TODO: Run statsmodels for conducting anovas
         formula = 'dist ~ group * day * trial + (1|mouse)'
         model = ols(formula, data).fit()
-        new_aov_table = anova_lm(model, typ=2)
+        aov_table = anova_lm(model, typ=2)
+        print(aov_table.summary())
 
         mem_formula = 'ACI ~ group * trial + (1|mouse)'
         mem_model = ols(mem_formula, memory_data).fit()
         mem_aov_table = anova_lm(mem_model, typ=2)
-
+        print(mem_aov_table.summary())
 
     def add_mouse_ids(self):
 
