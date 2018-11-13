@@ -165,6 +165,92 @@ class Data_processor:
         self.tracking_data = pd.read_excel(self.excelFilename,
                                            'Timed Dist Data')
 
+        self.add_swim_speed()
+        self.add_mouse_ids()
+
+        new_writer = pd.ExcelWriter(self.excelFilename,
+                                    engine='openpyxl')
+        if os.path.exists(self.excelFilename):
+            book = openpyxl.load_workbook(self.excelFilename)
+            new_writer.book = book
+
+        self.tracking_data.to_excel(new_writer,
+                                    sheet='Complete Distance Data')
+
+    def add_swim_speed(self):
+
+        self.tracking_data['swim speed'] = self.tracking_data['dist'] / \
+                                           self.tracking_data['Time']
+
+    def add_mouse_ids(self):
+
+        skip_videos = [6, 95, 98, 143, 263]
+        has_double = [83, 104, 123, 144, 147, 161, 180, 239, 319, 398]
+        day_orders = {1: [1, 11, 2, 12, 3, 13, 4, 14, 5, 15,
+                          6, 16, 7, 17, 8, 18, 9, 19, 10, 20],
+                      2: [2, 12, 3, 13, 8, 18, 4, 14, 7, 17,
+                          10, 20, 1, 11, 9, 19, 6, 16, 5, 15],
+                      3: [9, 19, 8, 18, 1, 11, 4, 14, 6, 16,
+                          3, 13, 5, 15, 10, 20, 2, 12, 7, 17],
+                      4: [1, 11, 10, 20, 2, 12, 9, 19, 3, 13,
+                          4, 14, 8, 18, 7, 17, 6, 16, 5, 15],
+                      5: [4, 14, 6, 16, 3, 13, 7, 17, 5, 15,
+                          9, 19, 2, 12, 1, 11, 10, 20, 8, 18],
+                      6: [1, 11, 2, 12, 3, 13, 4, 14, 5, 15,
+                          6, 16, 7, 17, 8, 18, 9, 19, 10, 20]}
+        groups = {1: 'Nilotinib', 2: 'Nilotinib', 3: 'Nilotinib', 4: 'Nilotinib',
+                  5: 'Nilotinib', 6: 'Nilotinib', 7: 'Nilotinib', 8: 'Nilotinib',
+                  9: 'Nilotinib', 10: 'Nilotinib',
+                  11: 'Control', 12: 'Control', 13: 'Control',
+                  14: 'Control', 15: 'Control', 16: 'Control',
+                  17: 'Control', 18: 'Control', 19: 'Control',
+                  20: 'Control'}
+        video_order = [x for x in range(3, 478) if x not in skip_videos]
+        for add_double in has_double:
+            i_vid = video_order.index(add_double)
+            video_order.insert(i_vid + 1, add_double * 10)
+
+        num_days = 6
+        num_trials = 4
+        num_vids = len(video_order)
+
+        vid_num = 0
+        done = False
+
+        self.tracking_data['mouse'] = 0
+        self.tracking_data['group'] = ''
+        self.tracking_data['day'] = 0
+        self.tracking_data['trial'] = 0
+
+        for day in range(1, num_days + 1):
+
+            if done:
+                break
+
+            trial = 1
+            while trial < num_trials + 1:
+
+                if done:
+                    break
+
+                for mouse in day_orders[day]:
+
+                    video = video_order[vid_num]
+
+                    group = groups[mouse]
+
+                    vid_num += 1
+
+                    vid_idx = self.tracking_data['vid num'] == video
+
+                    self.tracking_data.loc[vid_idx, 'mouse'] = mouse
+                    self.tracking_data.loc[vid_idx, 'group'] = group
+                    self.tracking_data.loc[vid_idx, 'day'] = day
+                    self.tracking_data.loc[vid_idx, 'trial'] = trial
+
+                trial += 1
+
+
     def compute_annulus_crossing_index(self, target_bounds, quadrants):
 
         target_min_x, target_min_y, target_max_x, target_max_y = target_bounds

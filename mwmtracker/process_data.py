@@ -59,7 +59,7 @@ def process_data():
     target_bounds = [610, 243, 654, 286]  # form: [min_x, min_y, max_x, max_y]
     quadrants = [736, 368]  # form: [mid_x, mid_y]
 
-    data.compute_annulus_crossing_index(target_bounds, quadrants)
+    #data.compute_annulus_crossing_index(target_bounds, quadrants)
 
     data.fix_prelim_data()
 
