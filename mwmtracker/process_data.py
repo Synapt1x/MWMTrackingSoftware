@@ -61,7 +61,8 @@ def process_data():
 
     #data.compute_annulus_crossing_index(target_bounds, quadrants)
 
-    data.fix_prelim_data()
+    #data.fix_prelim_data()
+    data.run_anovas()
 
 
 if __name__ == '__main__':

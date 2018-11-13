@@ -15,7 +15,13 @@ import numpy as np
 import cv2
 import util
 import openpyxl
+
+# imports for statistics
 from scipy.stats import ttest_ind, ttest_rel
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+from statsmodels.stats.anova import anova_lm
+from statsmodels.graphics.factorplots import interaction_plot
 
 class Data_processor:
     """
@@ -175,12 +181,36 @@ class Data_processor:
             new_writer.book = book
 
         self.tracking_data.to_excel(new_writer,
-                                    sheet='Complete Distance Data')
+                                    sheet_name='Complete Distance Data')
+        new_writer.save()
+        new_writer.close()
 
     def add_swim_speed(self):
 
         self.tracking_data['swim speed'] = self.tracking_data['dist'] / \
                                            self.tracking_data['Time']
+
+    def run_anovas(self):
+
+        data_filename = os.sep.join(self.excelFilename.split(os.sep)[:-1]) \
+                          + os.sep + 'AllFinalTrackingData.xlsx'
+
+        data = pd.read_excel(data_filename,
+                             sheet_name='Complete Distance Data')
+        memory_data = pd.read_excel(data_filename,
+                             sheet_name='Memory Data')
+        tracking_writer = pd.ExcelWriter(data_filename,
+                                         engine="xlsxwriter")
+
+        #TODO: Run statsmodels for conducting anovas
+        formula = 'dist ~ group * day * trial + (1|mouse)'
+        model = ols(formula, data).fit()
+        new_aov_table = anova_lm(model, typ=2)
+
+        mem_formula = 'ACI ~ group * trial + (1|mouse)'
+        mem_model = ols(mem_formula, memory_data).fit()
+        mem_aov_table = anova_lm(mem_model, typ=2)
+
 
     def add_mouse_ids(self):
 
@@ -217,7 +247,7 @@ class Data_processor:
         vid_num = 0
         done = False
 
-        self.tracking_data['mouse'] = 0
+        self.tracking_data['mouse'] = np.nan
         self.tracking_data['group'] = ''
         self.tracking_data['day'] = 0
         self.tracking_data['trial'] = 0
@@ -250,6 +280,7 @@ class Data_processor:
 
                 trial += 1
 
+        self.tracking_data.dropna(inplace=True)
 
     def compute_annulus_crossing_index(self, target_bounds, quadrants):
 
@@ -471,7 +502,7 @@ class Data_processor:
 
         self.output_data = pd.read_excel(self.dataFilename)
         self.dist_data = pd.read_excel(self.dataFilename,
-                                       sheet_name="Dist Data")
+                                       sheet_name="Complete Dist Data")
 
         self.output_data.dropna(inplace=True)
         self.output_data['Found'] = self.output_data['Time'] != 90
