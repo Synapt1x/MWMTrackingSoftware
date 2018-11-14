@@ -190,6 +190,39 @@ class Data_processor:
         self.tracking_data['swim speed'] = self.tracking_data['dist'] / \
                                            self.tracking_data['Time']
 
+    def create_group_comparisons(self, df, writer, close=True):
+
+        day_latency = self.collapse_df(df, ['day', 'group'],
+                                       'Time', ['Day', 'Control Time',
+                                                'Nilotinib Time',
+                                                'Control std',
+                                                'Nilotinib std',
+                                                'Control sem',
+                                                'Nilotinib sem'])
+        day_dists = self.collapse_df(df, ['day', 'group'],
+                                     'Dist', ['Day', 'Control Dist',
+                                              'Nilotinib Dist',
+                                              'Control std',
+                                              'Nilotinib std',
+                                              'Control sem',
+                                              'Nilotinib sem'])
+        day_speeds = self.collapse_df(df, ['day', 'group'],
+                                      'Swim Speed', ['Day', 'Control '
+                                                            'Swim Speed',
+                                                     'Nilotinib Swim Speed',
+                                                     'Control std',
+                                                     'Nilotinib std',
+                                                     'Control sem',
+                                                     'Nilotinib sem'])
+
+        day_latency.to_excel(writer, 'Latency by Day')
+        day_dists.to_excel(writer, 'Path Length by Day')
+        day_speeds.to_excel(writer, 'Swim Speed by Day')
+
+        writer.save()
+        if close:
+            writer.close()
+
     def run_anovas(self):
 
         data_filename = os.sep.join(self.excelFilename.split(os.sep)[:-1]) \
@@ -202,7 +235,9 @@ class Data_processor:
         tracking_writer = pd.ExcelWriter(data_filename,
                                          engine="xlsxwriter")
 
-        #TODO: Run statsmodels for conducting anovas
+        # add additional sheets with dist, latency, and swim speed comparisons
+        self.create_group_comparisons(data, tracking_writer, close=False)
+
         formula = 'dist ~ group * day * trial + (1|mouse)'
         model = ols(formula, data).fit()
         aov_table = anova_lm(model, typ=2)
