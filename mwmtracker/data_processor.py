@@ -113,27 +113,25 @@ class Data_processor:
         final_df = pd.DataFrame(columns=columns)
 
         out_df = df.groupby(groups)[output_var].mean().reset_index()
-        out_df_std = df.groupby(['Day',
-                                 'Group'])[output_var].std().reset_index()
-        out_df_sem = df.groupby(['Day',
-                                 'Group'])[output_var].sem().reset_index()
+        out_df_std = df.groupby(groups)[output_var].std().reset_index()
+        out_df_sem = df.groupby(groups)[output_var].sem().reset_index()
 
-        control_out_df = out_df.where(out_df['Group'] ==
+        control_out_df = out_df.where(out_df['group'] ==
                                       'Control').dropna().reset_index()
-        exp_out_df = out_df.where(out_df['Group'] ==
+        exp_out_df = out_df.where(out_df['group'] ==
                                   'Nilotinib').dropna().reset_index()
 
-        control_out_std = out_df_std.where(out_df['Group'] ==
+        control_out_std = out_df_std.where(out_df['group'] ==
                                            'Control').dropna().reset_index()
-        exp_out_std = out_df_std.where(out_df['Group'] ==
+        exp_out_std = out_df_std.where(out_df['group'] ==
                                        'Nilotinib').dropna().reset_index()
 
-        control_out_sem = out_df_sem.where(out_df['Group'] ==
+        control_out_sem = out_df_sem.where(out_df['group'] ==
                                            'Control').dropna().reset_index()
-        exp_out_sem = out_df_sem.where(out_df['Group'] ==
+        exp_out_sem = out_df_sem.where(out_df['group'] ==
                                        'Nilotinib').dropna().reset_index()
 
-        final_df[columns[0]] = control_out_df['Day']
+        final_df[columns[0]] = control_out_df['day']
         final_df[columns[1]] = control_out_df[output_var]
         final_df[columns[2]] = exp_out_df[output_var]
         final_df[columns[3]] = control_out_std[output_var]
@@ -190,7 +188,8 @@ class Data_processor:
         self.tracking_data['swim speed'] = self.tracking_data['dist'] / \
                                            self.tracking_data['Time']
 
-    def create_group_comparisons(self, df, writer, close=True):
+    def create_group_comparisons(self, df, writer, close=True,
+                                 overwrite=False, df_name=None):
 
         day_latency = self.collapse_df(df, ['day', 'group'],
                                        'Time', ['Day', 'Control Time',
@@ -200,20 +199,25 @@ class Data_processor:
                                                 'Control sem',
                                                 'Nilotinib sem'])
         day_dists = self.collapse_df(df, ['day', 'group'],
-                                     'Dist', ['Day', 'Control Dist',
+                                     'dist', ['Day', 'Control Dist',
                                               'Nilotinib Dist',
                                               'Control std',
                                               'Nilotinib std',
                                               'Control sem',
                                               'Nilotinib sem'])
         day_speeds = self.collapse_df(df, ['day', 'group'],
-                                      'Swim Speed', ['Day', 'Control '
+                                      'swim speed', ['Day', 'Control '
                                                             'Swim Speed',
                                                      'Nilotinib Swim Speed',
                                                      'Control std',
                                                      'Nilotinib std',
                                                      'Control sem',
                                                      'Nilotinib sem'])
+
+        if not overwrite:
+            if os.path.exists(df_name):
+                book = openpyxl.load_workbook(df_name)
+                writer.book = book
 
         day_latency.to_excel(writer, 'Latency by Day')
         day_dists.to_excel(writer, 'Path Length by Day')
@@ -233,10 +237,11 @@ class Data_processor:
         memory_data = pd.read_excel(data_filename,
                              sheet_name='Memory Data')
         tracking_writer = pd.ExcelWriter(data_filename,
-                                         engine="xlsxwriter")
+                                         engine="openpyxl")
 
         # add additional sheets with dist, latency, and swim speed comparisons
-        self.create_group_comparisons(data, tracking_writer, close=False)
+        self.create_group_comparisons(data, tracking_writer, close=False,
+                                      df_name=data_filename)
 
         formula = 'dist ~ group * day * trial + (1|mouse)'
         model = ols(formula, data).fit()
