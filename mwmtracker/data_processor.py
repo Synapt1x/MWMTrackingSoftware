@@ -262,6 +262,8 @@ class Data_processor:
                     data = data.loc[data['mouse'] != exclude_num]
                     memory_data = memory_data.loc[memory_data['mouse'] != exclude_num]
 
+                    print(f"****** RESULTS WITHOUT MOUSE {exclude_num} ******")
+
                     formula = 'dist ~ group * day * trial + (1|mouse)'
                     model = ols(formula, data).fit()
                     dist_aov_table = anova_lm(model, typ=2)
@@ -290,6 +292,38 @@ class Data_processor:
                 except:
                     print("Not a valid number!")
             else:
+
+                data = old_data.copy()
+                    memory_data = old_memory_data.copy()
+
+                print("\n********** FULL RESULTS ***********")
+
+                formula = 'dist ~ group * day * trial + (1|mouse)'
+                model = ols(formula, data).fit()
+                dist_aov_table = anova_lm(model, typ=2)
+                print("Learning three-way ANOVA for path length:")
+                print(dist_aov_table)
+
+                formula = 'Time ~ group * day * trial + (1|mouse)'
+                model = ols(formula, data).fit()
+                time_aov_table = anova_lm(model, typ=2)
+                print("Learning three-way ANOVA for escape latency:")
+                print(time_aov_table)
+
+                mem_formula = 'ACI ~ Group * trial + (1|mouse)'
+                mem_model = ols(mem_formula, memory_data).fit()
+                mem_aov_table = anova_lm(mem_model, typ=2)
+                print("Memory two-way ANOVA for annulus crossing index:")
+                print(mem_aov_table)
+
+                new_df = memory_data.rename(columns={'time target proportion':
+                                                        'targetProp'})
+                mem_formula = 'targetProp ~ Group * trial + (1|mouse)'
+                mem_model = ols(mem_formula, new_df).fit()
+                mem_time_target_aov_table = anova_lm(mem_model, typ=2)
+                print("Memory two-way ANOVA for proportion in target quadrant:")
+                print(mem_time_target_aov_table)
+
                 break
 
     def add_mouse_ids(self):
