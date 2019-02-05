@@ -239,35 +239,58 @@ class Data_processor:
         tracking_writer = pd.ExcelWriter(data_filename,
                                          engine="openpyxl")
 
+        old_data = data.copy()
+        old_memory_data = memory_data.copy()
+
         # add additional sheets with dist, latency, and swim speed comparisons
         self.create_group_comparisons(data, tracking_writer, close=False,
-                                      df_name=data_filename)
+                                        df_name=data_filename)
 
-        formula = 'dist ~ group * day * trial + (1|mouse)'
-        model = ols(formula, data).fit()
-        dist_aov_table = anova_lm(model, typ=2)
-        print("Learning three-way ANOVA for path length:")
-        print(dist_aov_table)
+        ##========= mouse number to be excluded from analysis ============ ##
+        exclude_on = True
+        while exclude_on:
+            exclude_on = input("Do you wish to exclude any particular mouse from analysis? Y/N\n")
+            if exclude_on.lower() in {'y', 'yes'}:
+                exclude_num = input('Which mouse would you like to exclude?\n')
+                try:
+                    data = old_data.copy()
+                    memory_data = old_memory_data.copy()
 
-        formula = 'Time ~ group * day * trial + (1|mouse)'
-        model = ols(formula, data).fit()
-        time_aov_table = anova_lm(model, typ=2)
-        print("Learning three-way ANOVA for escape latency:")
-        print(time_aov_table)
+                    exclude_num = int(exclude_num)
+                    assert(exclude_num < 21 and exclude_num > 0)
 
-        mem_formula = 'ACI ~ Group * trial + (1|mouse)'
-        mem_model = ols(mem_formula, memory_data).fit()
-        mem_aov_table = anova_lm(mem_model, typ=2)
-        print("Memory two-way ANOVA for annulus crossing index:")
-        print(mem_aov_table)
+                    data = data.loc[data['mouse'] != exclude_num]
+                    memory_data = memory_data.loc[memory_data['mouse'] != exclude_num]
 
-        new_df = memory_data.rename(columns={'time target proportion':
-                                                 'targetProp'})
-        mem_formula = 'targetProp ~ Group * trial + (1|mouse)'
-        mem_model = ols(mem_formula, new_df).fit()
-        mem_time_target_aov_table = anova_lm(mem_model, typ=2)
-        print("Memory two-way ANOVA for proportion in target quadrant:")
-        print(mem_time_target_aov_table)
+                    formula = 'dist ~ group * day * trial + (1|mouse)'
+                    model = ols(formula, data).fit()
+                    dist_aov_table = anova_lm(model, typ=2)
+                    print("Learning three-way ANOVA for path length:")
+                    print(dist_aov_table)
+
+                    formula = 'Time ~ group * day * trial + (1|mouse)'
+                    model = ols(formula, data).fit()
+                    time_aov_table = anova_lm(model, typ=2)
+                    print("Learning three-way ANOVA for escape latency:")
+                    print(time_aov_table)
+
+                    mem_formula = 'ACI ~ Group * trial + (1|mouse)'
+                    mem_model = ols(mem_formula, memory_data).fit()
+                    mem_aov_table = anova_lm(mem_model, typ=2)
+                    print("Memory two-way ANOVA for annulus crossing index:")
+                    print(mem_aov_table)
+
+                    new_df = memory_data.rename(columns={'time target proportion':
+                                                            'targetProp'})
+                    mem_formula = 'targetProp ~ Group * trial + (1|mouse)'
+                    mem_model = ols(mem_formula, new_df).fit()
+                    mem_time_target_aov_table = anova_lm(mem_model, typ=2)
+                    print("Memory two-way ANOVA for proportion in target quadrant:")
+                    print(mem_time_target_aov_table)
+                except:
+                    print("Not a valid number!")
+            else:
+                break
 
     def add_mouse_ids(self):
 
