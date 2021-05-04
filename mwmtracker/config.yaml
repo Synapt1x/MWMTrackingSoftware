@@ -2,7 +2,7 @@
 #=====================================#
 
 # Set the tracking system to be used for processing
-tracker: cnn
+tracker: canny
 
 
 # Data directories and parameters

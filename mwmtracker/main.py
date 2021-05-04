@@ -9,7 +9,7 @@ main.py: this contains the main code for running the tracking software.
 
 ##############################################################################
 __author__ = "Chris Cadonic"
-__credits__ = ["Chris Cadonc"]
+__credits__ = ["Chris Cadonic"]
 __license__ = "GPL"
 __version__ = "1.0.1"
 __maintainer__ = "Chris Cadonic"

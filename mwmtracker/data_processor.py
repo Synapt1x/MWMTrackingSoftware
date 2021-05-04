@@ -8,6 +8,8 @@ data_processor.py: this file contains the code implementing the functionality
 for saving the output path data to an excel file.
 
 """
+
+
 import os
 
 import pandas as pd
@@ -23,6 +25,7 @@ from statsmodels.formula.api import ols
 from statsmodels.stats.anova import anova_lm
 from statsmodels.graphics.factorplots import interaction_plot
 
+
 class Data_processor:
     """
     Data Processor class
@@ -35,8 +38,27 @@ class Data_processor:
         self.excelFilename = excelFilename
         self.dataFilename = dataFilename
         self.initialize_writer()
-        self.output_data = pd.DataFrame(columns=['vid num', 'x', 'y',
-                                                 'dist', 't'])
+
+        # init data
+        self.columns = ['vid num', 'x', 'y', 'dist', 't']
+        self.dist_columns = ['vid num', 'dist']
+        self.time_dist_columns = ['vid num', 'dist', 'Time']
+        self.output_data = pd.DataFrame(columns=self.columns)
+        self.dist_data = pd.DataFrame(columns=self.dist_columns)
+        self.tracking_data = pd.DataFrame(columns=self.time_dist_columns)
+
+        if not os.path.exists(self.excelFilename):
+            dirname = os.path.dirname(self.excelFilename)
+            if not os.path.exists(dirname):
+                os.makedirs(dirname)
+
+            # write to excels to initialize them
+            self.output_data.to_excel(self.excelWriter, 'All Tracking Data')
+            self.dist_data.to_excel(self.excelWriter, 'Dist Data')
+            self.tracking_data.to_excel(self.excelWriter,
+                                        sheet_name="Timed Dist Data")
+
+            self.excelWriter.save()
 
         self.dist_data = pd.read_excel(self.excelFilename,
                                        sheet_name="Timed Dist Data")
@@ -292,9 +314,8 @@ class Data_processor:
                 except:
                     print("Not a valid number!")
             else:
-
                 data = old_data.copy()
-                    memory_data = old_memory_data.copy()
+                memory_data = old_memory_data.copy()
 
                 print("\n********** FULL RESULTS ***********")
 

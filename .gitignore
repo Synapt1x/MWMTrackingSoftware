@@ -6,3 +6,5 @@ mwmtracker/data/trainData
 .idea/
 *.pyc
 mwmtracker/data/output/
+.vscode
+__pycache__
