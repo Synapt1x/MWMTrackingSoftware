@@ -246,9 +246,9 @@ class SimpleDetector:
                                threshold1=params['threshold1'],
                                threshold2=params['threshold2'])
 
-        contour_frame, contours, hierarchy = cv2.findContours(edge_frame,
-                                                              cv2.RETR_TREE,
-                                                              cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierarchy = cv2.findContours(edge_frame,
+                                               cv2.RETR_TREE,
+                                               cv2.CHAIN_APPROX_SIMPLE)
 
         best_x_dist = float('inf')
         best_y_dist = float('inf')
