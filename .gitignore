@@ -8,3 +8,4 @@ mwmtracker/data/trainData
 mwmtracker/data/output/
 .vscode
 __pycache__
+data

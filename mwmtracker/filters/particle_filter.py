@@ -105,11 +105,14 @@ class ParticleFilter:
     def process_frame(self, frame=None, template=None,
                       start_h=None, start_w=None):
 
+        all_locs = None
+
         if self.config['detector'] == 'template':
             temp_h, temp_w = template.shape[:2]
+            half_h, half_w = round(temp_h / 2), round(temp_w / 2)
         elif self.config['detector'] == 'cnn':
             temp_h, temp_w = self.config['img_size'], self.config['img_size']
-            half_h, half_w = temp_h // 2, temp_w // 2
+            half_h, half_w = round(temp_h / 2), round(temp_w / 2)
         else:
             half_h, half_w = self.config['bound_size'] // 2, self.config[
                 'bound_size'] // 2
@@ -127,7 +130,7 @@ class ParticleFilter:
             valid, self.template_vals = self.detector.detect(self.full_frame,
                                                         template, True)
             self.template_vals = self.template_vals[:-1, :-1]
-            self.template_vals[self.template_vals > 0.1] = 1.0
+            #self.template_vals[self.template_vals > 0.1] = 1.0
 
         if self.config['detector'] == 'canny':
             if frame is not None:
@@ -157,10 +160,13 @@ class ParticleFilter:
             if 0 + half_h < i < self.max_h - half_h and 0 + half_w \
                     < j < self.max_w - half_w:
                 comp_frame = frame[j - half_h: j + half_h,
-                                             i - half_w: i + half_w]
+                                   i - half_w: i + half_w]
 
                 if self.config['detector'] == 'cnn':
                     valid, err = self.detector.single_query(comp_frame)
+                elif self.config['detector'] == 'template':
+                    valid = True
+                    err = self.template_vals[j, i]
                 else:
                     if start_h is not None:
                         test_i = i - start_h
@@ -171,9 +177,9 @@ class ParticleFilter:
                         valid, err = self.detector.calc_err(i, j, all_locs)
 
                 if valid:
-                    # weight = 1 - np.exp(-err / (2 * self.error_noise ** 2))
+                    weight = 1 - np.exp(-err / (2 * self.error_noise ** 2))
                     #weight = 1 / err
-                    weight = np.exp(-err)
+                    #weight = np.exp(-err)
                     if abs(err) < 1E-9:
                         weight = 0.0
                     # weight = self.calc_error(i, j)

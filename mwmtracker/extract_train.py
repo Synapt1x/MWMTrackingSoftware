@@ -43,28 +43,29 @@ def train_model():
 
     config = {**config, **config[config['tracker']]}
     config['datadir'] = os.path.join(curdir, config['datadir'])
-    config['h'] = config['img_size']
-    config['w'] = config['img_size']
+    cnn_configs = config['cnn']
+    config['h'] = cnn_configs['img_size']
+    config['w'] = cnn_configs['img_size']
 
     data_vids = util.load_files(config['datadir'])
     num_vids = len(data_vids)
 
     if len(sys.argv) > 1:
-         pickle = config['testpickle'] if sys.argv[1] == '-test' else \
-             config['trainpickle']
+         pickle = cnn_configs['testpickle'] if sys.argv[1] == '-test' else \
+             cnn_configs['trainpickle']
     else:
-        pickle = config['trainpickle']
+        pickle = cnn_configs['trainpickle']
 
     for num in range(config['num_train_vids']):
 
-        print("num:", num, "total num:", config['num_train_vids'])
+        print("num:", num, "total num:", cnn_configs['num_train_vids'])
 
-        img_size = config['img_size']
+        img_size = cnn_configs['img_size']
         i = np.random.randint(num_vids - 1)
 
         video = cv2.VideoCapture(data_vids[i])
 
-        util.extract_train_data(img_size, video, config['traindir'],
+        util.extract_train_data(img_size, video, cnn_configs['traindir'],
                                 pickle=pickle)
 
 

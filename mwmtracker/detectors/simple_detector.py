@@ -56,7 +56,7 @@ class SimpleDetector:
 
         edge_frame = cv2.Canny(frame, threshold1=thresh1, threshold2=thresh2)
 
-        contour_frame, contours, hierarchy = cv2.findContours(edge_frame,
+        contours, hierarchy = cv2.findContours(edge_frame,
                                                       cv2.RETR_TREE,
                                                       cv2.CHAIN_APPROX_SIMPLE)
         found = False
@@ -170,7 +170,7 @@ class SimpleDetector:
                 print("Failed")
                 return False, None, None
 
-    def calc_err(self, i, j, all_locs):
+    def calc_err(self, i, j, all_locs=None):
 
         if all_locs is None:
             return False, 0.0
@@ -192,10 +192,11 @@ class SimpleDetector:
 
         max_detection = 0
         h, w = template.shape[:2]
-        pad_frame = cv2.copyMakeBorder(frame, h // 2, h // 2,
-                                       w // 2, w // 2, cv2.BORDER_REPLICATE)
 
-        for rotation in [0]:  #[0, 45, 90, 135, 180, 225]:
+        #TODO: Add array for max correlations over all rotations
+        max_corrs = np.zeros(shape=frame.shape[:2])
+
+        for rotation in [0]: #[0, 45, 90, 135, 180, 225]:
             if rotation != 0:
                 # rotate the template to check for other orientations
                 rotation_mtx = cv2.getRotationMatrix2D((w // 2, h // 2),
@@ -215,6 +216,13 @@ class SimpleDetector:
                 new_width = w
                 new_height = h
 
+            pad_frame = cv2.copyMakeBorder(frame,
+                                           new_height // 2,
+                                           new_height // 2,
+                                           new_width // 2,
+                                           new_width // 2,
+                                           cv2.BORDER_REPLICATE)
+
             # test current rotation using template matching
             template_vals = cv2.matchTemplate(pad_frame, new_template,
                                               eval(match_method))
@@ -228,6 +236,7 @@ class SimpleDetector:
                 x_val, y_val = max_loc[0] + w, max_loc[1] + h
                 if detector:
                     template_corr = template_vals
+                    max_corrs = np.maximum(max_corrs, template_corr)
 
         if max_detection == 0:
             if detector:
@@ -235,7 +244,7 @@ class SimpleDetector:
             return False, None, None
 
         if detector:
-            return True, template_corr
+            return True, max_corrs
         return True, x_val, y_val
 
     def get_params(self, frame, params, true_x, true_y):

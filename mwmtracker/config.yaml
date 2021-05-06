@@ -2,7 +2,7 @@
 #=====================================#
 
 # Set the tracking system to be used for processing
-tracker: canny
+tracker: pfilter
 
 
 # Data directories and parameters
@@ -75,8 +75,8 @@ cnn:
   traindir: data/trainData
   training_verbose: False
 
-  trainpickle: train_data.pickle
-  testpickle: test_data.pickle
+  trainpickle: train_data.pkl
+  testpickle: test_data.pkl
 
   early_stop: True
   early_stop_epochs: 15
@@ -111,7 +111,7 @@ cnn:
 pfilter:
   num_particles: 4000
   bound_size: 180
-  detector: canny
+  detector: template
 
 
 # Parameters for OpenCV tracker

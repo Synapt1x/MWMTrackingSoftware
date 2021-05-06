@@ -197,9 +197,16 @@ class Tracker:
                 valid, frame = self.current_vid.read()
 
         if rect != INIT_RECT:
+            # round out dims to odd shape if odd shape selected by rect
+            if rect[-1] % 2 == 0:
+                rect = (rect[0], rect[1], rect[2], rect[3] + 1)
+            if rect[-2] % 2 == 0:
+                rect = (rect[0], rect[1], rect[2] + 1, rect[3])
+
+            # save rect to template
             self.template_rect = rect
             self.template = frame[rect[1] : (rect[1] + rect[3]),
-                            rect[0] : (rect[0] + rect[2]), :]
+                                  rect[0] : (rect[0] + rect[2]), :]
             self.w, self.h = self.template.shape[:2]
 
         print("Do you want to save this template image?")
@@ -301,7 +308,6 @@ class Tracker:
                         frame = cv2.bitwise_and(frame, frame, mask=mask)
                         frame[np.where((frame == [0, 0, 0]).all(axis=2))] = [
                             164, 164, 164]
-
                 if init_vid:
                     self.process_frame(frame)
                 else:
@@ -391,7 +397,8 @@ class Tracker:
 
             #util.display_particles(frame, self.model.particles)
 
-            self.model.process_frame(frame, start_h=start_h, start_w=start_w)
+            self.model.process_frame(frame, start_h=start_h, start_w=start_w,
+                                     template=self.template)
             self.model.resample()
             x, y = self.model.query()
 
