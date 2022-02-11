@@ -15,7 +15,7 @@ mkl-random==1.0.1
 numpy==1.15.2
 openpyxl==2.5.9
 pandas==0.23.4
-protobuf==3.6.1
+protobuf==3.15.0
 python-dateutil==2.7.3
 pytz==2018.5
 PyYAML>=5.4
