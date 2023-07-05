@@ -3,7 +3,7 @@ astor==0.7.1
 certifi==2018.8.24
 et-xmlfile==1.0.1
 gast==0.2.0
-grpcio==1.15.0
+grpcio==1.53.0
 h5py==2.8.0
 hachoir==3.0a3
 jdcal==1.4
